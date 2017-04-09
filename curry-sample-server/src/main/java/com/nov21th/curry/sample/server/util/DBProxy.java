@@ -10,6 +10,7 @@ import java.io.Reader;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,7 +26,7 @@ public class DBProxy {
     private static SqlSessionFactory sessionFactory;
 
     static {
-        cachedProxy = new ConcurrentHashMap<>();
+        cachedProxy = new HashMap<>();
 
         try {
             Reader reader = Resources.getResourceAsReader("mybatis-config.xml");
@@ -37,24 +38,32 @@ public class DBProxy {
 
     @SuppressWarnings("unchecked")
     public static <T> T create(final Class<?> mapperClass) {
-        Object proxy = cachedProxy.get(mapperClass);
+        Object proxy;
 
-        if (proxy == null) {
-            proxy = Proxy.newProxyInstance(
-                    mapperClass.getClassLoader(),
-                    new Class<?>[]{mapperClass},
-                    new InvocationHandler() {
+        if ((proxy = cachedProxy.get(mapperClass)) == null) {
+            synchronized (DBProxy.class) {
+                if ((proxy = cachedProxy.get(mapperClass)) == null) {
+                    proxy = Proxy.newProxyInstance(
+                            mapperClass.getClassLoader(),
+                            new Class<?>[]{mapperClass},
+                            new InvocationHandler() {
 
-                        @Override
-                        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                            SqlSession session = sessionFactory.openSession(true);
+                                @Override
+                                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                                    SqlSession session = sessionFactory.openSession(true);
 
-                            return method.invoke(session.getMapper(mapperClass), args);
-                        }
-                    }
-            );
+                                    try {
+                                        return method.invoke(session.getMapper(mapperClass), args);
+                                    } finally {
+                                        session.close();
+                                    }
+                                }
+                            }
+                    );
 
-            cachedProxy.put(mapperClass, proxy);
+                    cachedProxy.put(mapperClass, proxy);
+                }
+            }
         }
 
         return (T) proxy;
