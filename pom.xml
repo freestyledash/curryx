@@ -8,7 +8,7 @@
     <artifactId>curry</artifactId>
     <packaging>pom</packaging>
 
-    <version>1.0</version>
+    <version>1.0.1</version>
     <modules>
         <module>curry-common</module>
         <module>curry-registry</module>
