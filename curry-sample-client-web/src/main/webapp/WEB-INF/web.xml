@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         id="WebApp_ID" version="3.0">
+    <display-name>SensorPlatform</display-name>
+
+    <welcome-file-list>
+        <welcome-file>login.html</welcome-file>
+    </welcome-file-list>
+
+    <listener>
+        <listener-class>com.nov21th.curry.sample.client.web.listener.InitializeListener</listener-class>
+    </listener>
+
+    <filter>
+        <filter-name>cache</filter-name>
+        <filter-class>com.nov21th.curry.sample.client.web.filter.CacheFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>cache</filter-name>
+        <url-pattern>*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>authority</filter-name>
+        <filter-class>com.nov21th.curry.sample.client.web.filter.AuthorityFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>authority</filter-name>
+        <url-pattern>*.html</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>authority</filter-name>
+        <url-pattern>*.jsp</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>authority</filter-name>
+        <url-pattern>*.action</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>struts2</filter-name>
+        <filter-class>org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>struts2</filter-name>
+        <url-pattern>*</url-pattern>
+    </filter-mapping>
+
+</web-app>

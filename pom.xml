@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.nov21th</groupId>
+    <artifactId>curry</artifactId>
+    <packaging>pom</packaging>
+
+    <version>1.0</version>
+    <modules>
+        <module>curry-common</module>
+        <module>curry-registry</module>
+        <module>curry-server</module>
+        <module>curry-client</module>
+        <!--<module>curry-sample-server</module>-->
+        <!--<module>curry-sample-api</module>-->
+        <!--<module>curry-sample-client-web</module>-->
+    </modules>
+
+    <properties>
+        <version.protostuff-core>1.5.3</version.protostuff-core>
+        <version.protostuff-runtime>1.5.3</version.protostuff-runtime>
+        <version.objenesis>2.5</version.objenesis>
+        <version.netty>4.1.6.Final</version.netty>
+        <version.slf4j>1.7.21</version.slf4j>
+        <version.zookeeper-client>0.10</version.zookeeper-client>
+        <version.spring>4.3.6.RELEASE</version.spring>
+        <version.maven-compiler-plugin>3.6.1</version.maven-compiler-plugin>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- https://mvnrepository.com/artifact/io.protostuff/protostuff-core -->
+            <dependency>
+                <groupId>io.protostuff</groupId>
+                <artifactId>protostuff-core</artifactId>
+                <version>${version.protostuff-core}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/io.protostuff/protostuff-runtime -->
+            <dependency>
+                <groupId>io.protostuff</groupId>
+                <artifactId>protostuff-runtime</artifactId>
+                <version>${version.protostuff-runtime}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.objenesis/objenesis -->
+            <dependency>
+                <groupId>org.objenesis</groupId>
+                <artifactId>objenesis</artifactId>
+                <version>${version.objenesis}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>${version.netty}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${version.slf4j}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/com.101tec/zkclient -->
+            <dependency>
+                <groupId>com.101tec</groupId>
+                <artifactId>zkclient</artifactId>
+                <version>${version.zookeeper-client}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.springframework/spring-core -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${version.spring}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${version.spring}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${version.maven-compiler-plugin}</version>
+                    <configuration>
+                        <source>1.7</source>
+                        <target>1.7</target>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>

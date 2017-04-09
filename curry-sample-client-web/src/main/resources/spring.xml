@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:property-placeholder location="config.properties"/>
+
+    <bean id="balancer" class="com.nov21th.curry.balance.impl.RoundRobinBalancer">
+    </bean>
+
+    <bean id="serviceDiscovery" class="com.nov21th.curry.registry.impl.ZooKeeperServiceDiscovery">
+        <constructor-arg name="zkAddress" value="${zookeeper.address}"/>
+        <constructor-arg name="serviceRoot" value="${serviceRoot}"/>
+        <constructor-arg name="balancer" ref="balancer"/>
+    </bean>
+
+    <bean id="rpcClient" class="com.nov21th.curry.client.RPCClient">
+        <constructor-arg name="serviceDiscovery" ref="serviceDiscovery"/>
+    </bean>
+
+</beans>
