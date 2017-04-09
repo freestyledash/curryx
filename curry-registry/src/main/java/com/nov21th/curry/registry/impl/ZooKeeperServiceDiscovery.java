@@ -46,6 +46,9 @@ public class ZooKeeperServiceDiscovery implements ServiceDiscovery {
      */
     private final int zkConnectionTimeout;
 
+    /**
+     * ZooKeeper客户端实例
+     */
     private ZkClient zkClient;
 
     public ZooKeeperServiceDiscovery(String zkAddress, String serviceRoot, Balancer balancer) {
@@ -58,38 +61,34 @@ public class ZooKeeperServiceDiscovery implements ServiceDiscovery {
         this.balancer = balancer;
         this.zkSessionTimeout = zkSessionTimeout;
         this.zkConnectionTimeout = zkConnectionTimeout;
+
+        // ZooKeeper客户端只初始化一次，防止每次发现服务都需要初始化一次ZooKeeper客户端而导致效率低下
+        zkClient = new ZkClient(zkAddress, zkSessionTimeout, zkConnectionTimeout);
     }
 
     public String discoverService(String name, String version) throws Exception {
-        //客户端发现服务并不需要与服务器保持会话来判断是否掉线，所以在发现到可用节点（或发生异常）后关闭ZooKeeper客户端
-        zkClient = new ZkClient(zkAddress, zkSessionTimeout, zkConnectionTimeout);
-
-        try {
-            if (zkAddress.contains(",")) {
-                logger.debug("连接到ZooKeeper服务器集群：{}", zkAddress);
-            } else {
-                logger.debug("连接到ZooKeeper单机服务器：{}", zkAddress);
-            }
-
-            String serviceFullname = name + Constants.SERVICE_SEP + version;
-            String servicePath = serviceRoot + "/" + serviceFullname;
-
-            if (!zkClient.exists(servicePath)) {
-                throw new RuntimeException(String.format("服务路径(%s)不存在", servicePath));
-            }
-
-            List<String> childNodes = zkClient.getChildren(servicePath);
-            if (childNodes == null || childNodes.size() == 0) {
-                throw new RuntimeException(String.format("服务路径(%s)下无可用服务器节点", servicePath));
-            }
-
-            String winner = balancer.elect(serviceFullname, childNodes);
-
-            logger.debug("获取到{}服务的{}个可用节点", serviceFullname, childNodes.size());
-
-            return winner + "/" + zkClient.readData(servicePath + "/" + winner);
-        } finally {
-            zkClient.close();
+        if (zkAddress.contains(",")) {
+            logger.debug("连接到ZooKeeper服务器集群：{}", zkAddress);
+        } else {
+            logger.debug("连接到ZooKeeper单机服务器：{}", zkAddress);
         }
+
+        String serviceFullname = name + Constants.SERVICE_SEP + version;
+        String servicePath = serviceRoot + "/" + serviceFullname;
+
+        if (!zkClient.exists(servicePath)) {
+            throw new RuntimeException(String.format("服务路径(%s)不存在", servicePath));
+        }
+
+        List<String> childNodes = zkClient.getChildren(servicePath);
+        if (childNodes == null || childNodes.size() == 0) {
+            throw new RuntimeException(String.format("服务路径(%s)下无可用服务器节点", servicePath));
+        }
+
+        String winner = balancer.elect(serviceFullname, childNodes);
+
+        logger.debug("获取到{}服务的{}个可用节点", serviceFullname, childNodes.size());
+
+        return winner + "/" + zkClient.readData(servicePath + "/" + winner);
     }
 }
