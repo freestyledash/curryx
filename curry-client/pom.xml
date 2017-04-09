@@ -25,12 +25,12 @@
         <dependency>
             <groupId>com.nov21th</groupId>
             <artifactId>curry-common</artifactId>
-            <version>1.0</version>
+            <version>${parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.nov21th</groupId>
             <artifactId>curry-registry</artifactId>
-            <version>1.0</version>
+            <version>${parent.version}</version>
         </dependency>
     </dependencies>
 
