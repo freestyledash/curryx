@@ -8,7 +8,7 @@
     <artifactId>curry</artifactId>
     <packaging>pom</packaging>
 
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <modules>
         <module>curry-common</module>
         <module>curry-registry</module>
@@ -28,6 +28,8 @@
         <version.zookeeper-client>0.10</version.zookeeper-client>
         <version.spring>4.3.6.RELEASE</version.spring>
         <version.maven-compiler-plugin>3.6.1</version.maven-compiler-plugin>
+        <version.maven-javadoc-plugin>2.10.4</version.maven-javadoc-plugin>
+        <version.maven-source-plugin>3.0.1</version.maven-source-plugin>
     </properties>
 
     <dependencyManagement>
@@ -95,6 +97,38 @@
                         <target>1.7</target>
                         <encoding>UTF-8</encoding>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${version.maven-javadoc-plugin}</version>
+                    <configuration>
+                        <encoding>UTF-8</encoding>
+                        <aggregate>true</aggregate>
+                        <charset>UTF-8</charset>
+                        <docencoding>UTF-8</docencoding>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>${version.maven-source-plugin}</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
