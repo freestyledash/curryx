@@ -40,7 +40,7 @@ public class RPCServerBootstrap {
         new Thread() {
             @Override
             public void run() {
-                launchAllInNewThread(springPath);
+                launchAll(springPath);
             }
         }.start();
     }
