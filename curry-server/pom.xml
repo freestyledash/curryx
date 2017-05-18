@@ -32,6 +32,11 @@
             <artifactId>curry-registry</artifactId>
             <version>${parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.nov21th</groupId>
+            <artifactId>curry-client</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

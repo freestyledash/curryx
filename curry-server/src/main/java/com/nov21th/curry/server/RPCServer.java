@@ -19,10 +19,8 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,13 +31,9 @@ import java.util.Map;
  * @author 郭永辉
  * @since 1.0 2017/4/4.
  */
-public class RPCServer implements ApplicationContextAware, InitializingBean {
+public class RPCServer implements ApplicationContextAware {
 
     private static final Logger logger = LoggerFactory.getLogger(RPCServer.class);
-
-    private EventLoopGroup bossGroup;
-
-    private EventLoopGroup workerGroup;
 
     /**
      * 服务器的地址，格式为ip:port
@@ -59,22 +53,6 @@ public class RPCServer implements ApplicationContextAware, InitializingBean {
     public RPCServer(String serverAddress, ServiceRegistry serviceRegistry) {
         this.serverAddress = serverAddress;
         this.serviceRegistry = serviceRegistry;
-
-        bossGroup = new NioEventLoopGroup();
-        workerGroup = new NioEventLoopGroup();
-
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                if (!workerGroup.isShutdown()) {
-                    workerGroup.shutdownGracefully();
-                }
-                if (!bossGroup.isShutdown()) {
-                    bossGroup.shutdownGracefully();
-                }
-                System.out.println("HOOK：RPC服务器已关闭");
-            }
-        });
     }
 
     public void setApplicationContext(ApplicationContext context) throws BeansException {
@@ -96,7 +74,25 @@ public class RPCServer implements ApplicationContextAware, InitializingBean {
         }
     }
 
-    public void afterPropertiesSet() throws Exception {
+    public void start() {
+        final EventLoopGroup bossGroup = new NioEventLoopGroup();
+        final EventLoopGroup workerGroup = new NioEventLoopGroup();
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                if (!workerGroup.isShutdown()) {
+                    workerGroup.shutdownGracefully();
+                    System.out.println("HOOK：workerGroup");
+                }
+                if (!bossGroup.isShutdown()) {
+                    bossGroup.shutdownGracefully();
+                    System.out.println("HOOK：bossGroup");
+                }
+                System.out.println("HOOK：RPC服务器已关闭");
+            }
+        });
+
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
 
@@ -124,6 +120,8 @@ public class RPCServer implements ApplicationContextAware, InitializingBean {
             registerServices();
 
             future.channel().closeFuture().sync();
+        } catch (Exception e) {
+            logger.error("启动服务器过程中发生异常", e);
         } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
