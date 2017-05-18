@@ -33,44 +33,4 @@ public abstract class StringUtil {
         return str1 == null ? str2 == null : str1.equals(str2);
     }
 
-    /**
-     * 判断字符串<code>str</code>是否匹配模式<code>pattern</code>
-     *
-     * @param str     字符串
-     * @param pattern 模式
-     * @return true 若字符串与模式相匹配 false 若字符串与模式不匹配
-     */
-    public static boolean match(String str, String pattern) {
-        int sLength = str.length();
-        int sIndex = 0;
-
-        for (int i = 0; i < pattern.length(); i++) {
-            char ch = pattern.charAt(i);
-
-            if (ch == '*') {
-                while (sIndex < sLength) {
-                    if (match(str.substring(sIndex), pattern.substring(i + 1))) {
-                        return true;
-                    }
-
-                    sIndex++;
-                }
-            } else if (ch == '?') {
-                if (sIndex >= sLength) {
-                    return false;
-                }
-
-                sIndex++;
-            } else {
-                if (sIndex >= sLength || str.charAt(sIndex) != ch) {
-                    return false;
-                }
-
-                sIndex++;
-            }
-        }
-
-        return sIndex == sLength;
-    }
-
 }
