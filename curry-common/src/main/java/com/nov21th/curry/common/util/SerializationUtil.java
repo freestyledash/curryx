@@ -1,7 +1,7 @@
 package com.nov21th.curry.common.util;
 
+import io.protostuff.GraphIOUtil;
 import io.protostuff.LinkedBuffer;
-import io.protostuff.ProtobufIOUtil;
 import io.protostuff.Schema;
 import io.protostuff.runtime.RuntimeSchema;
 import org.objenesis.Objenesis;
@@ -48,7 +48,7 @@ public abstract class SerializationUtil {
 
         try {
             Schema<T> schema = getSchema(clazz);
-            return ProtobufIOUtil.toByteArray(message, schema, buffer);
+            return GraphIOUtil.toByteArray(message, schema, buffer);
         } finally {
             buffer.clear();
         }
@@ -65,7 +65,7 @@ public abstract class SerializationUtil {
     public static <T> T deserialize(byte[] data, Class<T> clazz) {
         T message = objenesis.newInstance(clazz);
         Schema<T> schema = getSchema(clazz);
-        ProtobufIOUtil.mergeFrom(data, message, schema);
+        GraphIOUtil.mergeFrom(data, message, schema);
         return message;
     }
 
