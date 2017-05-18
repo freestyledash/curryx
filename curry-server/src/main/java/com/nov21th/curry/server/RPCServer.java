@@ -37,6 +37,10 @@ public class RPCServer implements ApplicationContextAware, InitializingBean {
 
     private static final Logger logger = LoggerFactory.getLogger(RPCServer.class);
 
+    private EventLoopGroup bossGroup;
+
+    private EventLoopGroup workerGroup;
+
     /**
      * 服务器的地址，格式为ip:port
      */
@@ -50,11 +54,27 @@ public class RPCServer implements ApplicationContextAware, InitializingBean {
     /**
      * 保存服务bean的map
      */
-    private Map<String, Object> serviceMap = new HashMap<String, Object>();
+    private Map<String, Object> serviceMap = new HashMap<>();
 
     public RPCServer(String serverAddress, ServiceRegistry serviceRegistry) {
         this.serverAddress = serverAddress;
         this.serviceRegistry = serviceRegistry;
+
+        bossGroup = new NioEventLoopGroup();
+        workerGroup = new NioEventLoopGroup();
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                if (!workerGroup.isShutdown()) {
+                    workerGroup.shutdownGracefully();
+                }
+                if (!bossGroup.isShutdown()) {
+                    bossGroup.shutdownGracefully();
+                }
+                System.out.println("HOOK：RPC服务器已关闭");
+            }
+        });
     }
 
     public void setApplicationContext(ApplicationContext context) throws BeansException {
@@ -62,7 +82,7 @@ public class RPCServer implements ApplicationContextAware, InitializingBean {
         Map<String, Object> map = context.getBeansWithAnnotation(Service.class);
         //若扫描到的map为空则说明当前服务器没有提供任何服务，抛出异常
         if (map == null || map.size() == 0) {
-            throw new RuntimeException("当前服务器上未提供任何可用服务");
+            return;
         }
 
         //对扫描到的每一个service bean，记录其服务名称和版本
@@ -77,9 +97,6 @@ public class RPCServer implements ApplicationContextAware, InitializingBean {
     }
 
     public void afterPropertiesSet() throws Exception {
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
-
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
 
@@ -124,7 +141,4 @@ public class RPCServer implements ApplicationContextAware, InitializingBean {
         }
     }
 
-    public static void main(String[] args) {
-        new ClassPathXmlApplicationContext("spring.xml");
-    }
 }
