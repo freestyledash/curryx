@@ -10,8 +10,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class RPCClientBootstrap {
 
-    private static String springPath;
-
     private static RPCClientBootstrap instance;
 
     private RPCClient rpcClient;
@@ -20,13 +18,17 @@ public class RPCClientBootstrap {
         this.rpcClient = rpcClient;
     }
 
-    public synchronized static RPCClientBootstrap getInstance(String springPath) {
+    public synchronized static void init(String springPath) {
         if (instance == null) {
             ApplicationContext context = new ClassPathXmlApplicationContext(springPath);
             instance = new RPCClientBootstrap(context.getBean(RPCClient.class));
         }
+    }
 
-        return instance;
+    public synchronized static void init(RPCClient rpcClient) {
+        if (instance == null) {
+            instance = new RPCClientBootstrap(rpcClient);
+        }
     }
 
     public static RPCClient getRPCClient() {
