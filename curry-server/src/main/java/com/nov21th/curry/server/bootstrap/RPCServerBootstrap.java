@@ -8,8 +8,19 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class RPCServerBootstrap {
 
-    public static void launchRPCServer() {
-        new ClassPathXmlApplicationContext("spring.xml");
+    public static void launchRPCServer(String springPath) {
+        new ClassPathXmlApplicationContext(springPath);
+    }
+
+    public static void launchRPCServerInNewThread(final String springPath) {
+        new Thread() {
+
+            @Override
+            public void run() {
+                new ClassPathXmlApplicationContext(springPath);
+            }
+
+        }.start();
     }
 
 }
