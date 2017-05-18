@@ -10,29 +10,31 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class RPCClientBootstrap {
 
-    private final RPCClient rpcClient;
+    private static String springPath;
+
+    private static RPCClientBootstrap instance;
+
+    private RPCClient rpcClient;
 
     private RPCClientBootstrap(RPCClient rpcClient) {
         this.rpcClient = rpcClient;
     }
 
-    public static RPCClientBootstrap getInstance() {
-        return SingletonHolder.instance;
-    }
-
-    public RPCClient getRPCClient() {
-        return rpcClient;
-    }
-
-    private static class SingletonHolder {
-
-        private static RPCClientBootstrap instance;
-
-        static {
-            ApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
+    public synchronized static RPCClientBootstrap getInstance(String springPath) {
+        if (instance == null) {
+            ApplicationContext context = new ClassPathXmlApplicationContext(springPath);
             instance = new RPCClientBootstrap(context.getBean(RPCClient.class));
         }
 
+        return instance;
     }
+
+    public static RPCClient getRPCClient() {
+        if (instance == null) {
+            return null;
+        }
+        return instance.rpcClient;
+    }
+
 
 }
