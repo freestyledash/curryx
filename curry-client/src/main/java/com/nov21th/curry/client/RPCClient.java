@@ -55,6 +55,8 @@ public class RPCClient {
                             new Class<?>[]{clazz},
                             new InvocationHandler() {
                                 public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                                    long requestStartTime = System.currentTimeMillis();
+
                                     RPCRequest request = new RPCRequest();
 
                                     request.setServiceName(clazz.getName());
@@ -85,7 +87,6 @@ public class RPCClient {
                                     String host = address[0];
                                     int port = Integer.parseInt(address[1]);
 
-                                    long requestStartTime = System.currentTimeMillis();
                                     RPCResponse response = new RPCRequestLauncher(host, port).launch(request);
                                     long requestTimeCost = System.currentTimeMillis() - requestStartTime;
 
