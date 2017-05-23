@@ -83,13 +83,11 @@ public class RPCServer implements ApplicationContextAware {
             public void run() {
                 if (!workerGroup.isShutdown()) {
                     workerGroup.shutdownGracefully();
-                    System.out.println("HOOK：workerGroup");
                 }
                 if (!bossGroup.isShutdown()) {
                     bossGroup.shutdownGracefully();
-                    System.out.println("HOOK：bossGroup");
                 }
-                System.out.println("HOOK：RPC服务器已关闭");
+                logger.debug("HOOK：RPC服务器已关闭");
             }
         });
 
