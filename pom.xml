@@ -134,4 +134,20 @@
         </pluginManagement>
     </build>
 
+    <distributionManagement>
+
+        <repository>
+            <id>SES-Releases</id>
+            <name>SES-Releases</name>
+            <url>http://202.118.232.9:8081/nexus/content/repositories/SES-Releases</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>SES-Snapshots</id>
+            <name>SES-Snapshots</name>
+            <url>http://202.118.232.9:8081/nexus/content/repositories/SES-Snapshots</url>
+        </snapshotRepository>
+
+    </distributionManagement>
+
 </project>
