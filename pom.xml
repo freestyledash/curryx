@@ -135,19 +135,33 @@
     </build>
 
     <distributionManagement>
-
         <repository>
-            <id>SES-Releases</id>
-            <name>SES-Releases</name>
-            <url>http://202.118.232.9:8081/nexus/content/repositories/SES-Releases</url>
+            <id>SES Releases</id>
+            <name>SES Releases</name>
+            <url>http://202.118.232.9:8081/nexus/content/repositories/ses-releases</url>
         </repository>
 
         <snapshotRepository>
-            <id>SES-Snapshots</id>
-            <name>SES-Snapshots</name>
-            <url>http://202.118.232.9:8081/nexus/content/repositories/SES-Snapshots</url>
+            <id>SES Snapshots</id>
+            <name>SES Snapshots</name>
+            <url>http://202.118.232.9:8081/nexus/content/repositories/ses-snapshots</url>
         </snapshotRepository>
 
     </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>SES Repositories</id>
+            <name>SES Repositories</name>
+            <url>http://202.118.232.9:8081/nexus/content/groups/ses/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
 
 </project>
