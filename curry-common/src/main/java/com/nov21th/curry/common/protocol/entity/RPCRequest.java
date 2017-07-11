@@ -44,6 +44,11 @@ public class RPCRequest {
      */
     private Object[] argsValues;
 
+    /**
+     * 参数数组非空标志，用户对反序列化后的数组进行还原
+     */
+    private boolean[] nonNullArgs;
+
     public RPCRequest() {
         requestId = UUID.randomUUID().toString();
     }
@@ -94,5 +99,13 @@ public class RPCRequest {
 
     public void setArgsValues(Object[] argsValues) {
         this.argsValues = argsValues;
+    }
+
+    public boolean[] getNonNullArgs() {
+        return nonNullArgs;
+    }
+
+    public void setNonNullArgs(boolean[] nonNullArgs) {
+        this.nonNullArgs = nonNullArgs;
     }
 }

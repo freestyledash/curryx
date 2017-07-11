@@ -65,6 +65,14 @@ public class RPCClient {
                                     request.setArgsTypes(method.getParameterTypes());
                                     request.setArgsValues(args);
 
+                                    if (args != null && args.length > 0) {
+                                        boolean[] nonNull = new boolean[args.length];
+                                        for (int i = 0; i < args.length; i++) {
+                                            nonNull[i] = args[i] != null;
+                                        }
+                                        request.setNonNullArgs(nonNull);
+                                    }
+
                                     String node;
                                     String serverAddress;
                                     if (serviceDiscovery != null) {

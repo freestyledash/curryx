@@ -71,6 +71,19 @@ public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
 
         Class<?> clazz = serviceBean.getClass();
 
+        Object[] args = request.getArgsValues();
+        if (args != null && args.length > 0) {
+            Object[] temp = new Object[args.length];
+            boolean[] nonNull = request.getNonNullArgs();
+
+            int index = 0;
+            for (int i = 0; i < args.length; i++) {
+                temp[i] = nonNull[i] ? args[index++] : null;
+            }
+
+            request.setArgsValues(temp);
+        }
+
         Method method = clazz.getMethod(request.getMethodName(), request.getArgsTypes());
         return method.invoke(serviceBean, request.getArgsValues());
     }
