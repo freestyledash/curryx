@@ -8,15 +8,12 @@
     <artifactId>curry</artifactId>
     <packaging>pom</packaging>
 
-    <version>1.0.5</version>
+    <version>1.0.6-SNAPSHOT</version>
     <modules>
         <module>curry-common</module>
         <module>curry-registry</module>
         <module>curry-server</module>
         <module>curry-client</module>
-        <!--<module>curry-sample-server</module>-->
-        <!--<module>curry-sample-api</module>-->
-        <!--<module>curry-sample-client-web</module>-->
     </modules>
 
     <properties>
