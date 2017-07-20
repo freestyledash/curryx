@@ -14,9 +14,6 @@
         <module>curry-registry</module>
         <module>curry-server</module>
         <module>curry-client</module>
-        <!--<module>curry-sample-server</module>-->
-        <!--<module>curry-sample-api</module>-->
-        <!--<module>curry-sample-client-web</module>-->
     </modules>
 
     <properties>
@@ -93,8 +90,8 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${version.maven-compiler-plugin}</version>
                     <configuration>
-                        <source>1.7</source>
-                        <target>1.7</target>
+                        <source>1.8</source>
+                        <target>1.8</target>
                         <encoding>UTF-8</encoding>
                     </configuration>
                 </plugin>
