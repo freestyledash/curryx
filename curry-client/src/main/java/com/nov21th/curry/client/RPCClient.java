@@ -42,7 +42,7 @@ public class RPCClient {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T create(final Class<?> clazz, final String version) {
+    public <T> T create(final Class<T> clazz, final String version) {
         final String serviceFullname = clazz.getName() + Constants.SERVICE_SEP + version;
 
         Object proxy;
