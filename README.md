@@ -1,4 +1,4 @@
-# Curry 基于RPC的面向服务的轻量级框架 
+# Curryx 基于RPC的面向服务的轻量级框架 基于curry
 
   
 

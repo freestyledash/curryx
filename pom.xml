@@ -4,16 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.nov21th</groupId>
-    <artifactId>curry</artifactId>
+    <groupId>com.freestyledash</groupId>
+    <artifactId>curryx</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <!---->
     <packaging>pom</packaging>
 
-    <version>1.0.6-SNAPSHOT</version>
+    <!---->
     <modules>
-        <module>curry-common</module>
-        <module>curry-registry</module>
-        <module>curry-server</module>
-        <module>curry-client</module>
+        <module>curryx-common</module>
+        <module>curryx-registry</module>
+        <module>curryx-server</module>
+        <module>curryx-client</module>
     </modules>
 
     <properties>
@@ -133,24 +136,23 @@
 
     <distributionManagement>
         <repository>
-            <id>SES Releases</id>
-            <name>SES Releases</name>
-            <url>http://120.25.163.13:10001/nexus/content/repositories/ses-releases</url>
+            <id>maven-releases</id>
+            <name>Releases</name>
+            <url>http://60.205.221.44:8081/repository/maven-releases/</url>
         </repository>
 
         <snapshotRepository>
-            <id>SES Snapshots</id>
-            <name>SES Snapshots</name>
-            <url>http://120.25.163.13:10001/nexus/content/repositories/ses-snapshots</url>
+            <id>maven-snapshots</id>
+            <name>Snapshots</name>
+            <url>http://60.205.221.44:8081/repository/maven-snapshots/</url>
         </snapshotRepository>
 
     </distributionManagement>
 
     <repositories>
         <repository>
-            <id>SES Repositories</id>
-            <name>SES Repositories</name>
-            <url>http://120.25.163.13:10001/nexus/content/groups/ses/</url>
+            <id>maven_group</id>
+            <url>http://60.205.221.44:8081/repository/maven_group/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
