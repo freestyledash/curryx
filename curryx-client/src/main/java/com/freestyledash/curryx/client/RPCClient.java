@@ -15,12 +15,7 @@ import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * RPC客户端
- *
- * @author 郭永辉
- * @since 1.0 2017/4/4.
- */
+
 public class RPCClient {
 
     private static final Logger logger = LoggerFactory.getLogger(RPCClient.class);

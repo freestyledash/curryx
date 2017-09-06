@@ -7,12 +7,7 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * RPC通讯编码器，将对象编码为字节数组
- *
- * @author 郭永辉
- * @since 1.0 2017/4/2.
- */
+
 public class RPCEncoder extends MessageToByteEncoder {
 
     private static final Logger logger = LoggerFactory.getLogger(RPCEncoder.class);

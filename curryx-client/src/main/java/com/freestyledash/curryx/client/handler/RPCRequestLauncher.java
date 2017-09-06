@@ -12,10 +12,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author 郭永辉
- * @since 1.0 2017/4/4.
- */
+
 public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse> {
 
     private static final Logger logger = LoggerFactory.getLogger(RPCRequestLauncher.class);

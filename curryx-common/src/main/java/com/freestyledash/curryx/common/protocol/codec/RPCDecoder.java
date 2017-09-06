@@ -9,12 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-/**
- * RPC通讯解码器，将字节数组解码为指定类型的对象
- *
- * @author 郭永辉
- * @since 1.0 2017/4/2.
- */
+
 public class RPCDecoder extends ByteToMessageDecoder {
 
     private static final Logger logger = LoggerFactory.getLogger(RPCDecoder.class);
