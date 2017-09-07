@@ -12,9 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 将对象序列化为字节数组以及将字节数组反序列化为对象的工具类
- *
- * @author 郭永辉
- * @since 1.0 2017/4/2.
+ * 使用框架:protobuff
  */
 public abstract class SerializationUtil {
 

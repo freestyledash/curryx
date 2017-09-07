@@ -29,10 +29,13 @@ public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse>
     }
 
     /**
+     * 获得相应内容
+     *
      * @param channelHandlerContext
      * @param response
      * @throws Exception
      */
+    @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RPCResponse response) throws Exception {
         this.response = response;
         logger.debug("收到服务器响应：{}", response.getRequestId());
