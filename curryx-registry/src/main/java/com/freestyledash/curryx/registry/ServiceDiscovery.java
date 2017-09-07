@@ -1,10 +1,7 @@
 package com.freestyledash.curryx.registry;
 
 /**
- * 客户端从注册中心发现服务的接口
- *
- * @author 郭永辉
- * @since 1.0 2017/4/3.
+ * 客户端从注册中心发现服务
  */
 public interface ServiceDiscovery {
 

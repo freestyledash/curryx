@@ -5,15 +5,14 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
+/**
+ * rpcClient启动器
+ * 单例
+ * 持有rpc客户端实例
+ */
 public class RPCClientBootstrap {
 
-    private static RPCClientBootstrap instance;
-
     private RPCClient rpcClient;
-
-    private RPCClientBootstrap(RPCClient rpcClient) {
-        this.rpcClient = rpcClient;
-    }
 
     public synchronized static void init(String springPath) {
         if (instance == null) {
@@ -30,10 +29,14 @@ public class RPCClientBootstrap {
 
     public static RPCClient getRPCClient() {
         if (instance == null) {
-            return null;
+            throw new RuntimeException("rpcClient未实例化");
         }
         return instance.rpcClient;
     }
 
+    private static RPCClientBootstrap instance;
 
+    private RPCClientBootstrap(RPCClient rpcClient) {
+        this.rpcClient = rpcClient;
+    }
 }

@@ -1,10 +1,7 @@
 package com.freestyledash.curryx.registry.constant;
 
-/**
- * @author 郭永辉
- * @since 1.0 2017/4/3.
- */
-public abstract class Constants {
+
+public final class Constants {
 
     private Constants() {
 

@@ -15,7 +15,9 @@ import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 
-
+/**
+ * rpc通信客户端
+ */
 public class RPCClient {
 
     private static final Logger logger = LoggerFactory.getLogger(RPCClient.class);
@@ -32,19 +34,27 @@ public class RPCClient {
 
     public RPCClient(ServiceDiscovery serviceDiscovery) {
         this.serviceDiscovery = serviceDiscovery;
-
-        cachedProxy = new HashMap<>();
+        cachedProxy = new HashMap();
     }
 
+    /**
+     * 使用jdk代理生成代理对象，并缓存，对象作用:
+     * 1)通过服务名字获得可提供服务的服务器的地址
+     * 2)使用netty向服务器发送请求获得相应
+     *
+     * @param clazz 请求服务的类接口
+     * @param version 请求服务版本
+     * @param <T> 请求服务的类型
+     * @return proxy
+     */
     @SuppressWarnings("unchecked")
     public <T> T create(final Class<T> clazz, final String version) {
-        final String serviceFullname = clazz.getName() + Constants.SERVICE_SEP + version;
-
+        final String serviceFullName = clazz.getName() + Constants.SERVICE_SEP + version; //获得需要的服务的全名
         Object proxy;
         //这里用双重校验锁保证对于每个serviceFullname内存中有唯一的代理实例与之对应
-        if ((proxy = cachedProxy.get(serviceFullname)) == null) {
+        if ((proxy = cachedProxy.get(serviceFullName)) == null) {
             synchronized (this) {
-                if ((proxy = cachedProxy.get(serviceFullname)) == null) {
+                if ((proxy = cachedProxy.get(serviceFullName)) == null) {
                     proxy = Proxy.newProxyInstance(
                             clazz.getClassLoader(),
                             new Class<?>[]{clazz},
@@ -71,7 +81,7 @@ public class RPCClient {
                                     String node;
                                     String serverAddress;
                                     if (serviceDiscovery != null) {
-                                        logger.debug("向服务中心查询服务：{}", serviceFullname);
+                                        logger.debug("向服务中心查询服务：{}", serviceFullName);
                                         String[] addressData = serviceDiscovery.discoverService(request.getServiceName(), request.getServiceVersion()).split("/");
                                         node = addressData[0];
                                         serverAddress = addressData[1];
@@ -80,10 +90,10 @@ public class RPCClient {
                                     }
 
                                     if (StringUtil.isEmpty(serverAddress)) {
-                                        throw new RuntimeException("未查询到服务：" + serviceFullname);
+                                        throw new RuntimeException("未查询到服务：" + serviceFullName);
                                     }
 
-                                    logger.debug("选取服务{}节点：{}", serviceFullname, node + "/" + serverAddress);
+                                    logger.debug("选取服务{}节点：{}", serviceFullName, node + "/" + serverAddress);
 
                                     String[] address = serverAddress.split(":");
 
@@ -107,12 +117,10 @@ public class RPCClient {
                                 }
                             }
                     );
-
-                    cachedProxy.put(serviceFullname, proxy);
+                    cachedProxy.put(serviceFullName, proxy);
                 }
             }
         }
         return (T) proxy;
     }
-
 }
