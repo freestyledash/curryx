@@ -12,25 +12,29 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * 客户端使用nio和服务器通讯
+ */
 public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse> {
 
     private static final Logger logger = LoggerFactory.getLogger(RPCRequestLauncher.class);
 
-    private String host;
-
-    private int port;
-
-    private RPCResponse response;
+    private String host;//目标ip地址
+    private int port; //目标端口
+    private RPCResponse response;//请求响应
 
     public RPCRequestLauncher(String host, int port) {
         this.host = host;
         this.port = port;
     }
 
+    /**
+     * @param channelHandlerContext
+     * @param response
+     * @throws Exception
+     */
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RPCResponse response) throws Exception {
         this.response = response;
-
         logger.debug("收到服务器响应：{}", response.getRequestId());
     }
 
@@ -39,7 +43,6 @@ public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse>
 
         try {
             Bootstrap bootstrap = new Bootstrap();
-
             bootstrap.group(group)
                     .channel(NioSocketChannel.class)
                     .handler(new ChannelInitializer<SocketChannel>() {
@@ -47,7 +50,7 @@ public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse>
                             channel.pipeline()
                                     .addLast(new RPCEncoder(RPCRequest.class))
                                     .addLast(new RPCDecoder(RPCResponse.class))
-                                    .addLast(RPCRequestLauncher.this);
+                                    .addLast(this);
                         }
                     })
                     .option(ChannelOption.TCP_NODELAY, true);

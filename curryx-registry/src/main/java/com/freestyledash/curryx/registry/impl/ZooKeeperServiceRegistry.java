@@ -78,12 +78,12 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
         registerService(name + Constants.SERVICE_SEP + version, serverAddress);
     }
 
-    public void registerService(String serviceFullname, String serverAddress) {
+    public void registerService(String serviceFullName, String serverAddress) {
         StringBuilder sb = new StringBuilder();
 
         sb.append(serviceRoot);
         sb.append('/');
-        sb.append(serviceFullname);
+        sb.append(serviceFullName);
 
         String servicePath = sb.toString();
         if (!zkClient.exists(servicePath)) {
@@ -109,8 +109,8 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
 
         logger.debug("注册服务节点（临时节点）：{}", serviceNode);
 
-        if (!serviceMap.containsKey(serviceFullname)) {
-            serviceMap.put(serviceFullname, serverAddress);
+        if (!serviceMap.containsKey(serviceFullName)) {
+            serviceMap.put(serviceFullName, serverAddress);
         }
     }
 
@@ -123,9 +123,9 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
 
             logger.debug("重新注册服务集合");
 
-            for (String serviceFullname : serviceMap.keySet()) {
-                String serverAddress = serviceMap.get(serviceFullname);
-                registerService(serviceFullname, serverAddress);
+            for (String serviceFullName : serviceMap.keySet()) {
+                String serverAddress = serviceMap.get(serviceFullName);
+                registerService(serviceFullName, serverAddress);
             }
         }
     }
