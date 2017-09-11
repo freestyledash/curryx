@@ -27,6 +27,17 @@ public class RPCClientBootstrap {
         }
     }
 
+    /**
+     * 如果在tomcat启动时自动注入springContext对象到ServletContext域中，可以使用该方法获得RPCClient
+     *
+     * @param context spring容器
+     */
+    public synchronized static void init(ApplicationContext context) {
+        if (instance == null) {
+            instance = new RPCClientBootstrap(context.getBean(RPCClient.class));
+        }
+    }
+
     public static RPCClient getRPCClient() {
         if (instance == null) {
             throw new RuntimeException("rpcClient未实例化");

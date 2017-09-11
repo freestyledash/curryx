@@ -128,9 +128,9 @@ public class RPCServer implements ApplicationContextAware {
 
     private void registerServices() {
         if (serviceRegistry != null) {
-            for (String serviceFullname : serviceMap.keySet()) {
-                logger.debug("向注册中心注册服务：{}", serviceFullname);
-                serviceRegistry.registerService(serviceFullname, serverAddress);
+            for (String serviceFullName : serviceMap.keySet()) {
+                logger.debug("向注册中心注册服务：{}", serviceFullName);
+                serviceRegistry.registerService(serviceFullName, serverAddress);
             }
         } else {
             throw new RuntimeException("服务中心不可用");
