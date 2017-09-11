@@ -14,9 +14,6 @@ import java.util.Map;
 
 /**
  * 使用ZooKeeper实现的服务发现
- *
- * @author 郭永辉
- * @since 1.0 2017/4/3.
  */
 public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListener {
 

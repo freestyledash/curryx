@@ -20,9 +20,9 @@ public interface ServiceRegistry {
     /**
      * 向注册中心注册服务
      *
-     * @param serviceFullname 服务全称
+     * @param serviceFullName 服务全称
      * @param serverAddress   提供服务的服务器的地址
      */
-    void registerService(String serviceFullname, String serverAddress);
+    void registerService(String serviceFullName, String serverAddress);
 
 }

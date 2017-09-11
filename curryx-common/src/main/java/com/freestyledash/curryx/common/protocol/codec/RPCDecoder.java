@@ -23,6 +23,7 @@ public class RPCDecoder extends ByteToMessageDecoder {
         this.clazz = clazz;
     }
 
+    @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
         //传入的字节数组的头表示需要反序列化的字节数组的长度，用int也就是4个字节来表示，所以当可读的字节数小于4时直接返回
         if (byteBuf.readableBytes() < 4) {

@@ -73,7 +73,7 @@ public class RPCClient {
                                     if (args != null && args.length > 0) {
                                         boolean[] nonNull = new boolean[args.length];
                                         for (int i = 0; i < args.length; i++) {
-                                            nonNull[i] = args[i] != null;
+                                            nonNull[i] =  args[i] != null;
                                         }
                                         request.setNonNullArgs(nonNull);
                                     }

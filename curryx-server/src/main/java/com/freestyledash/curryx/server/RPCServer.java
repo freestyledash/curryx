@@ -48,7 +48,7 @@ public class RPCServer implements ApplicationContextAware {
     /**
      * 保存服务bean的map
      */
-    private Map<String, Object> serviceMap = new HashMap<>();
+    private Map<String, Object> serviceMap = new HashMap();
 
     public RPCServer(String serverAddress, ServiceRegistry serviceRegistry) {
         this.serverAddress = serverAddress;

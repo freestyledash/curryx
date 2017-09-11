@@ -6,17 +6,25 @@ import com.freestyledash.curryx.server.RPCServer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+
 /**
- * @author 郭永辉
- * @since 1.0 2017/4/6.
+ * server启动类
  */
 public class RPCServerBootstrap {
 
+    /**
+     * 启动server
+     * @param springPath
+     */
     public static void launch(String springPath) {
         RPCServer rpcServer = new ClassPathXmlApplicationContext(springPath).getBean(RPCServer.class);
         rpcServer.start();
     }
 
+    /**
+     * 新建线程启动server
+     * @param springPath
+     */
     public static void launchInNewThread(final String springPath) {
         new Thread() {
             @Override
@@ -26,6 +34,10 @@ public class RPCServerBootstrap {
         }.start();
     }
 
+    /**
+     * 启动server和client
+     * @param springPath
+     */
     public static void launchAll(String springPath) {
         ApplicationContext context = new ClassPathXmlApplicationContext(springPath);
 
@@ -36,6 +48,10 @@ public class RPCServerBootstrap {
         rpcServer.start();
     }
 
+    /**
+     * 在新的线程中启动server和client
+     * @param springPath
+     */
     public static void launchAllInNewThread(final String springPath) {
         new Thread() {
             @Override
