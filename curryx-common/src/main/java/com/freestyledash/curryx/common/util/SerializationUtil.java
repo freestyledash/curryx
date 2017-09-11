@@ -12,11 +12,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 将对象序列化为字节数组以及将字节数组反序列化为对象的工具类
- * 使用框架:protobuff
+ * 使用框架:protostuff
  */
-public abstract class SerializationUtil {
+public final class SerializationUtil {
 
-    private static final Map<Class<?>, Schema<?>> cachedSchemas;
+    private static final Map<Class<?>, Schema<?>> cachedSchemas; //
 
     private static final Objenesis objenesis;
 
@@ -43,7 +43,6 @@ public abstract class SerializationUtil {
     public static <T> byte[] serialize(T message) {
         Class<T> clazz = (Class<T>) message.getClass();
         LinkedBuffer buffer = LinkedBuffer.allocate();
-
         try {
             Schema<T> schema = getSchema(clazz);
             return GraphIOUtil.toByteArray(message, schema, buffer);
