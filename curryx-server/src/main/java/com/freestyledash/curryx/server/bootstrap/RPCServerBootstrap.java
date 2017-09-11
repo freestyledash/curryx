@@ -14,6 +14,7 @@ public class RPCServerBootstrap {
 
     /**
      * 启动server
+     *
      * @param springPath
      */
     public static void launch(String springPath) {
@@ -23,19 +24,18 @@ public class RPCServerBootstrap {
 
     /**
      * 新建线程启动server
+     *
      * @param springPath
      */
     public static void launchInNewThread(final String springPath) {
-        new Thread() {
-            @Override
-            public void run() {
-                launch(springPath);
-            }
-        }.start();
+        new Thread(() -> {
+            launch(springPath);
+        }).start();
     }
 
     /**
      * 启动server和client
+     *
      * @param springPath
      */
     public static void launchAll(String springPath) {
@@ -50,15 +50,13 @@ public class RPCServerBootstrap {
 
     /**
      * 在新的线程中启动server和client
+     *
      * @param springPath
      */
     public static void launchAllInNewThread(final String springPath) {
-        new Thread() {
-            @Override
-            public void run() {
-                launchAll(springPath);
-            }
-        }.start();
+        new Thread(() -> {
+            launchAll(springPath);
+        }).start();
     }
 
 }

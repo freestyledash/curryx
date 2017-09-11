@@ -27,9 +27,8 @@ import java.util.Map;
 
 /**
  * RPC服务端
- *
- * @author 郭永辉
- * @since 1.0 2017/4/4.
+ * 实现ApplicationContextAware
+ * 在该类被spring初始化后会执行setApplicationContext方法
  */
 public class RPCServer implements ApplicationContextAware {
 
@@ -61,6 +60,7 @@ public class RPCServer implements ApplicationContextAware {
      * @param context
      * @throws BeansException
      */
+    @Override
     public void setApplicationContext(ApplicationContext context) throws BeansException {
         //扫描指定路径下被Service注解修饰的类
         Map<String, Object> map = context.getBeansWithAnnotation(Service.class);
@@ -68,7 +68,6 @@ public class RPCServer implements ApplicationContextAware {
         if (map == null || map.size() == 0) {
             return;
         }
-
         //对扫描到的每一个service，记录其服务名称和版本
         for (Object serviceBean : map.values()) {
             Service serviceAnnotation = serviceBean.getClass().getAnnotation(Service.class);
@@ -87,17 +86,15 @@ public class RPCServer implements ApplicationContextAware {
         final EventLoopGroup bossGroup = new NioEventLoopGroup();
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                if (!workerGroup.isShutdown()) {
-                    workerGroup.shutdownGracefully();
-                }
-                if (!bossGroup.isShutdown()) {
-                    bossGroup.shutdownGracefully();
-                }
-                logger.debug("HOOK：RPC服务器已关闭");
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (!workerGroup.isShutdown()) {
+                workerGroup.shutdownGracefully();
             }
+            if (!bossGroup.isShutdown()) {
+                bossGroup.shutdownGracefully();
+            }
+            logger.debug("HOOK：RPC服务器已关闭");
+        }) {
         });
 
         try {
