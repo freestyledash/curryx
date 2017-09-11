@@ -36,7 +36,7 @@ public class RPCServer implements ApplicationContextAware {
     private static final Logger logger = LoggerFactory.getLogger(RPCServer.class);
 
     /**
-     * 服务器的地址，格式为ip:port
+     * 本机服务器的地址，格式为ip:port
      */
     private String serverAddress;
 
@@ -46,7 +46,7 @@ public class RPCServer implements ApplicationContextAware {
     private ServiceRegistry serviceRegistry;
 
     /**
-     * 保存服务bean的map
+     * 保存服务容器
      */
     private Map<String, Object> serviceMap = new HashMap();
 
@@ -55,6 +55,12 @@ public class RPCServer implements ApplicationContextAware {
         this.serviceRegistry = serviceRegistry;
     }
 
+    /**
+     * 通过spring扫描获得所有被标记为service的类,并把它们放入serviceMap中
+     *
+     * @param context
+     * @throws BeansException
+     */
     public void setApplicationContext(ApplicationContext context) throws BeansException {
         //扫描指定路径下被Service注解修饰的类
         Map<String, Object> map = context.getBeansWithAnnotation(Service.class);
@@ -63,17 +69,20 @@ public class RPCServer implements ApplicationContextAware {
             return;
         }
 
-        //对扫描到的每一个service bean，记录其服务名称和版本
+        //对扫描到的每一个service，记录其服务名称和版本
         for (Object serviceBean : map.values()) {
             Service serviceAnnotation = serviceBean.getClass().getAnnotation(Service.class);
-
-            String serviceFullname = serviceAnnotation.name().getName() + Constants.SERVICE_SEP + serviceAnnotation.version();
-            serviceMap.put(serviceFullname, serviceBean);
-
-            logger.debug("扫描到服务：{}", serviceFullname);
+            String serviceFullName = serviceAnnotation.name().getName() + Constants.SERVICE_SEP + serviceAnnotation.version();
+            serviceMap.put(serviceFullName, serviceBean);
+            logger.debug("扫描到服务：{}", serviceFullName);
         }
     }
 
+    /**
+     * 启动服务
+     * 启动netty
+     * 注册服务
+     */
     public void start() {
         final EventLoopGroup bossGroup = new NioEventLoopGroup();
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -126,6 +135,9 @@ public class RPCServer implements ApplicationContextAware {
         }
     }
 
+    /**
+     * 注册服务
+     */
     private void registerServices() {
         if (serviceRegistry != null) {
             for (String serviceFullName : serviceMap.keySet()) {

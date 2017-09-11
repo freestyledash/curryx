@@ -51,7 +51,7 @@ public class RPCClient {
     public <T> T create(final Class<T> clazz, final String version) {
         final String serviceFullName = clazz.getName() + Constants.SERVICE_SEP + version; //获得需要的服务的全名
         Object proxy;
-        //这里用双重校验锁保证对于每个serviceFullname内存中有唯一的代理实例与之对应
+        //这里用双重校验锁保证对于每个serviceFullName内存中有唯一的代理实例与之对应
         if ((proxy = cachedProxy.get(serviceFullName)) == null) {
             synchronized (this) {
                 if ((proxy = cachedProxy.get(serviceFullName)) == null) {
