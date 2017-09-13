@@ -31,6 +31,5 @@ public class RandomBalancer implements Balancer {
         }
         int i = random.nextInt(size - 1);
         return candidates.get(i);
-
     }
 }
