@@ -10,6 +10,7 @@ import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,11 +27,31 @@ import java.util.UUID;
 public class ZKLockFactory implements LockFactory {
 
 
-    private String workId;
+    private ThreadLocal<String> workId = new ThreadLocal(); //zookeeper客户端工作id
 
-    private static ZKLockFactory factory = null;
+    private static ZKLockFactory factory = null; //zookeeper
 
-    public static LockFactory getLockFactory(List<String> zkAddr) {
+    private static List<String> zkAddr; //zookeeper地址
+
+    private static boolean isInit = false;
+
+    /**
+     * 初始化地址
+     *
+     * @param list
+     */
+    public static void initConfiguration(List<String> list) {
+        if (isInit) {
+            throw new IllegalStateException("zookeeper地址已经初始化了"); //确保只初始化一次
+        }
+        zkAddr = list;
+        isInit = true;
+    }
+
+    public static LockFactory getLockFactory() {
+        if (zkAddr == null || zkAddr.isEmpty()) {
+            throw new IllegalStateException("zookeeper地址未初始化");
+        }
         synchronized (ZKLockFactory.class) {
             if (factory == null) {
                 factory = new ZKLockFactory(zkAddr);
@@ -39,17 +60,16 @@ public class ZKLockFactory implements LockFactory {
         return factory;
     }
 
+
     private static final String ROOT = "/locks"; //存放锁资源的根路径
 
     private static final Logger logger = LoggerFactory.getLogger(ZKLockFactory.class);
 
-    private CuratorFramework client;
+    private volatile CuratorFramework client;
 
     private static final String FORWARDSLASH = "/";
 
     public ZKLockFactory(List<String> zkAddr) {
-        this.workId = UUID.randomUUID().toString();//询问是否有锁
-        logger.info("开始初始化客户端,当前客户端id为{}", workId);
         long begin = System.currentTimeMillis();
         /*
         连接zookeeper
@@ -76,15 +96,14 @@ public class ZKLockFactory implements LockFactory {
         client.start();
         logger.info("启动完成,耗时{}", System.currentTimeMillis() - begin);
         //确保存在/locks节点
-        init();
+        initZookeeper();
     }
 
 
     /**
      * 在zookeeper连接建立之后初始化锁节点
      */
-    private synchronized void init() {
-
+    private synchronized void initZookeeper() {
         Stat locks = null;
         try {
             locks = client.checkExists().forPath(ROOT);
@@ -110,9 +129,8 @@ public class ZKLockFactory implements LockFactory {
             System.out.println("尝试次数过多");
             return false;
         }
-        init(); //初始化
-
-        Stat stat = null;   //询问是否有锁
+        initZookeeper(); //初始化
+        Stat stat = null; //询问是否有锁
         try {
             stat = client.checkExists().forPath(ROOT + FORWARDSLASH + resourceName);
         } catch (Exception e) {
@@ -120,8 +138,11 @@ public class ZKLockFactory implements LockFactory {
             throw new IllegalStateException("获得锁情况失败");
         }
         if (stat == null) { //该资源没有锁
+            if (this.workId.get() == null || this.workId.get().isEmpty()) {
+                workId.set(UUID.randomUUID().toString());
+            }
             try {
-                client.create().withMode(CreateMode.EPHEMERAL).forPath(ROOT + FORWARDSLASH + resourceName, workId.getBytes());
+                client.create().withMode(CreateMode.EPHEMERAL).forPath(ROOT + FORWARDSLASH + resourceName, workId.get().getBytes());
             } catch (Exception e) {
                 logger.error("创建锁失败");
                 throw new IllegalStateException("创建锁失败");
@@ -134,10 +155,10 @@ public class ZKLockFactory implements LockFactory {
                 logger.error(e.getMessage());
             }
             String workId_ = new String(bytes);
-            if (workId_ != null && this.workId.equals(workId_)) { //锁重入
+            if (workId_ != null && this.workId.get() != null && this.workId.get().equals(workId_)) { //锁重入
                 System.out.println("锁重入");
                 return true;
-            } else {
+            } else { //无法获得锁,尝试重新获得
                 try {
                     Thread.sleep(300);
                     result = tryLock(resourceName, --time);
@@ -157,8 +178,7 @@ public class ZKLockFactory implements LockFactory {
      */
     @Override
     public synchronized boolean getLock(String resourceName) throws Exception {
-        tryLock(resourceName, 5);
-        return false;
+        return tryLock(resourceName, 5);
     }
 
     /**
@@ -183,38 +203,42 @@ public class ZKLockFactory implements LockFactory {
                 bytes = client.getData().storingStatIn(stat).forPath(ROOT + FORWARDSLASH + resourceName);
             } catch (Exception e) {
                 logger.error(e.getMessage());
+                throw new RuntimeException(e);
             }
             String workId_ = new String(bytes);
-            if (workId.equals(workId_) || workId_ == null || workId_.isEmpty()) {
+            if (workId.get() != null || workId_ == null || workId.get().equals(workId_) || workId_.isEmpty()) { //可以解锁
                 try {
                     client.delete().forPath(ROOT + FORWARDSLASH + resourceName);
+                    System.out.println("解锁!!!!");
                     return true;
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage());
+                    throw new RuntimeException(e);
                 }
             } else { //改资源上锁,但是不是该client上的锁
                 return false;
             }
         }
-        return false;
     }
 
 
-//    public static void main(String[] args) throws Exception {
-//
-//        String addr = "127.0.0.1:2181";
-//        List<String> addrs = new ArrayList<>();
-//        addrs.add(addr);
-//        ZKLockFactory zkLock = new ZKLockFactory(addrs);
-//        zkLock.tryLock("testResource", 10);
-//        zkLock.tryLock("testResource", 10);
-//        System.out.println("上锁完成");
-//        Thread.sleep(10000);
-//        zkLock.unLock("testResource");
-//        System.out.println("解锁锁完成");
-//        Thread.sleep(20000);
-//        System.out.println("over");
-//
-//    }
+    public static void main(String[] args) throws Exception {
+
+        String addr = "127.0.0.1:2181";
+        List<String> addrs = new ArrayList<>();
+        addrs.add(addr);
+        initConfiguration(addrs);
+        for (int a = 0; a < 30; a++) {
+            new Thread(() -> {
+                LockFactory zkLock = ZKLockFactory.getLockFactory();
+                try {
+                    zkLock.tryLock("test", 1);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                zkLock.unLock("test");
+            }).start();
+        }
+    }
 
 }
