@@ -15,23 +15,22 @@ public interface LockFactory {
      * @param resourceName 资源名字
      * @return 是否成功获得锁
      */
-    Lock getLock(String resourceName);
+    boolean getLock(String resourceName) throws Exception;
 
     /**
-     * 不停询问锁,在一定次数以内返回
+     * 立刻返回
      *
      * @param resourceName 资源名称
-     * @param tryTime      请求的次数
-     * @param interval     相邻2次请求之间的时间间隔
+     * @param time         等待时间
      * @return 是否成功获得锁
      */
-    Lock tryLock(String resourceName, Integer tryTime, Long interval);
+    boolean tryLock(String resourceName, Integer time) throws Exception;
 
     /**
      * 释放锁
      *
      * @return 释放锁是否成功
      */
-    boolean unLock(Lock lock);
+    boolean unLock(String resourceName);
 
 }

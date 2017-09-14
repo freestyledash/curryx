@@ -1,11 +1,9 @@
 package com.freestyledash.curryx.distributedLock.impl;
 
-import com.freestyledash.curryx.distributedLock.Lock;
 import com.freestyledash.curryx.distributedLock.LockFactory;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.framework.recipes.cache.NodeCache;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
@@ -28,6 +26,9 @@ import java.util.UUID;
  */
 public class ZKLockFactory implements LockFactory {
 
+
+    private String workId;
+
     private static ZKLockFactory factory = null;
 
     public static LockFactory getLockFactory(List<String> zkAddr) {
@@ -48,7 +49,8 @@ public class ZKLockFactory implements LockFactory {
     private static final String FORWARDSLASH = "/";
 
     public ZKLockFactory(List<String> zkAddr) {
-        logger.info("开始初始化客户端");
+        this.workId = UUID.randomUUID().toString();//询问是否有锁
+        logger.info("开始初始化客户端,当前客户端id为{}", workId);
         long begin = System.currentTimeMillis();
         /*
         连接zookeeper
@@ -83,6 +85,7 @@ public class ZKLockFactory implements LockFactory {
      * 在zookeeper连接建立之后初始化锁节点
      */
     private synchronized void init() {
+
         Stat locks = null;
         try {
             locks = client.checkExists().forPath(ROOT);
@@ -102,26 +105,24 @@ public class ZKLockFactory implements LockFactory {
      * @return 是否成功获得锁
      */
     @Override
-    public Lock getLock(String resourceName) {
+    public boolean tryLock(String resourceName, Integer time) throws Exception {
+        boolean result = true;
+        if (time == null || time.equals(0)) { //尝试的次数够了
+            System.out.println("尝试次数过多");
+            return false;
+        }
         init(); //初始化
 
-        final Lock lock_ = null;
-        Lock lock = new Lock();
-        String uuid = UUID.randomUUID().toString();
-        lock.setUuid(uuid);
-
-        //询问是否有锁
-        Stat stat = null;
+        Stat stat = null;   //询问是否有锁
         try {
             stat = client.checkExists().forPath(ROOT + FORWARDSLASH + resourceName);
         } catch (Exception e) {
-            logger.error("创建锁失败");
-            throw new IllegalStateException("创建锁失败");
+            logger.error("获得锁情况失败");
+            throw new IllegalStateException("获得锁情况失败");
         }
-
         if (stat == null) { //该资源没有锁
             try {
-                client.create().withMode(CreateMode.EPHEMERAL).forPath(ROOT + FORWARDSLASH + resourceName, uuid.getBytes());
+                client.create().withMode(CreateMode.EPHEMERAL).forPath(ROOT + FORWARDSLASH + resourceName, workId.getBytes());
             } catch (Exception e) {
                 logger.error("创建锁失败");
                 throw new IllegalStateException("创建锁失败");
@@ -131,44 +132,34 @@ public class ZKLockFactory implements LockFactory {
             try {
                 bytes = client.getData().storingStatIn(stat).forPath(ROOT + FORWARDSLASH + resourceName);
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error(e.getMessage());
             }
-            String uuid_ = new String(bytes);
-            if (uuid_ != null && uuid.equals(uuid_)) { //锁重入
-                return lock;
+            String workId_ = new String(bytes);
+            if (workId_ != null && this.workId.equals(workId_)) { //锁重入
+                System.out.println("锁重入");
+                return true;
             } else {
-                //阻塞,监听锁是否释放,如果释放就尝试获得锁
-                /**
-                 * 监听数据节点的变化情况
-                 */
-                final NodeCache nodeCache = new NodeCache(client, ROOT + FORWARDSLASH + resourceName, false);
                 try {
-                    nodeCache.start(true);
-                } catch (Exception e) {
+                    Thread.sleep(300);
+                    result = tryLock(resourceName, --time);
+                } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                nodeCache.getListenable().addListener(
-                        () -> {
-                            getLock(resourceName);
-                        }
-                );
             }
-            client.clearWatcherReferences(null);
         }
-        return lock;
+        return result;
     }
 
     /**
-     * 不停询问锁,在一定次数以内返回
+     * 阻塞
      *
      * @param resourceName 资源名称
-     * @param tryTime      请求的次数
-     * @param interval     相邻2次请求之间的时间间隔
      * @return 是否成功获得锁
      */
     @Override
-    public Lock tryLock(String resourceName, Integer tryTime, Long interval) {
-        return null;
+    public boolean getLock(String resourceName) throws Exception {
+        tryLock(resourceName,5);
+        return false;
     }
 
     /**
@@ -177,16 +168,53 @@ public class ZKLockFactory implements LockFactory {
      * @return 释放锁是否成功
      */
     @Override
-    public boolean unLock(Lock lock) {
+    public boolean unLock(String resourceName) {
+        Stat stat = null;   //询问是否有锁
+        try {
+            stat = client.checkExists().forPath(ROOT + FORWARDSLASH + resourceName);
+        } catch (Exception e) {
+            logger.error("获得锁情况失败");
+            throw new IllegalStateException("获得锁情况失败");
+        }
+        if (stat == null) {
+            return true;// 改资源没有锁
+        } else {
+            byte[] bytes = null;
+            try {
+                bytes = client.getData().storingStatIn(stat).forPath(ROOT + FORWARDSLASH + resourceName);
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+            }
+            String workId_ = new String(bytes);
+            if (workId.equals(workId_) || workId_ == null || workId_.isEmpty()) {
+                try {
+                    client.delete().forPath(ROOT + FORWARDSLASH + resourceName);
+                    return true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else { //改资源上锁,但是不是该client上的锁
+                return false;
+            }
+        }
         return false;
     }
 
 
-    public static void main(String[] args) {
-
-        String addr = "127.0.0.1:2181";
-        List<String> addrs = new ArrayList<>();
-        addrs.add(addr);
-        ZKLockFactory zkLock = new ZKLockFactory(addrs);
-    }
+//    public static void main(String[] args) throws Exception {
+//
+//        String addr = "127.0.0.1:2181";
+//        List<String> addrs = new ArrayList<>();
+//        addrs.add(addr);
+//        ZKLockFactory zkLock = new ZKLockFactory(addrs);
+//        zkLock.tryLock("testResource", 10);
+//        zkLock.tryLock("testResource", 10);
+//        System.out.println("上锁完成");
+//        Thread.sleep(10000);
+//        zkLock.unLock("testResource");
+//        System.out.println("解锁锁完成");
+//        Thread.sleep(20000);
+//        System.out.println("over");
+//
+//    }
 }
