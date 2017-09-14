@@ -19,7 +19,7 @@ import java.util.UUID;
  * <p>
  * 设计方案:
  * 初始时在zookeeper下创建/locks节点
- * 锁的资源做为该节点的子节点,子节点名字为资源名字，内容为锁该资源的uuid,只有持有该uuid才能删除该锁
+ * 锁的资源做为该节点的子节点,子节点名字为资源名字，内容为锁该线程的uuid,只有持有该uuid才能删除该锁,同时锁也包含重入功能
  *
  * @author zhangyanqi
  * @since 1.0 2017/9/13
@@ -126,7 +126,6 @@ public class ZKLockFactory implements LockFactory {
     public synchronized boolean tryLock(String resourceName, Integer time) throws Exception {
         boolean result = true;
         if (time == null || time.equals(0)) { //尝试的次数够了
-            System.out.println("尝试次数过多");
             return false;
         }
         initZookeeper(); //初始化
@@ -147,6 +146,8 @@ public class ZKLockFactory implements LockFactory {
                 logger.error("创建锁失败");
                 throw new IllegalStateException("创建锁失败");
             }
+            System.out.println("创建锁成功");
+            return true;
         } else { //该资源有锁
             byte[] bytes = null;
             try {
@@ -156,7 +157,6 @@ public class ZKLockFactory implements LockFactory {
             }
             String workId_ = new String(bytes);
             if (workId_ != null && this.workId.get() != null && this.workId.get().equals(workId_)) { //锁重入
-                System.out.println("锁重入");
                 return true;
             } else { //无法获得锁,尝试重新获得
                 try {
@@ -206,10 +206,9 @@ public class ZKLockFactory implements LockFactory {
                 throw new RuntimeException(e);
             }
             String workId_ = new String(bytes);
-            if (workId.get() != null || workId_ == null || workId.get().equals(workId_) || workId_.isEmpty()) { //可以解锁
+            if (workId.get() != null && (workId_ == null || workId.get().equals(workId_) || workId_.isEmpty())) { //可以解锁
                 try {
                     client.delete().forPath(ROOT + FORWARDSLASH + resourceName);
-                    System.out.println("解锁!!!!");
                     return true;
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -232,6 +231,7 @@ public class ZKLockFactory implements LockFactory {
             new Thread(() -> {
                 LockFactory zkLock = ZKLockFactory.getLockFactory();
                 try {
+                    zkLock.tryLock("test", 1);
                     zkLock.tryLock("test", 1);
                 } catch (Exception e) {
                     e.printStackTrace();
