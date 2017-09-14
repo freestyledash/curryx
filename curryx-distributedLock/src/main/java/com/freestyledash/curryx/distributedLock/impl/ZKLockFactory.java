@@ -10,7 +10,6 @@ import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -105,7 +104,7 @@ public class ZKLockFactory implements LockFactory {
      * @return 是否成功获得锁
      */
     @Override
-    public boolean tryLock(String resourceName, Integer time) throws Exception {
+    public synchronized boolean tryLock(String resourceName, Integer time) throws Exception {
         boolean result = true;
         if (time == null || time.equals(0)) { //尝试的次数够了
             System.out.println("尝试次数过多");
@@ -157,8 +156,8 @@ public class ZKLockFactory implements LockFactory {
      * @return 是否成功获得锁
      */
     @Override
-    public boolean getLock(String resourceName) throws Exception {
-        tryLock(resourceName,5);
+    public synchronized boolean getLock(String resourceName) throws Exception {
+        tryLock(resourceName, 5);
         return false;
     }
 
@@ -168,7 +167,7 @@ public class ZKLockFactory implements LockFactory {
      * @return 释放锁是否成功
      */
     @Override
-    public boolean unLock(String resourceName) {
+    public synchronized boolean unLock(String resourceName) {
         Stat stat = null;   //询问是否有锁
         try {
             stat = client.checkExists().forPath(ROOT + FORWARDSLASH + resourceName);
@@ -217,4 +216,5 @@ public class ZKLockFactory implements LockFactory {
 //        System.out.println("over");
 //
 //    }
+
 }
