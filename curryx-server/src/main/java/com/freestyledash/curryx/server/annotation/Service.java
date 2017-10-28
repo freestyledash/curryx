@@ -16,7 +16,6 @@ import java.lang.annotation.Target;
 @Component
 public @interface Service {
 
-
     /**
      * @return 服务类
      */

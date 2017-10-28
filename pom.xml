@@ -135,17 +135,16 @@
 
     <distributionManagement>
         <repository>
-            <id>freeStyledash Releases</id>
-            <name>Releases</name>
-            <url>http://60.205.221.44:8081/repository/maven-releases/</url>
-        </repository>
+        <id>freestyledash Releases</id>
+        <name>Releases</name>
+        <url>http://60.205.221.44:8081/repository/maven-releases/</url>
+    </repository>
 
         <snapshotRepository>
-            <id>freeStyledash Snapshots</id>
+            <id>freestyledash Snapshots</id>
             <name>Snapshots</name>
             <url>http://60.205.221.44:8081/repository/maven-snapshots/</url>
         </snapshotRepository>
-
     </distributionManagement>
 
     <repositories>
