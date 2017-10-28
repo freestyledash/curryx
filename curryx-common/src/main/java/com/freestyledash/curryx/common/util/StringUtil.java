@@ -19,6 +19,4 @@ public abstract class StringUtil {
         return str == null || "".equals(str);
     }
 
-
-
 }
