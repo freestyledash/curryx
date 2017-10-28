@@ -12,7 +12,6 @@
         <version>1.0.3-SNAPSHOT</version>
     </parent>
 
-
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.springframework/spring-core -->
         <dependency>
