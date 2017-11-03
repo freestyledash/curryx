@@ -25,7 +25,7 @@
         <version.netty>4.1.6.Final</version.netty>
         <version.slf4j>1.7.21</version.slf4j>
         <version.zookeeper-client>0.10</version.zookeeper-client>
-        <version.spring>5.0.1.RELEASE</version.spring>
+        <version.spring>4.3.12.RELEASE</version.spring>
         <version.maven-compiler-plugin>3.6.1</version.maven-compiler-plugin>
         <version.maven-javadoc-plugin>2.10.4</version.maven-javadoc-plugin>
         <version.maven-source-plugin>3.0.1</version.maven-source-plugin>
