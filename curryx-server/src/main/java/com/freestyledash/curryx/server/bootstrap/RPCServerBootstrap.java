@@ -1,10 +1,7 @@
 package com.freestyledash.curryx.server.bootstrap;
 
-import com.freestyledash.curryx.client.RPCClient;
-import com.freestyledash.curryx.client.bootstrap.RPCClientBootstrap;
 import com.freestyledash.curryx.server.RPCServer;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
 /**
@@ -15,35 +12,29 @@ public class RPCServerBootstrap {
     /**
      * 启动server
      *
-     * @param springPath
+     * @param context
      */
-    public static void launch(String springPath) {
-        RPCServer rpcServer = new ClassPathXmlApplicationContext(springPath).getBean(RPCServer.class);
-        rpcServer.start();
+    public static void launch(ApplicationContext context) {
+        context.getBean(RPCServer.class).start();
     }
 
     /**
      * 新建线程启动server
      *
-     * @param springPath
+     * @param context
      */
-    public static void launchInNewThread(final String springPath) {
+    public static void launchInNewThread(ApplicationContext context) {
         new Thread(() -> {
-            launch(springPath);
+            launch(context);
         }).start();
     }
 
     /**
      * 启动server和client
      *
-     * @param springPath
+     * @param context
      */
-    public static void launchAll(String springPath) {
-        ApplicationContext context = new ClassPathXmlApplicationContext(springPath);
-
-        RPCClient rpcClient = context.getBean(RPCClient.class);
-        RPCClientBootstrap.init(rpcClient);
-
+    public static void launchAll(ApplicationContext context) {
         RPCServer rpcServer = context.getBean(RPCServer.class);
         rpcServer.start();
     }
@@ -51,11 +42,11 @@ public class RPCServerBootstrap {
     /**
      * 在新的线程中启动server和client
      *
-     * @param springPath
+     * @param context spring实例
      */
-    public static void launchAllInNewThread(final String springPath) {
+    public static void launchAllInNewThread(ApplicationContext context) {
         new Thread(() -> {
-            launchAll(springPath);
+            launchAll(context);
         }).start();
     }
 
