@@ -18,12 +18,12 @@ import java.util.Map;
 /**
  * rpc通信客户端
  */
-public class RPCClient {
+public final class RPCClient {
 
     private static final Logger logger = LoggerFactory.getLogger(RPCClient.class);
 
     /**
-     * 发现服务的接口
+     * 发现服务
      */
     private ServiceDiscovery serviceDiscovery;
 
@@ -42,9 +42,9 @@ public class RPCClient {
      * 1)通过服务名字获得可提供服务的服务器的地址
      * 2)使用netty向服务器发送请求获得相应
      *
-     * @param clazz 请求服务的类接口
+     * @param clazz   请求服务的类接口
      * @param version 请求服务版本
-     * @param <T> 请求服务的类型
+     * @param <T>     请求服务的类型
      * @return proxy
      */
     @SuppressWarnings("unchecked")
@@ -73,7 +73,7 @@ public class RPCClient {
                                     if (args != null && args.length > 0) {
                                         boolean[] nonNull = new boolean[args.length];
                                         for (int i = 0; i < args.length; i++) {
-                                            nonNull[i] =  args[i] != null;
+                                            nonNull[i] = args[i] != null;
                                         }
                                         request.setNonNullArgs(nonNull);
                                     }

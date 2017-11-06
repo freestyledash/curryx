@@ -1,7 +1,7 @@
 package com.freestyledash.curryx.registry.constant;
 
 
-public final class Constants {
+public abstract class Constants {
 
     private Constants() {
 
