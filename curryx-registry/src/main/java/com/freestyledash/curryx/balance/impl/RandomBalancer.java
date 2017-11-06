@@ -29,7 +29,7 @@ public class RandomBalancer implements Balancer {
         if (size == 0) {
             return null;
         }
-        int i = random.nextInt(size - 1);
+        int i = random.nextInt(size);
         return candidates.get(i);
     }
 }
