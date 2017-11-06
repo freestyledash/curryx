@@ -11,7 +11,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * 持有rpc客户端实例
  * 是一个FactorBean,通过spring配置之后可以获得RpcClient
  */
-public class RPCClientBootstrap implements FactoryBean {
+public class RPCClientBootstrap implements FactoryBean<RPCClient> {
 
     private final RPCClient rpcClient;
 
@@ -20,18 +20,18 @@ public class RPCClientBootstrap implements FactoryBean {
     }
 
     @Override
-    public Object getObject() throws Exception {
-        return null;
+    public RPCClient getObject() throws Exception {
+        return rpcClient;
     }
 
     @Override
     public Class<?> getObjectType() {
-        return null;
+        return RPCClient.class;
     }
 
     @Override
     public boolean isSingleton() {
-        return false;
+        return true;
     }
 
 
