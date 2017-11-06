@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 客户端使用nio和服务器通讯
+ * 每次通讯都创建一个新的RPCRequestLauncher对象
  */
 public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse> {
 
@@ -72,5 +73,4 @@ public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse>
             group.shutdownGracefully();
         }
     }
-
 }
