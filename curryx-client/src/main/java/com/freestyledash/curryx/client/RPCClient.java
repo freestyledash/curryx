@@ -22,8 +22,6 @@ import java.util.Map;
  */
 public final class RPCClient {
 
-    private List objectMethods = new ArrayList<String>();
-
     private static final Logger logger = LoggerFactory.getLogger(RPCClient.class);
 
     /**
@@ -39,17 +37,6 @@ public final class RPCClient {
     public RPCClient(ServiceDiscovery serviceDiscovery) {
         this.serviceDiscovery = serviceDiscovery;
         cachedProxy = new HashMap();
-        objectMethods.add("toString");
-        objectMethods.add("equals");
-        objectMethods.add("registerNatives");
-        objectMethods.add("getClass");
-        objectMethods.add("hashCode");
-        objectMethods.add("clone");
-        objectMethods.add("toString");
-        objectMethods.add("notify");
-        objectMethods.add("notifyAll");
-        objectMethods.add("wait");
-        objectMethods.add("finalize");
     }
 
     /**
@@ -75,9 +62,6 @@ public final class RPCClient {
                             new Class<?>[]{clazz},
                             new InvocationHandler() {
                                 public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                                    if (objectMethods.contains(method.getName())) {
-                                        return method.invoke(proxy, args);
-                                    }
                                     long requestStartTime = System.currentTimeMillis();
 
                                     RPCRequest request = new RPCRequest();
