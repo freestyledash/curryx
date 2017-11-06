@@ -12,7 +12,7 @@ public class RPCServerBootstrap {
     /**
      * 启动server
      *
-     * @param context spring实例
+     * @param context
      */
     public static void launch(ApplicationContext context) {
         context.getBean(RPCServer.class).start();
@@ -21,7 +21,7 @@ public class RPCServerBootstrap {
     /**
      * 新建线程启动server
      *
-     * @param context spring实例
+     * @param context
      */
     public static void launchInNewThread(ApplicationContext context) {
         new Thread(() -> {
