@@ -7,8 +7,6 @@ package com.freestyledash.curryx.common.protocol.entity;
  * 若服务成功调用则需要将调用的结果存于<code>result</code>字段中
  * 否则，若调用过程中发生异常则需要将异常存于<code>exception</code>字段中
  *
- * @author 郭永辉
- * @since 1.0 2017/4/2.
  */
 public class RPCResponse {
 

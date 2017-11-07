@@ -22,8 +22,6 @@ import java.util.Map;
  * 处理的请求由其之前的InboundHandler即RPC解码器解码得到
  * 根据反射机制调用相应方法并将调用的结果或者发生的异常写入到RPC响应
  *
- * @author 郭永辉
- * @since 1.0 2017/4/4.
  */
 public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
 

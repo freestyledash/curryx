@@ -54,7 +54,7 @@ public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse>
                             channel.pipeline()
                                     .addLast(new RPCEncoder(RPCRequest.class))
                                     .addLast(new RPCDecoder(RPCResponse.class))
-                                    .addLast(this);
+                                    .addLast(RPCRequestLauncher.this);
                         }
                     })
                     .option(ChannelOption.TCP_NODELAY, true);

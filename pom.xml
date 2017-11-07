@@ -19,9 +19,9 @@
     </modules>
 
     <properties>
-        <version.protostuff-core>1.5.3</version.protostuff-core>
-        <version.protostuff-runtime>1.5.3</version.protostuff-runtime>
-        <version.objenesis>2.5</version.objenesis>
+        <version.protostuff-core>1.6.0</version.protostuff-core>
+        <version.protostuff-runtime>1.6.0</version.protostuff-runtime>
+        <version.objenesis>2.6</version.objenesis>
         <version.netty>4.1.16.Final</version.netty>
         <version.slf4j>1.7.21</version.slf4j>
         <version.zookeeper-client>0.10</version.zookeeper-client>
