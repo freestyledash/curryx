@@ -98,7 +98,9 @@ public class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateList
         }
         if (childNodes != null) {
             logger.debug("使用缓存,获取到{}服务的{}个可用节点", serviceFullName, childNodes.size());
-            return balancer.elect(serviceFullName, childNodes);
+            String winner = balancer.elect(serviceFullName, childNodes);
+            String data = zkClient.readData(servicePath + "/" + winner);
+            return winner + "/" + data;
         }
 
         if (!zkClient.exists(servicePath)) {
@@ -112,9 +114,10 @@ public class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateList
         cachedServiceAddress.put(serviceFullName, childNodes); //将内容存入缓存
 
         logger.debug("获取到{}服务的{}个可用节点,并加入缓存", serviceFullName, childNodes.size());
-        String winner = balancer.elect(serviceFullName, childNodes);
-
-        return winner + "/" + zkClient.readData(servicePath + "/" + winner);
+        String winner = balancer.elect(serviceFullName, childNodes);//读取节点
+        String data = zkClient.readData(servicePath + "/" + winner); //读取节点内的内容
+        String result = winner + "/" + data;
+        return result;
     }
 
     @Override
