@@ -1,5 +1,6 @@
 package com.freestyledash.curryx.common.protocol.codec;
 
+import com.freestyledash.curryx.common.util.EncryptUtil;
 import com.freestyledash.curryx.common.util.SerializationUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -25,9 +26,12 @@ public class RPCEncoder extends MessageToByteEncoder {
     protected void encode(ChannelHandlerContext channelHandlerContext, Object o, ByteBuf byteBuf) throws Exception {
         if (clazz.isInstance(o)) {
             byte[] buffer = SerializationUtil.serialize(o);
-            byteBuf.writeInt(buffer.length);
-            byteBuf.writeBytes(buffer);
             logger.debug("将({})类型的对象编码为长度为{}的字节数组", clazz.getName(), buffer.length);
+            //加入加密的信息
+            byte[] encrypt = EncryptUtil.encrypt(buffer);
+            byteBuf.writeInt(encrypt.length);
+            byteBuf.writeBytes(encrypt);
+            logger.debug("将({})类型的对象加密编码为长度为{}的字节数组", clazz.getName(), encrypt.length);
         } else {
             throw new IllegalStateException("非法的编码请求：不兼容的编码类型" + clazz);
         }
