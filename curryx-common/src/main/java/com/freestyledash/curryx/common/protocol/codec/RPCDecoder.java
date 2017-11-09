@@ -45,8 +45,7 @@ public class RPCDecoder extends ByteToMessageDecoder {
             byteBuf.resetReaderIndex();
             return;
         }
-
-        //若校验通过则读取反序列化的字节数组并将反序列化后的对象保存起来
+        //解码
         byte[] body = new byte[length];
         byteBuf.readBytes(body);
         byte[] decode = EncryptUtil.decode(body);
