@@ -10,7 +10,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class EncryptUtil {
 
-    private static byte[] key = {97, -113, -68, 93, 127,-17,49, 67};
+    private static byte[] key = {97, -113, -68, 93, 127, -17, 49, 67};
     private static String keyGenName = null;
 
     static {
