@@ -1,7 +1,7 @@
 package com.freestyledash.curryx.registry.impl;
 
-import com.freestyledash.curryx.registry.constant.Constants;
 import com.freestyledash.curryx.registry.ServiceRegistry;
+import com.freestyledash.curryx.registry.constant.Constants;
 import org.I0Itec.zkclient.IZkStateListener;
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.exception.ZkNodeExistsException;
@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * 使用ZooKeeper实现的服务发现
  */
-public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListener {
+public class ZooKeeperServiceRegistry implements ServiceRegistry,  {
 
     private static final Logger logger = LoggerFactory.getLogger(ZooKeeperServiceRegistry.class);
 
@@ -136,6 +136,6 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
 
     @Override
     public void handleSessionEstablishmentError(Throwable error) throws Exception {
-
+        logger.debug("handleSessionEstablishmentError");
     }
 }

@@ -9,7 +9,7 @@
     <parent>
         <artifactId>curryx</artifactId>
         <groupId>com.freestyledash</groupId>
-        <version>1.0.3-SNAPSHOT</version>
+        <version>1.0.4-SNAPSHOT</version>
     </parent>
 
     <dependencies>
