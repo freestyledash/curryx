@@ -56,10 +56,22 @@ public class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateList
      */
     private ZkClient zkClient;
 
+    /**
+     * @param zkAddress   zookeeper地址
+     * @param serviceRoot 根目录
+     * @param balancer    负载均衡器
+     */
     public ZooKeeperServiceDiscovery(String zkAddress, String serviceRoot, Balancer balancer) {
         this(zkAddress, serviceRoot, balancer, Constants.DEFAULT_ZK_SESSION_TIMEOUT, Constants.DEFAULT_ZK_CONNECTION_TIMEOUT);
     }
 
+    /**
+     * @param zkAddress           zookeeper地址
+     * @param serviceRoot         根目录
+     * @param balancer            负载均衡器
+     * @param zkSessionTimeout    zookeeper Session 过期时间
+     * @param zkConnectionTimeout zookeeper 连接过期时间
+     */
     public ZooKeeperServiceDiscovery(String zkAddress, String serviceRoot, Balancer balancer, int zkSessionTimeout, int zkConnectionTimeout) {
         this.zkAddress = zkAddress;
         this.serviceRoot = serviceRoot;

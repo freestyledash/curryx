@@ -12,9 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,7 +28,7 @@ public final class RPCClient {
     private ServiceDiscovery serviceDiscovery;
 
     /**
-     * 代理对象的缓存
+     * 代理对象缓存
      */
     private Map<String, Object> cachedProxy;
 
@@ -60,69 +58,85 @@ public final class RPCClient {
                     proxy = Proxy.newProxyInstance(
                             clazz.getClassLoader(),
                             new Class<?>[]{clazz},
-                            new InvocationHandler() {
-                                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                                    long requestStartTime = System.currentTimeMillis();
-
-                                    RPCRequest request = new RPCRequest();
-
-                                    request.setServiceName(clazz.getName());
-                                    request.setServiceVersion(version);
-                                    request.setMethodName(method.getName());
-                                    request.setArgsTypes(method.getParameterTypes());
-                                    request.setArgsValues(args);
-
-                                    if (args != null && args.length > 0) {
-                                        boolean[] nonNull = new boolean[args.length];
-                                        for (int i = 0; i < args.length; i++) {
-                                            nonNull[i] = args[i] != null;
-                                        }
-                                        request.setNonNullArgs(nonNull);
-                                    }
-
-                                    String node; //
-                                    String serverAddress;//地址
-                                    if (serviceDiscovery != null) {
-                                        logger.debug("向服务中心查询服务：{}", serviceFullName);
-                                        String[] addressData = serviceDiscovery.discoverService(request.getServiceName(), request.getServiceVersion()).split("/");
-                                        node = addressData[0];
-                                        serverAddress = addressData[1];
-                                    } else {
-                                        throw new RuntimeException("服务中心不可用");
-                                    }
-
-                                    if (StringUtil.isEmpty(serverAddress)) {
-                                        throw new RuntimeException("未查询到服务：" + serviceFullName);
-                                    }
-
-                                    logger.debug("选取服务{}节点：{}", serviceFullName, node + "/" + serverAddress);
-
-                                    String[] address = serverAddress.split(":");
-
-                                    String host = address[0];
-                                    int port = Integer.parseInt(address[1]);
-
-                                    RPCResponse response = new RPCRequestLauncher(host, port).launch(request);
-                                    long requestTimeCost = System.currentTimeMillis() - requestStartTime;
-
-                                    if (response == null) {
-                                        throw new RuntimeException(String.format("空的服务器响应(请求号为%s)", request.getRequestId()));
-                                    }
-
-                                    logger.debug("请求{}耗时：{}ms", request.getRequestId(), requestTimeCost);
-
-                                    if (response.getException() != null) {
-                                        throw response.getException();
-                                    } else {
-                                        return response.getResult();
-                                    }
-                                }
-                            }
+                            new RpcInvocationHandler(version, serviceFullName, clazz, serviceDiscovery)
                     );
                     cachedProxy.put(serviceFullName, proxy);
                 }
             }
         }
         return (T) proxy;
+    }
+
+    /**
+     * rpc代理执行类
+     */
+    public static class RpcInvocationHandler implements InvocationHandler {
+
+        public RpcInvocationHandler(String version, String serviceFullName, Class clazz, ServiceDiscovery serviceDiscovery) {
+            this.version = version;
+            this.serviceFullName = serviceFullName;
+            this.clazz = clazz;
+            this.serviceDiscovery = serviceDiscovery;
+        }
+
+        private String version; //版本
+        private String serviceFullName; //服务全称
+        private Class clazz; //被代理的class类型
+        private ServiceDiscovery serviceDiscovery; //服务发现接口
+
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            long requestStartTime = System.currentTimeMillis();
+            //构建请求对象
+            RPCRequest request = new RPCRequest();
+            request.setServiceName(clazz.getName());
+            request.setServiceVersion(version);
+            request.setMethodName(method.getName());
+            request.setArgsTypes(method.getParameterTypes());
+            request.setArgsValues(args);
+            //设置请求参数
+            if (args != null && args.length > 0) {
+                boolean[] nonNull = new boolean[args.length];
+                for (int i = 0; i < args.length; i++) {
+                    nonNull[i] = args[i] != null;
+                }
+                request.setNonNullArgs(nonNull);
+            }
+
+            String node; //名字服务器存放该服务的节点
+            String serverAddress;//服务地址
+            if (serviceDiscovery != null) {
+                logger.debug("向服务中心查询服务：{}", serviceFullName);
+                String[] addressData = serviceDiscovery.discoverService(request.getServiceName(), request.getServiceVersion()).split("/");
+                node = addressData[0];
+                serverAddress = addressData[1];
+            } else {
+                throw new RuntimeException("服务中心不可用");
+            }
+
+            if (StringUtil.isEmpty(serverAddress)) {
+                throw new RuntimeException("未查询到服务：" + serviceFullName);
+            }
+
+            logger.debug("选取服务{}节点：{}", serviceFullName, node + "/" + serverAddress);
+
+            String[] address = serverAddress.split(":");
+            String host = address[0];
+            int port = Integer.parseInt(address[1]);
+
+            RPCResponse response = new RPCRequestLauncher(host, port).launch(request);
+            long requestTimeCost = System.currentTimeMillis() - requestStartTime;
+
+            if (response == null) {
+                throw new RuntimeException(String.format("空的服务器响应(请求号为%s)", request.getRequestId()));
+            }
+
+            logger.debug("请求{}耗时：{}ms", request.getRequestId(), requestTimeCost);
+
+            if (response.getException() != null) {
+                throw response.getException();
+            } else {
+                return response.getResult();
+            }
+        }
     }
 }
