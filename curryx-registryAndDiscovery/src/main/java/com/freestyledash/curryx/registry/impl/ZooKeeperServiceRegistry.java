@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * 使用ZooKeeper实现的服务发现
  */
-public class ZooKeeperServiceRegistry implements ServiceRegistry,  {
+public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ZooKeeperServiceRegistry.class);
 
