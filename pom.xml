@@ -6,35 +6,35 @@
 
     <groupId>com.freestyledash</groupId>
     <artifactId>curryx</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
 
-    <!---->
     <packaging>pom</packaging>
 
-    <!---->
     <modules>
         <module>curryx-common</module>
-        <module>curryx-registry</module>
+        <module>curryx-registryAndDiscovery</module>
         <module>curryx-server</module>
         <module>curryx-client</module>
+        <module>curryx-distributedLock</module>
     </modules>
 
     <properties>
-        <version.protostuff-core>1.5.3</version.protostuff-core>
-        <version.protostuff-runtime>1.5.3</version.protostuff-runtime>
-        <version.objenesis>2.5</version.objenesis>
-        <version.netty>4.1.6.Final</version.netty>
+        <version.protostuff-core>1.6.0</version.protostuff-core>
+        <version.protostuff-runtime>1.6.0</version.protostuff-runtime>
+        <version.objenesis>2.6</version.objenesis>
+        <version.netty>4.1.16.Final</version.netty>
         <version.slf4j>1.7.21</version.slf4j>
         <version.zookeeper-client>0.10</version.zookeeper-client>
-        <version.spring>4.3.6.RELEASE</version.spring>
+        <version.spring>4.3.12.RELEASE</version.spring>
         <version.maven-compiler-plugin>3.6.1</version.maven-compiler-plugin>
         <version.maven-javadoc-plugin>2.10.4</version.maven-javadoc-plugin>
         <version.maven-source-plugin>3.0.1</version.maven-source-plugin>
+        <version.java>1.8</version.java>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- https://mvnrepository.com/artifact/io.protostuff/protostuff-core -->
+            <!--https://mvnrepository.com/artifact/io.protostuff/protostuff-core-->
             <dependency>
                 <groupId>io.protostuff</groupId>
                 <artifactId>protostuff-core</artifactId>
@@ -86,67 +86,60 @@
     </dependencyManagement>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>${version.maven-compiler-plugin}</version>
-                    <configuration>
-                        <source>1.8</source>
-                        <target>1.8</target>
-                        <encoding>UTF-8</encoding>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>${version.maven-javadoc-plugin}</version>
-                    <configuration>
-                        <encoding>UTF-8</encoding>
-                        <aggregate>true</aggregate>
-                        <charset>UTF-8</charset>
-                        <docencoding>UTF-8</docencoding>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>attach-javadocs</id>
-                            <goals>
-                                <goal>jar</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-source-plugin</artifactId>
-                    <version>${version.maven-source-plugin}</version>
-                    <executions>
-                        <execution>
-                            <id>attach-sources</id>
-                            <goals>
-                                <goal>jar</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${version.java}</source>
+                    <target>${version.java}</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <charset>UTF-8</charset>
+                    <docencoding>UTF-8</docencoding>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
     <distributionManagement>
         <repository>
-            <id>maven-releases</id>
+            <id>freestyledash Releases</id>
             <name>Releases</name>
             <url>http://60.205.221.44:8081/repository/maven-releases/</url>
         </repository>
 
         <snapshotRepository>
-            <id>maven-snapshots</id>
+            <id>freestyledash Snapshots</id>
             <name>Snapshots</name>
             <url>http://60.205.221.44:8081/repository/maven-snapshots/</url>
         </snapshotRepository>
-
     </distributionManagement>
 
     <repositories>

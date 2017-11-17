@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="com"/>
+
+    <!--RPC Client配置-->
+    <bean id="balancer" class="RoundRobinBalancer">
+    </bean>
+
+    <bean id="serviceDiscovery" class="ZooKeeperServiceDiscovery">
+        <constructor-arg name="zkAddress" value="127.0.0.1:2181"/>
+        <constructor-arg name="serviceRoot" value="/com.qqrw"/>
+        <constructor-arg name="zkConnectionTimeout" value="10000"/>
+        <constructor-arg name="zkSessionTimeout" value="10000"/>
+        <constructor-arg name="balancer" ref="balancer"/>
+    </bean>
+
+    <bean id="rpcClient" class="comRPCClient">
+        <constructor-arg name="serviceDiscovery" ref="serviceDiscovery"/>
+    </bean>
+
+
+</beans>
