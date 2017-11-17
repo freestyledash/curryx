@@ -1,5 +1,6 @@
 package com.freestyledash.curryx.common.protocol.codec;
 
+import com.freestyledash.curryx.common.util.EncryptUtil;
 import com.freestyledash.curryx.common.util.SerializationUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -25,6 +26,7 @@ public class RPCDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
+
         //传入的字节数组的头表示需要反序列化的字节数组的长度，用int也就是4个字节来表示，所以当可读的字节数小于4时直接返回
         if (byteBuf.readableBytes() < 4) {
             return;
@@ -43,13 +45,13 @@ public class RPCDecoder extends ByteToMessageDecoder {
             byteBuf.resetReaderIndex();
             return;
         }
-
-        //若校验通过则读取反序列化的字节数组并将反序列化后的对象保存起来
+        //解码
         byte[] body = new byte[length];
         byteBuf.readBytes(body);
-        Object message = SerializationUtil.deserialize(body, clazz);
+        byte[] decode = EncryptUtil.decode(body);
+        logger.debug("将长度为({})的字节数组为({})类型的对象", decode.length, clazz.getName());
+        Object message = SerializationUtil.deserialize(decode, clazz);
         list.add(message);
 
-        logger.debug("将长度为{}的字节数组解码为({})类型的对象", length, clazz.getName());
     }
 }

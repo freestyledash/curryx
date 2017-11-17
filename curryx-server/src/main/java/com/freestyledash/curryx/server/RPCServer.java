@@ -22,6 +22,10 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,7 +54,36 @@ public class RPCServer implements ApplicationContextAware {
     private Map<String, Object> serviceMap = new HashMap();
 
     public RPCServer(String serverAddress, ServiceRegistry serviceRegistry) {
-        this.serverAddress = serverAddress;
+        if (!serverAddress.startsWith("127.0.0.1")) {
+            String port = serverAddress.substring(serverAddress.length() - 4, serverAddress.length());
+            Enumeration en = null;
+            String ip = null;
+            try {
+                en = NetworkInterface.getNetworkInterfaces();
+            } catch (SocketException e) {
+                logger.error("获得网卡失败");
+            }
+            while (en.hasMoreElements()) {
+                NetworkInterface ni = (NetworkInterface) en.nextElement();
+                Enumeration ee = ni.getInetAddresses();
+                boolean isbreak = false;
+                while (ee.hasMoreElements()) {
+                    InetAddress ia = (InetAddress) ee.nextElement();
+                    String hostAddress = ia.getHostAddress();
+                    if (hostAddress.startsWith("192")) {
+                        ip = hostAddress;
+                        isbreak = true;
+                        break;
+                    }
+                }
+                if (isbreak) {
+                    break;
+                }
+            }
+            this.serverAddress = ip + ":" + port;
+        } else {
+            this.serverAddress = serverAddress;
+        }
         this.serviceRegistry = serviceRegistry;
     }
 
@@ -145,5 +178,4 @@ public class RPCServer implements ApplicationContextAware {
             throw new RuntimeException("服务中心不可用");
         }
     }
-
 }

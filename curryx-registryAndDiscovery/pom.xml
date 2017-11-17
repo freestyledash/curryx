@@ -8,19 +8,20 @@
         <version>1.0.4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>curryx-distributedLock</artifactId>
+
+    <artifactId>curryx-registryAndDiscovery</artifactId>
 
     <dependencies>
+        <!-- https://mvnrepository.com/artifact/com.101tec/zkclient -->
         <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-framework</artifactId>
-            <version>2.12.0</version>
+            <groupId>com.101tec</groupId>
+            <artifactId>zkclient</artifactId>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
         <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-recipes</artifactId>
-            <version>2.12.0</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
-
+    
 </project>

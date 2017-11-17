@@ -56,10 +56,22 @@ public class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateList
      */
     private ZkClient zkClient;
 
+    /**
+     * @param zkAddress   zookeeper地址
+     * @param serviceRoot 根目录
+     * @param balancer    负载均衡器
+     */
     public ZooKeeperServiceDiscovery(String zkAddress, String serviceRoot, Balancer balancer) {
         this(zkAddress, serviceRoot, balancer, Constants.DEFAULT_ZK_SESSION_TIMEOUT, Constants.DEFAULT_ZK_CONNECTION_TIMEOUT);
     }
 
+    /**
+     * @param zkAddress           zookeeper地址
+     * @param serviceRoot         根目录
+     * @param balancer            负载均衡器
+     * @param zkSessionTimeout    zookeeper Session 过期时间
+     * @param zkConnectionTimeout zookeeper 连接过期时间
+     */
     public ZooKeeperServiceDiscovery(String zkAddress, String serviceRoot, Balancer balancer, int zkSessionTimeout, int zkConnectionTimeout) {
         this.zkAddress = zkAddress;
         this.serviceRoot = serviceRoot;
@@ -98,7 +110,9 @@ public class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateList
         }
         if (childNodes != null) {
             logger.debug("使用缓存,获取到{}服务的{}个可用节点", serviceFullName, childNodes.size());
-            return balancer.elect(serviceFullName, childNodes);
+            String winner = balancer.elect(serviceFullName, childNodes);
+            String data = zkClient.readData(servicePath + "/" + winner);
+            return winner + "/" + data;
         }
 
         if (!zkClient.exists(servicePath)) {
@@ -112,9 +126,10 @@ public class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateList
         cachedServiceAddress.put(serviceFullName, childNodes); //将内容存入缓存
 
         logger.debug("获取到{}服务的{}个可用节点,并加入缓存", serviceFullName, childNodes.size());
-        String winner = balancer.elect(serviceFullName, childNodes);
-
-        return winner + "/" + zkClient.readData(servicePath + "/" + winner);
+        String winner = balancer.elect(serviceFullName, childNodes);//读取节点
+        String data = zkClient.readData(servicePath + "/" + winner); //读取节点内的内容
+        String result = winner + "/" + data;
+        return result;
     }
 
     @Override
