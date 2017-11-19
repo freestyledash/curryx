@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 
+/**
+ * 将数组解码为对象
+ */
 public class RPCDecoder extends ByteToMessageDecoder {
 
     private static final Logger logger = LoggerFactory.getLogger(RPCDecoder.class);
