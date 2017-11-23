@@ -1,6 +1,5 @@
 # Curryx 基于RPC的面向服务的轻量级框架 
 
- 
 ## 简介
 
 项目使用maven来构建，框架中的角色分为服务调用者、服务提供者和注册中心，其职能分别如下：
@@ -58,14 +57,31 @@ public class HelloworldImpl implements Helloworld {
 
 启动服务,使用spring来组织各个组件,并启动，ps:服务端可以开启客户端，可以调用其他服务
 ```
-       
+    <!--RPC Server配置-->
+    <!--服务注册中心-->
+    <bean id="serviceRegistry" class="com.freestyledash.curryx.registry.impl.ZooKeeperServiceRegistry">
+        <constructor-arg name="zkAddress" value="127.0.0.1:2181"/>
+        <constructor-arg name="serviceRoot" value="/x"/>
+    </bean>
 
+    <!--通讯服务器-->
+    <bean id="nettyServer" class="com.freestyledash.curryx.server.server.impl.NettyServer">
+        <constructor-arg name="serverListeningAddress" value="127.0.0.1:8001"/>
+        <constructor-arg name="bossThreadCount" value="2"/>
+        <constructor-arg name="workerThreadCount" value="8"/>
+    </bean>
 
+    <!--整合-->
+    <bean id="rpcServer" class="com.freestyledash.curryx.server.RPCServer">
+        <constructor-arg name="serverAddress" value="127.0.0.1:8001"/>
+        <constructor-arg name="serviceRegistry" ref="serviceRegistry"/>
+        <constructor-arg name="server" ref="nettyServer"/>
+    </bean>
 ```
 ```
-        ApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
-        RPCServer bean = context.getBean(RPCServer.class);
-        bean.start();
+            ApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
+            RPCServer bean = context.getBean(RPCServer.class);
+            bean.start();
 ```
 ### 服务调用者初始化
 

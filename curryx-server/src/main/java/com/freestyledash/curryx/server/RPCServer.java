@@ -77,11 +77,11 @@ public class RPCServer implements ApplicationContextAware {
     /**
      * 启动服务
      * 启动netty
-     * 注册服务
+     * 将服务注册到名字服务器中
      */
     public void start() {
         this.server.start();
-        registerServices();//将服务注册到名字服务器中
+        registerServices();
     }
 
     /**

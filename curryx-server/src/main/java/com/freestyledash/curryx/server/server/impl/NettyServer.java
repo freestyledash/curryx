@@ -4,8 +4,10 @@ import com.freestyledash.curryx.common.protocol.codec.RPCDecoder;
 import com.freestyledash.curryx.common.protocol.codec.RPCEncoder;
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
-import com.freestyledash.curryx.server.server.Server;
+import com.freestyledash.curryx.registry.constant.Constants;
+import com.freestyledash.curryx.server.annotation.Service;
 import com.freestyledash.curryx.server.handler.RPCRequestHandler;
+import com.freestyledash.curryx.server.server.Server;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -16,27 +18,32 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 使用netty实现的服务器
+ *
  * @author zhangyanqi
  * @since 1.0 2017/11/23
  */
-public class NettyServer implements Server {
+public class NettyServer implements Server, ApplicationContextAware {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
-
 
     /**
      * 被注册为服务的集合
      */
-    private Map serviceMap;
+    private Map serviceMap = new HashMap();
 
     /**
      * netty监听的服务器网络进程地址
      */
-    private String serverAddress;
+    private String serverListeningAddress;
 
     /**
      * boss工作线程个数,默认为1
@@ -48,14 +55,12 @@ public class NettyServer implements Server {
      */
     private int workerThreadCount = 1;
 
-    public NettyServer(Map serviceMap, String serverAddress) {
-        this.serviceMap = serviceMap;
-        this.serverAddress = serverAddress;
+    public NettyServer(String serverAddress) {
+        this.serverListeningAddress = serverAddress;
     }
 
-    public NettyServer(Map serviceMap, String serverAddress, int bossThreadCount, int workerThreadCount) {
-        this.serviceMap = serviceMap;
-        this.serverAddress = serverAddress;
+    public NettyServer(String serverListeningAddress, int bossThreadCount, int workerThreadCount) {
+        this.serverListeningAddress = serverListeningAddress;
         this.bossThreadCount = bossThreadCount;
         this.workerThreadCount = workerThreadCount;
         if (bossThreadCount < 1 || workerThreadCount < 1) {
@@ -63,11 +68,27 @@ public class NettyServer implements Server {
         }
     }
 
+    @Override
+    public void setApplicationContext(ApplicationContext context) throws BeansException {
+        //扫描指定路径下被Service注解修饰的类
+        Map<String, Object> map = context.getBeansWithAnnotation(Service.class);
+        //若扫描到的map为空则说明当前服务器没有提供任何服务，警告
+        if (map == null || map.size() == 0) {
+            return;
+        }
+        //对扫描到的每一个service，记录其服务名称和版本
+        for (Object serviceBean : map.values()) {
+            Service serviceAnnotation = serviceBean.getClass().getAnnotation(Service.class);
+            String serviceFullName = serviceAnnotation.name().getName() + Constants.SERVICE_SEP + serviceAnnotation.version();
+            serviceMap.put(serviceFullName, serviceBean);
+        }
+    }
+
     /**
      * 服务器启动
      */
     @Override
-    public synchronized void  start() {
+    public synchronized void start() {
         final EventLoopGroup bossGroup = new NioEventLoopGroup(this.bossThreadCount);
         final EventLoopGroup workerGroup = new NioEventLoopGroup(this.workerThreadCount);
 
@@ -98,7 +119,7 @@ public class NettyServer implements Server {
                     .option(ChannelOption.SO_BACKLOG, 1024)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 
-            String[] address = serverAddress.split(":");
+            String[] address = serverListeningAddress.split(":");
             String host = address[0];
             int port = Integer.parseInt(address[1]);
 
