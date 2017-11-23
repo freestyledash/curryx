@@ -51,12 +51,17 @@ public class HelloworldImpl implements Helloworld {
 
     @Override
     public String hellow() {
-        return "hel";
+        return "helloworld";
     }
 }
 ```
 
 启动服务,使用spring来组织各个组件,并启动，ps:服务端可以开启客户端，可以调用其他服务
+```
+       
+
+
+```
 ```
         ApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
         RPCServer bean = context.getBean(RPCServer.class);

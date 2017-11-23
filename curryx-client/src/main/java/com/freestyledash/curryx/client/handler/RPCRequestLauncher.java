@@ -42,6 +42,13 @@ public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse>
         logger.debug("收到服务器响应：{}", response.getRequestId());
     }
 
+    /**
+     * 发送请求
+     *
+     * @param request 请求实体
+     * @return 响应
+     * @throws Exception
+     */
     public RPCResponse launch(RPCRequest request) throws Exception {
         NioEventLoopGroup group = new NioEventLoopGroup();
 
