@@ -30,7 +30,7 @@ public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
     /**
      * 保存服务bean的map
      */
-    private Map<String, Object> serviceMap = new HashMap<String, Object>();
+    private Map<String, Object> serviceMap = new HashMap();
 
     public RPCRequestHandler(Map<String, Object> serviceMap) {
         this.serviceMap = serviceMap;
