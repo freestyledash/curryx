@@ -22,10 +22,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,36 +50,7 @@ public class RPCServer implements ApplicationContextAware {
     private Map<String, Object> serviceMap = new HashMap();
 
     public RPCServer(String serverAddress, ServiceRegistry serviceRegistry) {
-        if (!serverAddress.startsWith("127.0.0.1")) {
-            String port = serverAddress.substring(serverAddress.length() - 4, serverAddress.length());
-            Enumeration en = null;
-            String ip = null;
-            try {
-                en = NetworkInterface.getNetworkInterfaces();
-            } catch (SocketException e) {
-                logger.error("获得网卡失败");
-            }
-            while (en.hasMoreElements()) {
-                NetworkInterface ni = (NetworkInterface) en.nextElement();
-                Enumeration ee = ni.getInetAddresses();
-                boolean isbreak = false;
-                while (ee.hasMoreElements()) {
-                    InetAddress ia = (InetAddress) ee.nextElement();
-                    String hostAddress = ia.getHostAddress();
-                    if (hostAddress.startsWith("192")) {
-                        ip = hostAddress;
-                        isbreak = true;
-                        break;
-                    }
-                }
-                if (isbreak) {
-                    break;
-                }
-            }
-            this.serverAddress = ip + ":" + port;
-        } else {
-            this.serverAddress = serverAddress;
-        }
+        this.serverAddress = serverAddress;
         this.serviceRegistry = serviceRegistry;
     }
 
@@ -97,8 +64,9 @@ public class RPCServer implements ApplicationContextAware {
     public void setApplicationContext(ApplicationContext context) throws BeansException {
         //扫描指定路径下被Service注解修饰的类
         Map<String, Object> map = context.getBeansWithAnnotation(Service.class);
-        //若扫描到的map为空则说明当前服务器没有提供任何服务，抛出异常
+        //若扫描到的map为空则说明当前服务器没有提供任何服务，警告
         if (map == null || map.size() == 0) {
+            logger.warn("在当前服务器下没有任何服务");
             return;
         }
         //对扫描到的每一个service，记录其服务名称和版本
@@ -150,11 +118,11 @@ public class RPCServer implements ApplicationContextAware {
             String host = address[0];
             int port = Integer.parseInt(address[1]);
 
-            ChannelFuture future = bootstrap.bind(host, port).sync();
+            ChannelFuture future = bootstrap.bind("0.0.0.0", port).sync();
 
             logger.debug("服务器已启动（端口号：{}）", port);
 
-            registerServices();
+            registerServices();//将服务注册到名字服务器中
 
             future.channel().closeFuture().sync();
         } catch (Exception e) {
