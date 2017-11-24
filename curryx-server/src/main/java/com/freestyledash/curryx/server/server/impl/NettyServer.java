@@ -24,6 +24,7 @@ import org.springframework.context.ApplicationContextAware;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * 使用netty实现的服务器
@@ -88,7 +89,7 @@ public class NettyServer implements Server, ApplicationContextAware {
      * 服务器启动
      */
     @Override
-    public synchronized void start() {
+    public synchronized void start(CountDownLatch latch) {
         final EventLoopGroup bossGroup = new NioEventLoopGroup(this.bossThreadCount);
         final EventLoopGroup workerGroup = new NioEventLoopGroup(this.workerThreadCount);
 
@@ -126,6 +127,8 @@ public class NettyServer implements Server, ApplicationContextAware {
             ChannelFuture future = bootstrap.bind(host, port).sync();
 
             logger.debug("服务器已启动（端口号：{}）", port);
+
+            latch.countDown(); //将栅栏-1
 
             future.channel().closeFuture().sync();
         } catch (Exception e) {
