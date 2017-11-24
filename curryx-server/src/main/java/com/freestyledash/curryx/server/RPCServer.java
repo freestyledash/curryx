@@ -12,6 +12,7 @@ import org.springframework.context.ApplicationContextAware;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * RPC服务端
@@ -32,7 +33,6 @@ public class RPCServer implements ApplicationContextAware {
      * 本机网络进程的地址，格式为ip:port
      */
     private String serverAddress;
-
 
     /**
      * 注册服务的接口
@@ -75,12 +75,20 @@ public class RPCServer implements ApplicationContextAware {
     }
 
     /**
-     * 启动服务
-     * 启动netty
+     * 在新线程中启动netty
      * 将服务注册到名字服务器中
+     * 只有服务启动了，才能注册服务到名字服务器中
      */
     public void start() {
-        this.server.start();
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        new Thread(
+                () ->
+                this.server.start(countDownLatch)).start();
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            logger.error("启动netty失败");
+        }
         registerServices();
     }
 
