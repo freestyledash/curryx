@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 使用ZooKeeper实现的服务发现
@@ -37,7 +38,7 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
 
     private Map<String, String> serviceMap;
 
-    private boolean reRegister;
+    private AtomicBoolean reRegister;
 
     public ZooKeeperServiceRegistry(String zkAddress, String serviceRoot) {
         this(zkAddress, serviceRoot, Constants.DEFAULT_ZK_SESSION_TIMEOUT, Constants.DEFAULT_ZK_CONNECTION_TIMEOUT);
@@ -111,31 +112,52 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
         }
     }
 
+    /**
+     * 处理zookeeper状态变化
+     *
+     * @param state
+     * @throws Exception
+     */
     @Override
     public void handleStateChanged(Watcher.Event.KeeperState state) throws Exception {
-        logger.debug("观察到ZooKeeper状态码：{}", state.getIntValue());
-
-        if (reRegister && state == Watcher.Event.KeeperState.SyncConnected) {
-            reRegister = false;
-
-            logger.debug("重新注册服务集合");
-
+        logger.debug("观察到ZooKeeper状态码：{}", state.toString());
+        if (state == Watcher.Event.KeeperState.SyncConnected) {
+            logger.debug("向zookeeper重新注册服务集合");
             for (String serviceFullName : serviceMap.keySet()) {
                 String serverAddress = serviceMap.get(serviceFullName);
                 registerService(serviceFullName, serverAddress);
             }
         }
+        if (state == Watcher.Event.KeeperState.Disconnected) {
+
+        }
+        if (state == Watcher.Event.KeeperState.Expired) {
+
+        }
     }
 
+    /**
+     * 创建新的session
+     *
+     * @throws Exception
+     */
     @Override
     public void handleNewSession() throws Exception {
-        reRegister = true;
-
-        logger.debug("ZooKeeper会话过期，创建新的会话");
+        logger.debug("ZooKeeper会话过期，创建新的会话，重新注册节点");
+        for (String serviceFullName : serviceMap.keySet()) {
+            String serverAddress = serviceMap.get(serviceFullName);
+            registerService(serviceFullName, serverAddress);
+        }
     }
 
+    /**
+     * session创建失败
+     *
+     * @param error
+     * @throws Exception
+     */
     @Override
     public void handleSessionEstablishmentError(Throwable error) throws Exception {
-        logger.debug("handleSessionEstablishmentError");
+        logger.debug("handleSessionEstablishmentError:{}", error.getCause());
     }
 }

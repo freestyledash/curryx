@@ -36,6 +36,7 @@ public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
         this.serviceMap = serviceMap;
     }
 
+    @Override
     protected void channelRead0(ChannelHandlerContext context, final RPCRequest request) throws Exception {
         logger.debug("请求处理开始：{}", request.getRequestId());
 
