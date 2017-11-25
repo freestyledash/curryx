@@ -1,4 +1,4 @@
-package com.freestyledash.curryx.registry.constant;
+package com.freestyledash.curryx.registryAndDiscovery.constant;
 
 
 public abstract class Constants {

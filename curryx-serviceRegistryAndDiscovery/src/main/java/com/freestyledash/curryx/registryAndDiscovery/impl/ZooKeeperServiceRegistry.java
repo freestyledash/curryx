@@ -1,7 +1,7 @@
-package com.freestyledash.curryx.registry.impl;
+package com.freestyledash.curryx.registryAndDiscovery.impl;
 
-import com.freestyledash.curryx.registry.ServiceRegistry;
-import com.freestyledash.curryx.registry.constant.Constants;
+import com.freestyledash.curryx.registryAndDiscovery.ServiceRegistry;
+import com.freestyledash.curryx.registryAndDiscovery.constant.Constants;
 import org.I0Itec.zkclient.IZkStateListener;
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.exception.ZkNodeExistsException;

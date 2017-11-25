@@ -1,7 +1,7 @@
 package com.freestyledash.curryx.server;
 
-import com.freestyledash.curryx.registry.ServiceRegistry;
-import com.freestyledash.curryx.registry.constant.Constants;
+import com.freestyledash.curryx.registryAndDiscovery.ServiceRegistry;
+import com.freestyledash.curryx.registryAndDiscovery.constant.Constants;
 import com.freestyledash.curryx.server.annotation.Service;
 import com.freestyledash.curryx.server.server.Server;
 import org.slf4j.Logger;

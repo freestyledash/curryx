@@ -59,7 +59,7 @@ public class HelloworldImpl implements Helloworld {
 ```
     <!--RPC Server配置-->
     <!--服务注册与发现-->
-    <bean id="serviceRegistry" class="com.freestyledash.curryx.registry.impl.ZooKeeperServiceRegistry">
+    <bean id="serviceRegistry" class="com.freestyledash.curryx.registryAndDiscovery.impl.ZooKeeperServiceRegistry">
         <constructor-arg name="zkAddress" value="127.0.0.1:2181"/>
         <constructor-arg name="serviceRoot" value="/x"/>
     </bean>
@@ -93,7 +93,7 @@ public class HelloworldImpl implements Helloworld {
 使用spring来组织服服务调用者
 ```
     <bean class="com.freestyledash.curryx.balance.impl.RandomBalancer" id="randomBalancer"/>
-    <bean class="com.freestyledash.curryx.registry.impl.ZooKeeperServiceDiscovery" id="serviceDiscovery"
+    <bean class="com.freestyledash.curryx.registryAndDiscovery.impl.ZooKeeperServiceDiscovery" id="serviceDiscovery"
           scope="singleton">
         <constructor-arg name="balancer" ref="randomBalancer"/>
         <constructor-arg name="serviceRoot" value="/x"/>  <!--名字服务器根路径-->
