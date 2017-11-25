@@ -60,14 +60,14 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
         this.zkClient = new ZkClient(zkAddress, zkSessionTimeout, zkConnectionTimeout);
         this.zkClient.subscribeStateChanges(this);
         if (zkAddress.contains(",")) {
-            logger.debug("连接到ZooKeeper服务器集群：{}", zkAddress);
+            logger.info("连接到ZooKeeper服务器集群：{}", zkAddress);
         } else {
-            logger.debug("连接到ZooKeeper单机服务器：{}", zkAddress);
+            logger.info("连接到ZooKeeper单机服务器：{}", zkAddress);
         }
         if (!zkClient.exists(serviceRoot)) {
             zkClient.createPersistent(serviceRoot);
         }
-        logger.debug("服务根节点（持久节点）：{}", serviceRoot);
+        logger.info("服务根节点（持久节点）：{}", serviceRoot);
     }
 
     /**
@@ -96,16 +96,12 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
         if (!zkClient.exists(servicePath)) {
             zkClient.createPersistent(servicePath);
         }
-
-        logger.debug("注册服务路径（持久节点）：{}", servicePath);
-
+        logger.info("注册服务路径（持久节点）：{}", servicePath);
         sb.append("/");
         sb.append(serverAddress);
-
         String serviceNode = sb.toString();
-
         try {
-            //注册包含服务地址的临时节点，ZooKeeper客户端断线后该节点会自动被ZooKeeper服务器删除
+            //注册包含服务地址的临时节点
             if (!zkClient.exists(serviceNode)) {
                 zkClient.createEphemeral(serviceNode, serverAddress);
             }
@@ -127,7 +123,7 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
      */
     @Override
     public void handleStateChanged(Watcher.Event.KeeperState state) throws Exception {
-        logger.debug("观察到ZooKeeper状态码：{}", state.toString());
+        logger.info("观察到ZooKeeper状态码：{}", state.toString());
         if (state == Watcher.Event.KeeperState.SyncConnected) {
             logger.debug("向zookeeper重新注册服务集合");
             for (String serviceFullName : serviceMap.keySet()) {
@@ -150,7 +146,7 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
      */
     @Override
     public void handleNewSession() throws Exception {
-        logger.debug("ZooKeeper会话过期，创建新的会话，重新注册节点");
+        logger.info("ZooKeeper会话过期，创建新的会话，重新注册节点");
         for (String serviceFullName : serviceMap.keySet()) {
             String serverAddress = serviceMap.get(serviceFullName);
             registerService(serviceFullName, serverAddress);
@@ -165,6 +161,6 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
      */
     @Override
     public void handleSessionEstablishmentError(Throwable error) throws Exception {
-        logger.debug("handleSessionEstablishmentError:{}", error.getCause());
+        logger.info("handleSessionEstablishmentError:{}", error.getCause());
     }
 }

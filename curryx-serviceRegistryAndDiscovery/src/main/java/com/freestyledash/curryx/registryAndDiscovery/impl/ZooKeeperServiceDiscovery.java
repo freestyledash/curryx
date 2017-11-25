@@ -84,16 +84,16 @@ public class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateList
      */
     public String discoverService(String name, String version) throws Exception {
         if (zkAddress.contains(",")) {
-            logger.debug("连接到ZooKeeper服务器集群：{}", zkAddress);
+            logger.info("连接到ZooKeeper服务器集群：{}", zkAddress);
         } else {
-            logger.debug("连接到ZooKeeper单机服务器：{}", zkAddress);
+            logger.info("连接到ZooKeeper单机服务器：{}", zkAddress);
         }
         String serviceFullName = name + Constants.SERVICE_SEP + version;
         String servicePath = serviceRoot + "/" + serviceFullName;
         //询问缓存是否有服务地址,如果有，使用缓存的地址，并使用负载均衡获一个地址返回
         List<String> childNodes = cachedServiceAddress.get(serviceFullName);
         if (childNodes != null && !childNodes.isEmpty()) {
-            logger.debug("使用缓存,获取到{}服务的{}个可用节点", serviceFullName, childNodes.size());
+            logger.info("使用缓存,获取到{}服务的{}个可用节点", serviceFullName, childNodes.size());
             String winner = balancer.elect(serviceFullName, childNodes);
             String data = zkClient.readData(servicePath + "/" + winner);
             return winner + "/" + data;
@@ -106,7 +106,7 @@ public class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateList
             throw new RuntimeException(String.format("服务路径(%s)下无可用服务器节点", servicePath));
         }
         cachedServiceAddress.put(serviceFullName, childNodes); //将内容存入缓存
-        logger.debug("获取到{}服务的{}个可用节点,并加入缓存", serviceFullName, childNodes.size());
+        logger.info("获取到{}服务的{}个可用节点,并加入缓存", serviceFullName, childNodes.size());
         String winner = balancer.elect(serviceFullName, childNodes);//读取节点
         String data = zkClient.readData(servicePath + "/" + winner); //读取节点内的内容
         String result = winner + "/" + data;
@@ -146,7 +146,7 @@ public class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateList
     @Override
     public void handleChildChange(String parentPath, List<String> currentChilds) throws Exception {
         if (serviceRoot.equals(parentPath)) {
-            logger.debug("{}子节点发生变化,清除缓存", serviceRoot);
+            logger.info("{}子节点发生变化,清除缓存", serviceRoot);
             cachedServiceAddress.clear();
         }
     }
