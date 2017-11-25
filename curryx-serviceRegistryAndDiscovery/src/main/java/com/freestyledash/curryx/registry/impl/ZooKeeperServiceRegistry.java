@@ -11,10 +11,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 使用ZooKeeper实现的服务发现
+ * 使用ZooKeeper名字服务器实现的服务发现
  */
 public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListener {
 
@@ -22,28 +21,33 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
 
     /**
      * ZooKeeper客户端实例
-     * <p>
-     * 用于连接ZooKeeper服务器并根据要注册的服务创建相应节点
-     * <p>
-     * 注册完服务后不能关闭该ZooKeeper客户端的连接，这是由于要进行心跳检测以确定提供服务的服务器是否掉线
      */
     private final ZkClient zkClient;
 
     /**
      * 所有服务在ZooKeeper下的根节点
-     * <p>
-     * 例如，若根节点为/com.nov21th，则所有服务都托管在ZooKeeper服务器的/com.nov21th/路径下
      */
     private final String serviceRoot;
 
+    /**
+     * 储存被发布到zookeeper中的服务名称和服务地址
+     */
     private Map<String, String> serviceMap;
 
-    private AtomicBoolean reRegister;
-
+    /**
+     * @param zkAddress   zookeeper地址
+     * @param serviceRoot 根节点
+     */
     public ZooKeeperServiceRegistry(String zkAddress, String serviceRoot) {
         this(zkAddress, serviceRoot, Constants.DEFAULT_ZK_SESSION_TIMEOUT, Constants.DEFAULT_ZK_CONNECTION_TIMEOUT);
     }
 
+    /**
+     * @param zkAddress           zookeeper地址
+     * @param serviceRoot         根节点
+     * @param zkSessionTimeout    session过期时间
+     * @param zkConnectionTimeout 连接失效时间
+     */
     public ZooKeeperServiceRegistry(String zkAddress, String serviceRoot, int zkSessionTimeout, int zkConnectionTimeout) {
         if (zkAddress == null || "".equals(zkAddress)) {
             throw new RuntimeException("无效的ZooKeeper地址");
@@ -51,38 +55,43 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
         if (serviceRoot == null || "".equals(serviceRoot)) {
             throw new RuntimeException("无效的服务根节点");
         }
-
         this.serviceMap = new HashMap<>();
-
         this.serviceRoot = serviceRoot;
         this.zkClient = new ZkClient(zkAddress, zkSessionTimeout, zkConnectionTimeout);
-
         this.zkClient.subscribeStateChanges(this);
-
         if (zkAddress.contains(",")) {
             logger.debug("连接到ZooKeeper服务器集群：{}", zkAddress);
         } else {
             logger.debug("连接到ZooKeeper单机服务器：{}", zkAddress);
         }
-
         if (!zkClient.exists(serviceRoot)) {
             zkClient.createPersistent(serviceRoot);
         }
-
         logger.debug("服务根节点（持久节点）：{}", serviceRoot);
     }
 
+    /**
+     * 注册服务
+     *
+     * @param name          服务名称
+     * @param version       服务版本
+     * @param serverAddress 提供服务的服务器的地址
+     */
     public void registerService(String name, String version, String serverAddress) {
         registerService(name + Constants.SERVICE_SEP + version, serverAddress);
     }
 
+    /**
+     * 注册服务
+     *
+     * @param serviceFullName 服务全称
+     * @param serverAddress   提供服务的服务器的地址
+     */
     public void registerService(String serviceFullName, String serverAddress) {
         StringBuilder sb = new StringBuilder();
-
         sb.append(serviceRoot);
         sb.append('/');
         sb.append(serviceFullName);
-
         String servicePath = sb.toString();
         if (!zkClient.exists(servicePath)) {
             zkClient.createPersistent(servicePath);
@@ -104,9 +113,7 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
             // do nothing
             // 只需要保证一定有该临时节点存在即可
         }
-
         logger.debug("注册服务节点（临时节点）：{}", serviceNode);
-
         if (!serviceMap.containsKey(serviceFullName)) {
             serviceMap.put(serviceFullName, serverAddress);
         }
@@ -129,10 +136,10 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
             }
         }
         if (state == Watcher.Event.KeeperState.Disconnected) {
-
+            logger.warn("检测到zookeeper事件:Disconnected");
         }
         if (state == Watcher.Event.KeeperState.Expired) {
-
+            logger.warn("检测到zookeeper事件:Expired");
         }
     }
 

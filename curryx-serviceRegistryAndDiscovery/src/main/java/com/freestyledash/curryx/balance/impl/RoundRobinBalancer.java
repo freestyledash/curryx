@@ -2,9 +2,9 @@ package com.freestyledash.curryx.balance.impl;
 
 import com.freestyledash.curryx.balance.Balancer;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 轮询负载均衡器，将请求按序轮流发送到每台服务器上
@@ -14,16 +14,23 @@ import java.util.Map;
  */
 public class RoundRobinBalancer implements Balancer {
 
-    private volatile Map<String, Integer> requestMap = new HashMap<String, Integer>();
+    /**
+     * 记录每个服务使用的服务历史
+     */
+    private Map<String, Integer> requestMap = new ConcurrentHashMap<>();
 
-    public synchronized String elect(String serviceFullName, List<String> candidates) {
-        if (!requestMap.containsKey(serviceFullName)) {
-            requestMap.put(serviceFullName, 0);
-        }
-
+    /**
+     * 从候选list中选出合适的节点
+     * 此时会出现线程安全问题，但是不会对业务造成影响
+     *
+     * @param serviceFullName 服务的全称
+     * @param candidates      服务的候选地址
+     * @return
+     */
+    public String elect(String serviceFullName, List<String> candidates) {
+        requestMap.putIfAbsent(serviceFullName, 0);
         int index = requestMap.get(serviceFullName) % candidates.size();
         requestMap.put(serviceFullName, index + 1);
-
         return candidates.get(index);
     }
 

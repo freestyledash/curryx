@@ -102,8 +102,8 @@ public final class RPCClient {
                 request.setNonNullArgs(nonNull);
             }
 
-            String node; //名字服务器存放该服务的节点
-            String serverAddress;//服务地址
+            String node; //名字服务器存放该服务的节点名称
+            String serverAddress;//节点地址
             if (serviceDiscovery != null) {
                 logger.debug("向服务中心查询服务：{}", serviceFullName);
                 String[] addressData = serviceDiscovery.discoverService(request.getServiceName(), request.getServiceVersion()).split("/");
