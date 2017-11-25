@@ -14,28 +14,25 @@
   ├── curryx-common   公共工具，包含请求报文格式，编码和解码器<br>
   ├── curryx-distributedLock 分布式锁<br>
 
-
- 
 ## 使用说明
-### 如何引入框架
 
 如果是使用maven来构建项目，请下载源码，并将源码打包成为jar包（maven install）,然后在项目的pom.xml中加入如下依赖：
 
 ```
-<!-- 服务提供者 -->
-<dependency>
-    <groupId>com.freestyledash</groupId>
-    <artifactId>curry-server</artifactId>
-    <version>x.x.x</version>
-</dependency>
+    <!-- 服务提供者 -->
+    <dependency>
+        <groupId>com.freestyledash</groupId>
+        <artifactId>curry-server</artifactId>
+        <version>x.x.x</version>
+    </dependency>
 ```
 ```
-<!-- 服务调用者 -->
-<dependency>
-    <groupId>com.freestyledash</groupId>
-    <artifactId>curry-client</artifactId>
-    <version>x.x.x</version>
-</dependency>
+    <!-- 服务调用者 -->
+    <dependency>
+        <groupId>com.freestyledash</groupId>
+        <artifactId>curry-client</artifactId>
+        <version>x.x.x</version>
+    </dependency>
 ```
 
 如果是其他方式，可以下载相应的jar包并加入到项目的classpath中。
@@ -59,7 +56,7 @@ public class HelloworldImpl implements Helloworld {
 ```
     <!--RPC Server配置-->
     <!--服务注册与发现-->
-    <bean id="serviceRegistry" class="com.freestyledash.curryx.registry.impl.ZooKeeperServiceRegistry">
+    <bean id="serviceRegistry" class="com.freestyledash.curryx.registryAndDiscovery.impl.ZooKeeperServiceRegistry">
         <constructor-arg name="zkAddress" value="127.0.0.1:2181"/>
         <constructor-arg name="serviceRoot" value="/x"/>
     </bean>
@@ -84,16 +81,16 @@ public class HelloworldImpl implements Helloworld {
     </bean>
 ```
 ```
-        ApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
-        RPCServerBootstrap bean = context.getBean(RPCServerBootstrap.class);
-        bean.launch();
+    ApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
+    RPCServerBootstrap bean = context.getBean(RPCServerBootstrap.class);
+    bean.launch();
 ```
 ### 服务调用者初始化
 
 使用spring来组织服服务调用者
 ```
     <bean class="com.freestyledash.curryx.balance.impl.RandomBalancer" id="randomBalancer"/>
-    <bean class="com.freestyledash.curryx.registry.impl.ZooKeeperServiceDiscovery" id="serviceDiscovery"
+    <bean class="com.freestyledash.curryx.registryAndDiscovery.impl.ZooKeeperServiceDiscovery" id="serviceDiscovery"
           scope="singleton">
         <constructor-arg name="balancer" ref="randomBalancer"/>
         <constructor-arg name="serviceRoot" value="/x"/>  <!--名字服务器根路径-->
@@ -106,7 +103,7 @@ public class HelloworldImpl implements Helloworld {
  ```
  使用java调用
  ```
- RPCClient client = ApplicationContextHolder.getContext().getBean(RPCClient.class);
- T t = client.create(Class<T> tClazz);
- t.dosth();
+     RPCClient client = ApplicationContextHolder.getContext().getBean(RPCClient.class);
+     T t = client.create(Class<T> tClazz);
+     t.dosth();
  ```

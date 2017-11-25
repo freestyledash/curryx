@@ -1,4 +1,4 @@
-package com.freestyledash.curryx.registry;
+package com.freestyledash.curryx.registryAndDiscovery;
 
 /**
  * 服务端向注册中心注册服务的接口

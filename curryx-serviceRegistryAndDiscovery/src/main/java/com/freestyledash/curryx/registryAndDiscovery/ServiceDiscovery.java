@@ -1,4 +1,4 @@
-package com.freestyledash.curryx.registry;
+package com.freestyledash.curryx.registryAndDiscovery;
 
 /**
  * 客户端从注册中心发现服务

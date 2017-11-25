@@ -2,7 +2,7 @@ package com.freestyledash.curryx.server.handler;
 
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
-import com.freestyledash.curryx.registry.constant.Constants;
+import com.freestyledash.curryx.registryAndDiscovery.constant.Constants;
 import com.freestyledash.curryx.server.RPCServer;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -36,6 +36,7 @@ public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
         this.serviceMap = serviceMap;
     }
 
+    @Override
     protected void channelRead0(ChannelHandlerContext context, final RPCRequest request) throws Exception {
         logger.debug("请求处理开始：{}", request.getRequestId());
 
