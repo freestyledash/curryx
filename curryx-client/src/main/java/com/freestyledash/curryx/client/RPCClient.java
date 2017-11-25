@@ -4,8 +4,8 @@ import com.freestyledash.curryx.client.handler.RPCRequestLauncher;
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
 import com.freestyledash.curryx.common.util.StringUtil;
-import com.freestyledash.curryx.registry.ServiceDiscovery;
-import com.freestyledash.curryx.registry.constant.Constants;
+import com.freestyledash.curryx.registryAndDiscovery.ServiceDiscovery;
+import com.freestyledash.curryx.registryAndDiscovery.constant.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,8 +102,8 @@ public final class RPCClient {
                 request.setNonNullArgs(nonNull);
             }
 
-            String node; //名字服务器存放该服务的节点
-            String serverAddress;//服务地址
+            String node; //名字服务器存放该服务的节点名称
+            String serverAddress;//节点地址
             if (serviceDiscovery != null) {
                 logger.debug("向服务中心查询服务：{}", serviceFullName);
                 String[] addressData = serviceDiscovery.discoverService(request.getServiceName(), request.getServiceVersion()).split("/");
