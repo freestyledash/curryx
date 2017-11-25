@@ -116,7 +116,7 @@ public class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateList
     @Override
     public void handleStateChanged(Watcher.Event.KeeperState state) throws Exception {
         if (state == Watcher.Event.KeeperState.SyncConnected) {
-            logger.info("观察到ZooKeeper状态SyncConnected，清除缓存");
+            logger.info("观察到ZooKeeper状态SyncConnected,清除缓存");
             synchronized (ZooKeeperServiceDiscovery.class) {
                 cachedServiceAddress.clear();
             }
@@ -125,7 +125,7 @@ public class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateList
 
     @Override
     public void handleNewSession() throws Exception {
-        logger.info("ZooKeeper会话过期，创建新的会话,清除缓存");
+        logger.info("ZooKeeper会话过期,创建新的会话,清除缓存");
         cachedServiceAddress.clear();
     }
 
