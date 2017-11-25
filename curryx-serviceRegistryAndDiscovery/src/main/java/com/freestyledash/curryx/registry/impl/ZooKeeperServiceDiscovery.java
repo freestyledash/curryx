@@ -131,10 +131,8 @@ public class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateList
 
     @Override
     public void handleSessionEstablishmentError(Throwable error) throws Exception {
-        logger.info("ZooKeeper会话过期,创建新的会话,但是失败了");
-        synchronized (ZooKeeperServiceDiscovery.class) {
-            cachedServiceAddress.clear();
-        }
+        logger.error("ZooKeeper会话过期,创建新的会话,但是失败了");
+        cachedServiceAddress.clear();
     }
 
     /**
