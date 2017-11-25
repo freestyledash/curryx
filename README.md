@@ -14,28 +14,25 @@
   ├── curryx-common   公共工具，包含请求报文格式，编码和解码器<br>
   ├── curryx-distributedLock 分布式锁<br>
 
-
- 
 ## 使用说明
-### 如何引入框架
 
 如果是使用maven来构建项目，请下载源码，并将源码打包成为jar包（maven install）,然后在项目的pom.xml中加入如下依赖：
 
 ```
-<!-- 服务提供者 -->
-<dependency>
-    <groupId>com.freestyledash</groupId>
-    <artifactId>curry-server</artifactId>
-    <version>x.x.x</version>
-</dependency>
+    <!-- 服务提供者 -->
+    <dependency>
+        <groupId>com.freestyledash</groupId>
+        <artifactId>curry-server</artifactId>
+        <version>x.x.x</version>
+    </dependency>
 ```
 ```
-<!-- 服务调用者 -->
-<dependency>
-    <groupId>com.freestyledash</groupId>
-    <artifactId>curry-client</artifactId>
-    <version>x.x.x</version>
-</dependency>
+    <!-- 服务调用者 -->
+    <dependency>
+        <groupId>com.freestyledash</groupId>
+        <artifactId>curry-client</artifactId>
+        <version>x.x.x</version>
+    </dependency>
 ```
 
 如果是其他方式，可以下载相应的jar包并加入到项目的classpath中。
@@ -84,9 +81,9 @@ public class HelloworldImpl implements Helloworld {
     </bean>
 ```
 ```
-        ApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
-        RPCServerBootstrap bean = context.getBean(RPCServerBootstrap.class);
-        bean.launch();
+    ApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
+    RPCServerBootstrap bean = context.getBean(RPCServerBootstrap.class);
+    bean.launch();
 ```
 ### 服务调用者初始化
 
@@ -106,7 +103,7 @@ public class HelloworldImpl implements Helloworld {
  ```
  使用java调用
  ```
- RPCClient client = ApplicationContextHolder.getContext().getBean(RPCClient.class);
- T t = client.create(Class<T> tClazz);
- t.dosth();
+     RPCClient client = ApplicationContextHolder.getContext().getBean(RPCClient.class);
+     T t = client.create(Class<T> tClazz);
+     t.dosth();
  ```
