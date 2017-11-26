@@ -125,12 +125,7 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
     public void handleStateChanged(Watcher.Event.KeeperState state) throws Exception {
         logger.info("观察到ZooKeeper状态码：{}", state.getIntValue());
         if (state == Watcher.Event.KeeperState.SyncConnected) {
-            logger.info("检测到zookeeper事件:SyncConnected(重新连接)");
-            logger.info("向zookeeper重新注册服务集合");
-            for (String serviceFullName : serviceMap.keySet()) {
-                String serverAddress = serviceMap.get(serviceFullName);
-                registerService(serviceFullName, serverAddress);
-            }
+            logger.info("检测到zookeeper事件:SyncConnected(连接)");
         }
         if (state == Watcher.Event.KeeperState.Disconnected) {
             logger.warn("检测到zookeeper事件:Disconnected(断开连接)");
