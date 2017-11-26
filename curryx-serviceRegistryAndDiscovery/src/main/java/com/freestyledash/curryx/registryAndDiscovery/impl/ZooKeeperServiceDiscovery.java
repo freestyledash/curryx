@@ -121,11 +121,17 @@ public class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateList
                 cachedServiceAddress.clear();
             }
         }
+        if (state == Watcher.Event.KeeperState.Disconnected) {
+            logger.warn("检测到zookeeper事件:Disconnected(断开连接)");
+        }
+        if (state == Watcher.Event.KeeperState.Expired) {
+            logger.warn("检测到zookeeper事件:Expired(session过期)");
+        }
     }
 
     @Override
     public void handleNewSession() throws Exception {
-        logger.info("ZooKeeper会话过期,创建新的会话,清除缓存");
+        logger.info("ZooKeeper创建新的会话,清除缓存");
         cachedServiceAddress.clear();
     }
 

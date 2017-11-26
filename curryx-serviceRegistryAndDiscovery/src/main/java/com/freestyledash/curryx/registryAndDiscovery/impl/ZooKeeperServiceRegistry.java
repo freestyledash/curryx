@@ -123,19 +123,20 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
      */
     @Override
     public void handleStateChanged(Watcher.Event.KeeperState state) throws Exception {
-        logger.info("观察到ZooKeeper状态码：{}", state.toString());
+        logger.info("观察到ZooKeeper状态码：{}", state.getIntValue());
         if (state == Watcher.Event.KeeperState.SyncConnected) {
-            logger.debug("向zookeeper重新注册服务集合");
+            logger.info("检测到zookeeper事件:SyncConnected(重新连接)");
+            logger.info("向zookeeper重新注册服务集合");
             for (String serviceFullName : serviceMap.keySet()) {
                 String serverAddress = serviceMap.get(serviceFullName);
                 registerService(serviceFullName, serverAddress);
             }
         }
         if (state == Watcher.Event.KeeperState.Disconnected) {
-            logger.warn("检测到zookeeper事件:Disconnected");
+            logger.warn("检测到zookeeper事件:Disconnected(断开连接)");
         }
         if (state == Watcher.Event.KeeperState.Expired) {
-            logger.warn("检测到zookeeper事件:Expired");
+            logger.warn("检测到zookeeper事件:Expired(session过期)");
         }
     }
 
@@ -146,7 +147,7 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
      */
     @Override
     public void handleNewSession() throws Exception {
-        logger.info("ZooKeeper会话过期，创建新的会话，重新注册节点");
+        logger.info("ZooKeeper创建新的会话，重新注册节点");
         for (String serviceFullName : serviceMap.keySet()) {
             String serverAddress = serviceMap.get(serviceFullName);
             registerService(serviceFullName, serverAddress);
