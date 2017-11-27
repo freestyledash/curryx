@@ -1,4 +1,4 @@
-package com.freestyledash.curryx.balance;
+package com.freestyledash.curryx.registryAndDiscovery.util.balance;
 
 import java.util.List;
 

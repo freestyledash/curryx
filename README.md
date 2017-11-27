@@ -54,11 +54,14 @@ public class HelloworldImpl implements Helloworld {
 
 启动服务,使用spring来组织各个组件,并启动
 ```
-    <!--RPC Server配置-->
+   <!--RPC Server配置-->
     <!--服务注册与发现-->
-    <bean id="serviceRegistry" class="com.freestyledash.curryx.registryAndDiscovery.impl.ZooKeeperServiceRegistry">
+    <bean id="serviceRegistry"
+          class="com.freestyledash.curryx.registryAndDiscovery.registry.impl.ZooKeeperServiceRegistry">
         <constructor-arg name="zkAddress" value="127.0.0.1:2181"/>
         <constructor-arg name="serviceRoot" value="/x"/>
+        <!--<constructor-arg name="zkConnectionTimeout" value="3000"/>-->
+        <!--<constructor-arg name="zkSessionTimeout" value="3000"/>-->
     </bean>
 
     <!--通讯服务器-->
@@ -76,7 +79,8 @@ public class HelloworldImpl implements Helloworld {
     </bean>
 
     <!--启动器-->
-    <bean id="rpcServerBootStrap" class="com.freestyledash.curryx.server.bootstrap.RPCServerBootstrap" scope="singleton">
+    <bean id="rpcServerBootStrap" class="com.freestyledash.curryx.server.bootstrap.RPCServerBootstrap"
+          scope="singleton">
         <constructor-arg name="rpcServer" ref="rpcServer"/>
     </bean>
 ```
@@ -89,14 +93,15 @@ public class HelloworldImpl implements Helloworld {
 
 使用spring来组织服服务调用者
 ```
-    <bean class="com.freestyledash.curryx.balance.impl.RandomBalancer" id="randomBalancer"/>
-    <bean class="com.freestyledash.curryx.registryAndDiscovery.impl.ZooKeeperServiceDiscovery" id="serviceDiscovery"
+    <bean class="com.freestyledash.curryx.registryAndDiscovery.util.balance.impl.RandomBalancer" id="randomBalancer"/>
+
+    <bean class="com.freestyledash.curryx.registryAndDiscovery.discovery.impl.ZooKeeperServiceDiscovery" id="serviceDiscovery"
           scope="singleton">
         <constructor-arg name="balancer" ref="randomBalancer"/>
-        <constructor-arg name="serviceRoot" value="/x"/>  <!--名字服务器根路径-->
-        <constructor-arg name="zkAddress" value="127.0.0.1:2181"/>   <!--名字服务器路径-->
+        <constructor-arg name="serviceRoot" value="/x"/>
+        <constructor-arg name="zkAddress" value="127.0.0.1:2181"/>
     </bean>
-    
+
     <bean class="com.freestyledash.curryx.client.RPCClient" id="rpcClient" scope="singleton">
         <constructor-arg name="serviceDiscovery" ref="serviceDiscovery"/>
     </bean>
