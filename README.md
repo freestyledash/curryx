@@ -89,8 +89,8 @@ public class HelloworldImpl implements Helloworld {
 
 使用spring来组织服服务调用者
 ```
-    <bean class="com.freestyledash.curryx.balance.impl.RandomBalancer" id="randomBalancer"/>
-    <bean class="com.freestyledash.curryx.registryAndDiscovery.impl.ZooKeeperServiceDiscovery" id="serviceDiscovery"
+    <bean class="com.freestyledash.curryx.registryAndDiscovery.util.balance.impl.RandomBalancer" id="randomBalancer"/>
+    <bean class="com.freestyledash.curryx.registryAndDiscovery.discovery.ServiceDiscovery.ZooKeeperServiceDiscovery" id="serviceDiscovery"
           scope="singleton">
         <constructor-arg name="balancer" ref="randomBalancer"/>
         <constructor-arg name="serviceRoot" value="/x"/>  <!--名字服务器根路径-->

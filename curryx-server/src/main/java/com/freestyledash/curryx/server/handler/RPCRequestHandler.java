@@ -2,7 +2,7 @@ package com.freestyledash.curryx.server.handler;
 
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
-import com.freestyledash.curryx.registryAndDiscovery.constant.Constants;
+import com.freestyledash.curryx.registryAndDiscovery.util.constant.Constants;
 import com.freestyledash.curryx.server.RPCServer;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
