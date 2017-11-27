@@ -178,7 +178,11 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
      */
     @Override
     public void handleChildChange(String parentPath, List<String> currentChilds) throws Exception {
-        logger.info("{}的子节点发生变化,清除该服务对应的缓存", parentPath);
+        if(parentPath.equals(serviceRoot)){//如果是根节点改变,则删除所有缓存
+            logger.info("根节点{}的子节点发生变化,清除所有缓存", parentPath);
+            cachedServiceAddress.clear();
+        }
+        logger.info("服务{}的子节点发生变化,清除该服务对应的缓存", parentPath);
         cachedServiceAddress.remove(parentPath);
     }
 }
