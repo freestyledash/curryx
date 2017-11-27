@@ -58,12 +58,12 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
         this.serviceMap = new HashMap<>();
         this.serviceRoot = serviceRoot;
         this.zkClient = new ZkClient(zkAddress, zkSessionTimeout, zkConnectionTimeout);
-        this.zkClient.subscribeStateChanges(this);
         if (zkAddress.contains(",")) {
             logger.info("连接到ZooKeeper服务器集群：{}", zkAddress);
         } else {
             logger.info("连接到ZooKeeper单机服务器：{}", zkAddress);
         }
+        this.zkClient.subscribeStateChanges(this);
         if (!zkClient.exists(serviceRoot)) {
             zkClient.createPersistent(serviceRoot);
         }
