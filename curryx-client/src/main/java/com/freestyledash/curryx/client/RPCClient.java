@@ -4,8 +4,8 @@ import com.freestyledash.curryx.client.handler.RPCRequestLauncher;
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
 import com.freestyledash.curryx.common.util.StringUtil;
-import com.freestyledash.curryx.registryAndDiscovery.ServiceDiscovery;
-import com.freestyledash.curryx.registryAndDiscovery.constant.Constants;
+import com.freestyledash.curryx.registryAndDiscovery.discovery.ServiceDiscovery;
+import com.freestyledash.curryx.registryAndDiscovery.util.constant.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
