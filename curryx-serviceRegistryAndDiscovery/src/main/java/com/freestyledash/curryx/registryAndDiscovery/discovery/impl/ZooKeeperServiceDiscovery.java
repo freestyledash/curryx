@@ -117,6 +117,7 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
             String data = zkClient.readData(servicePath + "/" + winner);
             return winner + "/" + data;
         }
+        //没有使用缓存
         if (!zkClient.exists(servicePath)) {
             throw new RuntimeException(String.format("服务路径(%s)不存在", servicePath));
         }
@@ -178,11 +179,14 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
      */
     @Override
     public void handleChildChange(String parentPath, List<String> currentChilds) throws Exception {
-        if(parentPath.equals(serviceRoot)){//如果是根节点改变,则删除所有缓存
+        if (parentPath.equals(serviceRoot)) {//如果是根节点改变,则删除所有缓存
             logger.info("根节点{}的子节点发生变化,清除所有缓存", parentPath);
             cachedServiceAddress.clear();
+        } else {
+            logger.info("服务{}的子节点发生变化,清除该服务对应的缓存", parentPath);
+            String serviceFullName = parentPath.substring(serviceRoot.length());
+            cachedServiceAddress.remove(serviceFullName);
         }
-        logger.info("服务{}的子节点发生变化,清除该服务对应的缓存", parentPath);
-        cachedServiceAddress.remove(parentPath);
     }
+
 }
