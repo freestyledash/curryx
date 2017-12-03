@@ -141,6 +141,6 @@ public class NettyServer implements Server, ApplicationContextAware {
 
     @Override
     public synchronized void shutdown() {
-
+        logger.info("netty服务器关闭");
     }
 }
