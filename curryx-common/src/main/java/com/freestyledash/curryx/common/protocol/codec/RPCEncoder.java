@@ -18,7 +18,7 @@ public class RPCEncoder extends MessageToByteEncoder {
     /**
      * 要编码的对象类型
      */
-    private Class<?> clazz;
+    private final Class<?> clazz;
 
     public RPCEncoder(Class<?> clazz) {
         this.clazz = clazz;
@@ -29,7 +29,7 @@ public class RPCEncoder extends MessageToByteEncoder {
         if (clazz.isInstance(o)) {
             byte[] buffer = SerializationUtil.serialize(o);
             logger.debug("将({})类型的对象编码为长度为{}的字节数组", clazz.getName(), buffer.length);
-            byte[] encrypt = EncryptUtil.encrypt(buffer);           //加入加密的信息
+            byte[] encrypt = EncryptUtil.encrypt(buffer);//加密
             byteBuf.writeInt(encrypt.length);
             byteBuf.writeBytes(encrypt);
             logger.debug("将({})类型的对象加密编码为长度为{}的字节数组", clazz.getName(), encrypt.length);

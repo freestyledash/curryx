@@ -21,7 +21,7 @@ public class RPCDecoder extends ByteToMessageDecoder {
     /**
      * 要解码的对象类型
      */
-    private Class<?> clazz;
+    private final Class<?> clazz;
 
     public RPCDecoder(Class<?> clazz) {
         this.clazz = clazz;

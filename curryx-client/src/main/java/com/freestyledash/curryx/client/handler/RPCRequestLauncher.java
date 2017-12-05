@@ -64,7 +64,7 @@ public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse>
                                     .addLast(RPCRequestLauncher.this);
                         }
                     })
-                    .option(ChannelOption.TCP_NODELAY, true);
+                    .option(ChannelOption.TCP_NODELAY, true); //立即发送
 
             ChannelFuture future = bootstrap.connect(host, port).sync();
 
