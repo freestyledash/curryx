@@ -61,7 +61,7 @@ public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse>
                         protected void initChannel(SocketChannel channel) throws Exception {
                             channel.pipeline()
                                     .addLast(new RPCEncoder())
-                                    .addLast(new RPCDecoder(RPCResponse.class))
+                                    .addLast(new RPCDecoder())
                                     .addLast(RPCRequestLauncher.this);
                         }
                     });
