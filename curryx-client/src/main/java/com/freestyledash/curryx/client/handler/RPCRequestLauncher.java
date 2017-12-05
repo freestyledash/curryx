@@ -55,23 +55,23 @@ public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse>
         try {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(group)
-                    .channel(NioSocketChannel.class)
-                    .handler(new ChannelInitializer<SocketChannel>() {
+                    .channel(NioSocketChannel.class) //指定创建连接类型
+                    .option(ChannelOption.TCP_NODELAY, true) //立即发送
+                    .handler(new ChannelInitializer<SocketChannel>() { //设置消息处理
                         protected void initChannel(SocketChannel channel) throws Exception {
                             channel.pipeline()
                                     .addLast(new RPCEncoder(RPCRequest.class))
                                     .addLast(new RPCDecoder(RPCResponse.class))
                                     .addLast(RPCRequestLauncher.this);
                         }
-                    })
-                    .option(ChannelOption.TCP_NODELAY, true); //立即发送
+                    });
 
-            ChannelFuture future = bootstrap.connect(host, port).sync();
+            ChannelFuture future = bootstrap.connect(host, port).sync(); //同步等待连接，连接得到之后再继续
 
             logger.debug("连接到服务器：{}", host + ":" + port);
             logger.debug("发送请求：{}", request.getRequestId());
 
-            Channel channel = future.channel();
+            Channel channel = future.channel();  //连接成功
             channel.writeAndFlush(request).sync();
             channel.closeFuture().sync();
 
@@ -80,4 +80,5 @@ public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse>
             group.shutdownGracefully();
         }
     }
+
 }
