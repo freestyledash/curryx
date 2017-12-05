@@ -28,7 +28,7 @@ public final class RPCClient {
     private ServiceDiscovery serviceDiscovery;
 
     /**
-     * 代理对象缓存
+     * 服务代理对象缓存
      */
     private Map<String, Object> cachedProxy;
 
@@ -72,6 +72,12 @@ public final class RPCClient {
      */
     public static class RpcInvocationHandler implements InvocationHandler {
 
+        /**
+         * @param version 服务版本
+         * @param serviceFullName   服务全称
+         * @param clazz 被代理对象
+         * @param serviceDiscovery 服务发现
+         */
         public RpcInvocationHandler(String version, String serviceFullName, Class clazz, ServiceDiscovery serviceDiscovery) {
             this.version = version;
             this.serviceFullName = serviceFullName;
@@ -93,7 +99,7 @@ public final class RPCClient {
             request.setMethodName(method.getName());
             request.setArgsTypes(method.getParameterTypes());
             request.setArgsValues(args);
-            //设置请求参数
+            //请求参数被封装在一个数组中，在反序列话的过程中，数组中不为null的元素会被提前
             if (args != null && args.length > 0) {
                 boolean[] nonNull = new boolean[args.length];
                 for (int i = 0; i < args.length; i++) {
@@ -112,24 +118,20 @@ public final class RPCClient {
             } else {
                 throw new RuntimeException("服务中心不可用");
             }
-
             if (StringUtil.isEmpty(serverAddress)) {
                 throw new RuntimeException("未查询到服务：" + serviceFullName);
             }
-
             logger.debug("选取服务{}节点：{}", serviceFullName, node + "/" + serverAddress);
 
             String[] address = serverAddress.split(":");
             String host = address[0];
             int port = Integer.parseInt(address[1]);
-
             RPCResponse response = new RPCRequestLauncher(host, port).launch(request);
             long requestTimeCost = System.currentTimeMillis() - requestStartTime;
 
             if (response == null) {
                 throw new RuntimeException(String.format("空的服务器响应(请求号为%s)", request.getRequestId()));
             }
-
             logger.debug("请求{}耗时：{}ms", request.getRequestId(), requestTimeCost);
 
             if (response.getException() != null) {
