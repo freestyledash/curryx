@@ -1,5 +1,6 @@
 package com.freestyledash.curryx.common.protocol.codec;
 
+import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
 import com.freestyledash.curryx.common.util.EncryptUtil;
 import com.freestyledash.curryx.common.util.SerializationUtil;
 import io.netty.buffer.ByteBuf;
@@ -21,11 +22,7 @@ public class RPCDecoder extends ByteToMessageDecoder {
     /**
      * 要解码的对象类型
      */
-    private Class<?> clazz;
-
-    public RPCDecoder(Class<?> clazz) {
-        this.clazz = clazz;
-    }
+    private final Class<?> clazz = RPCResponse.class;
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
@@ -43,7 +40,6 @@ public class RPCDecoder extends ByteToMessageDecoder {
         if (length < 0) {
             channelHandlerContext.close();
         }
-
         if (byteBuf.readableBytes() < length) {
             byteBuf.resetReaderIndex();
             return;
