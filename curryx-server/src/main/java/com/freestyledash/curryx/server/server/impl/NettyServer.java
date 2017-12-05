@@ -120,8 +120,8 @@ public class NettyServer implements Server, ApplicationContextAware {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         protected void initChannel(SocketChannel channel) throws Exception {
                             channel.pipeline()
-                                    .addLast(new RPCEncoder(RPCResponse.class))    //第一个OutboundHandler，用于编码RPC响应
-                                    .addLast(new RPCDecoder(RPCRequest.class))  //第一个InboundHandler，用于解码RPC请求
+                                    .addLast(new RPCEncoder())    //第一个OutboundHandler，用于编码RPC响应
+                                    .addLast(new RPCDecoder())  //第一个InboundHandler，用于解码RPC请求
                                     .addLast(new RPCRequestHandler(serviceMap)); //第二个InboundHandler，用于处理RPC请求并生成RPC响应
                         }
                     });

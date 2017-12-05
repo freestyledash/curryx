@@ -40,7 +40,6 @@ public class RPCDecoder extends ByteToMessageDecoder {
         if (length < 0) {
             channelHandlerContext.close();
         }
-
         if (byteBuf.readableBytes() < length) {
             byteBuf.resetReaderIndex();
             return;
