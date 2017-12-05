@@ -93,6 +93,9 @@ public class NettyServer implements Server, ApplicationContextAware {
         final EventLoopGroup bossGroup = new NioEventLoopGroup(this.bossThreadCount);
         final EventLoopGroup workerGroup = new NioEventLoopGroup(this.workerThreadCount);
 
+        /**
+         * 在jvm退出时，确保netty服务器安全退出，注意退出是指ctrl+c或者kill -15，如果用kill -9 那是没办法的
+         */
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (!workerGroup.isShutdown()) {
                 workerGroup.shutdownGracefully();
@@ -109,6 +112,11 @@ public class NettyServer implements Server, ApplicationContextAware {
 
             bootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
+                    //服务端处理客户端连接请求是顺序处理的，所以同一时间只能处理一个客户端连接，
+                    //多个客户端来的时候，服务端将不能处理的客户端连接请求放在队列中等待处理，backlog参数指定了队列的大小
+                    .option(ChannelOption.SO_BACKLOG, 1024)
+                    //如果在两小时内没有数据的通信时，TCP会自动发送一个活动探测数据报文
+                    .childOption(ChannelOption.SO_KEEPALIVE, true)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         protected void initChannel(SocketChannel channel) throws Exception {
                             channel.pipeline()
@@ -116,9 +124,7 @@ public class NettyServer implements Server, ApplicationContextAware {
                                     .addLast(new RPCDecoder(RPCRequest.class))  //第一个InboundHandler，用于解码RPC请求
                                     .addLast(new RPCRequestHandler(serviceMap)); //第二个InboundHandler，用于处理RPC请求并生成RPC响应
                         }
-                    })
-                    .option(ChannelOption.SO_BACKLOG, 1024)
-                    .childOption(ChannelOption.SO_KEEPALIVE, true);
+                    });
 
             String[] address = serverListeningAddress.split(":");
             String host = address[0];
