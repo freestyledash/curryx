@@ -1,6 +1,7 @@
 package com.freestyledash.curryx.client.handler;
 
 import com.freestyledash.curryx.common.protocol.codec.RPCDecoder;
+
 import com.freestyledash.curryx.common.protocol.codec.RPCEncoder;
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
