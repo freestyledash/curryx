@@ -59,6 +59,7 @@ public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse>
                     .channel(NioSocketChannel.class) //指定创建连接类型
                     .option(ChannelOption.TCP_NODELAY, true) //立即发送
                     .handler(new ChannelInitializer<SocketChannel>() { //设置消息处理
+                        @Override
                         protected void initChannel(SocketChannel channel) throws Exception {
                             channel.pipeline()
                                     .addLast(new RPCEncoder())

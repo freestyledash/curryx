@@ -36,15 +36,14 @@ public final class SerializationUtil {
      * 将对象<code>message</code>序列化为字节数组
      *
      * @param message 要序列化的对象
-     * @param <T>     要序列化的对象的类型参数
      * @return 序列化后的字节数组
      */
     @SuppressWarnings("unchecked")
-    public static <T> byte[] serialize(T message) {
-        Class<T> clazz = (Class<T>) message.getClass();
+    public static byte[] serialize(Object message) {
+        Class clazz = message.getClass();
         LinkedBuffer buffer = LinkedBuffer.allocate();
         try {
-            Schema<T> schema = getSchema(clazz);
+            Schema schema = getSchema(clazz);
             return GraphIOUtil.toByteArray(message, schema, buffer);
         } finally {
             buffer.clear();

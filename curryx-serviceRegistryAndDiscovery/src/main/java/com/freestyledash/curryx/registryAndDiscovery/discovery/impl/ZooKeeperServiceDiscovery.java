@@ -101,6 +101,7 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
      * @return 服务地址 格式为 服务节点名称/服务节点地址
      * @throws Exception
      */
+    @Override
     public String discoverService(String name, String version) throws Exception {
         if (zkAddress.contains(",")) {
             logger.info("连接到ZooKeeper服务器集群：{}", zkAddress);

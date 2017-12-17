@@ -90,6 +90,7 @@ public final class RPCClient {
         private Class clazz; //被代理的class类型
         private ServiceDiscovery serviceDiscovery; //服务发现接口
 
+        @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             long requestStartTime = System.currentTimeMillis();
             //构建请求对象
