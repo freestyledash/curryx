@@ -1,8 +1,10 @@
 package com.freestyledash.curryx.common.protocol.codec;
 
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
-import com.freestyledash.curryx.common.util.EncryptUtil;
-import com.freestyledash.curryx.common.util.SerializationUtil;
+import com.freestyledash.curryx.common.util.encryption.DESEncryptUtil;
+import com.freestyledash.curryx.common.util.encryption.EncryptUtil;
+import com.freestyledash.curryx.common.util.serialization.ProtostuffSerializationUtil;
+import com.freestyledash.curryx.common.util.serialization.SerializationUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -23,6 +25,38 @@ public class RPCDecoder extends ByteToMessageDecoder {
      * 要解码的对象类型
      */
     private final Class<?> clazz = RPCResponse.class;
+
+    /**
+     * 序列化工具
+     */
+    private SerializationUtil serializationUtil;
+
+    /**
+     * 加密工具
+     */
+    private EncryptUtil encryptUtil;
+
+
+    public RPCDecoder(SerializationUtil serializationUtil, EncryptUtil encryptUtil) {
+        this.serializationUtil = serializationUtil;
+        this.encryptUtil = encryptUtil;
+    }
+
+    public RPCDecoder(EncryptUtil encryptUtil) {
+        this.encryptUtil = encryptUtil;
+        this.serializationUtil = new ProtostuffSerializationUtil();
+    }
+
+    public RPCDecoder(SerializationUtil serializationUtil) {
+        this.encryptUtil = new DESEncryptUtil();
+        this.serializationUtil = serializationUtil;
+    }
+
+    public RPCDecoder() {
+        this.encryptUtil = new DESEncryptUtil();
+        this.serializationUtil = new ProtostuffSerializationUtil();
+    }
+
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
@@ -47,10 +81,26 @@ public class RPCDecoder extends ByteToMessageDecoder {
         //解码
         byte[] body = new byte[length];
         byteBuf.readBytes(body);
-        byte[] decode = EncryptUtil.decode(body);
+        byte[] decode = encryptUtil.decode(body);
         logger.debug("将长度为({})的字节数组为({})类型的对象", decode.length, clazz.getName());
-        Object message = SerializationUtil.deserialize(decode, clazz);
+        Object message = serializationUtil.deserialize(decode, clazz);
         list.add(message);
 
+    }
+
+    public SerializationUtil getSerializationUtil() {
+        return serializationUtil;
+    }
+
+    public void setSerializationUtil(SerializationUtil serializationUtil) {
+        this.serializationUtil = serializationUtil;
+    }
+
+    public EncryptUtil getEncryptUtil() {
+        return encryptUtil;
+    }
+
+    public void setEncryptUtil(EncryptUtil encryptUtil) {
+        this.encryptUtil = encryptUtil;
     }
 }

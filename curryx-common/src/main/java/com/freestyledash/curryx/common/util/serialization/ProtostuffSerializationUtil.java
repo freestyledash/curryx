@@ -1,4 +1,4 @@
-package com.freestyledash.curryx.common.util;
+package com.freestyledash.curryx.common.util.serialization;
 
 import io.protostuff.GraphIOUtil;
 import io.protostuff.LinkedBuffer;
@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 将对象序列化为字节数组以及将字节数组反序列化为对象的工具类
  * 使用框架:protostuff
  */
-public final class SerializationUtil {
+public final class ProtostuffSerializationUtil implements SerializationUtil {
 
     private static final Map<Class<?>, Schema<?>> cachedSchemas; //
 
@@ -26,20 +26,13 @@ public final class SerializationUtil {
     }
 
     /**
-     * 提供私有构造器，防止该类被继承
-     */
-    private SerializationUtil() {
-
-    }
-
-    /**
      * 将对象<code>message</code>序列化为字节数组
      *
      * @param message 要序列化的对象
      * @return 序列化后的字节数组
      */
     @SuppressWarnings("unchecked")
-    public static byte[] serialize(Object message) {
+    public byte[] serialize(Object message) {
         Class clazz = message.getClass();
         LinkedBuffer buffer = LinkedBuffer.allocate();
         try {
@@ -58,7 +51,7 @@ public final class SerializationUtil {
      * @param <T>   对象的类型参数
      * @return 反序列化后的对象
      */
-    public static <T> T deserialize(byte[] data, Class<T> clazz) {
+    public <T> T deserialize(byte[] data, Class<T> clazz) {
         T message = objenesis.newInstance(clazz);
         Schema<T> schema = getSchema(clazz);
         GraphIOUtil.mergeFrom(data, message, schema);
@@ -66,7 +59,7 @@ public final class SerializationUtil {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> Schema<T> getSchema(Class<T> clazz) {
+    private <T> Schema<T> getSchema(Class<T> clazz) {
         Schema<T> schema = (Schema<T>) cachedSchemas.get(clazz);
         if (schema == null) {
             schema = RuntimeSchema.createFrom(clazz);
