@@ -13,34 +13,37 @@
   ├── curryx-serviceRegistryAndDiscovery  业务注册和业务发现<br>
   ├── curryx-common   公共工具，包含请求报文格式，编码和解码器<br>
   ├── curryx-distributedLock 分布式锁<br>
-
+  
 ## 使用说明
 
-如果是使用maven来构建项目，请下载源码，并将源码打包成为jar包（maven install）,然后在项目的pom.xml中加入如下依赖：
+### 打包该项目
+如果是使用maven来构建项目，请下载源码，并将源码打包成为jar包，加入本地或者远程的仓库（maven install）,然后在使用该框架的项目的pom.xml中加入如下依赖：
+（依赖的版本请根据需要的版本进行填写）
 
 ```
-    <!-- 服务提供者 -->
+    <!-- 服务提供者添加如下依赖 -->
     <dependency>
         <groupId>com.freestyledash</groupId>
         <artifactId>curry-server</artifactId>
         <version>x.x.x</version>
     </dependency>
 ```
+
 ```
-    <!-- 服务调用者 -->
+    <!-- 服务调用者添加如下依赖 -->
     <dependency>
         <groupId>com.freestyledash</groupId>
         <artifactId>curry-client</artifactId>
         <version>x.x.x</version>
     </dependency>
-```
+```  
 
-如果是其他方式，可以下载相应的jar包并加入到项目的classpath中。
+### 启动zookeeper
+zookeeper在本框架中充当名字服务器的功能，zookeeper的下载和使用请参照官方文档
+下载zookeeper之后启动zookeeper
 
-  
 ### 服务提供者初始化
-
-将方法设置为服务，该服务会在服务器启动时自动注册到名字服务器中
+将某个方法设置为服务（该服务会在服务器启动时自动将服务地址注册到名字服务器中
 ```
 @Service(name = Helloworld.class, version = "develop")
 public class HelloworldImpl implements Helloworld {
@@ -52,7 +55,7 @@ public class HelloworldImpl implements Helloworld {
 }
 ```
 
-启动服务,使用spring来组织各个组件,并启动
+启动服务（使用spring来组织各个组件，并启动
 ```
    <!--RPC Server配置-->
     <!--服务注册与发现-->
@@ -85,6 +88,7 @@ public class HelloworldImpl implements Helloworld {
     </bean>
 ```
 ```
+    //在代码中启动服务器
     ApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
     RPCServerBootstrap bean = context.getBean(RPCServerBootstrap.class);
     bean.launch();
@@ -106,7 +110,7 @@ public class HelloworldImpl implements Helloworld {
         <constructor-arg name="serviceDiscovery" ref="serviceDiscovery"/>
     </bean>
  ```
- 使用java调用
+ 使用代码调用一个服务
  ```
      RPCClient client = ApplicationContextHolder.getContext().getBean(RPCClient.class);
      T t = client.create(Class<T> tClazz);

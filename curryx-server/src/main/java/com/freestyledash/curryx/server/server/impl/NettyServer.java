@@ -2,8 +2,6 @@ package com.freestyledash.curryx.server.server.impl;
 
 import com.freestyledash.curryx.common.protocol.codec.RPCDecoder;
 import com.freestyledash.curryx.common.protocol.codec.RPCEncoder;
-import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
-import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
 import com.freestyledash.curryx.registryAndDiscovery.util.constant.Constants;
 import com.freestyledash.curryx.server.annotation.Service;
 import com.freestyledash.curryx.server.handler.RPCRequestHandler;
@@ -69,6 +67,12 @@ public class NettyServer implements Server, ApplicationContextAware {
         }
     }
 
+    /**
+     * 在spring初始化该类对象完成之后运行，用于等级被注册的服务
+     *
+     * @param context
+     * @throws BeansException
+     */
     @Override
     public void setApplicationContext(ApplicationContext context) throws BeansException {
         //扫描指定路径下被Service注解修饰的类
@@ -92,7 +96,6 @@ public class NettyServer implements Server, ApplicationContextAware {
     public synchronized void start(CountDownLatch latch) {
         final EventLoopGroup bossGroup = new NioEventLoopGroup(this.bossThreadCount);
         final EventLoopGroup workerGroup = new NioEventLoopGroup(this.workerThreadCount);
-
         /**
          * 在jvm退出时，确保netty服务器安全退出，注意退出是指ctrl+c或者kill -15，如果用kill -9 那是没办法的
          */

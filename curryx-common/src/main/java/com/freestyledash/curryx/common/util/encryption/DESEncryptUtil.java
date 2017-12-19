@@ -5,7 +5,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * 加密工具
+ * DES加密工具
  *
  * @author zhangyanqi
  * @since 1.0 2017/11/8

@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class ProtostuffSerializationUtil implements SerializationUtil {
 
-    private static final Map<Class<?>, Schema<?>> cachedSchemas; //
+    private static final Map<Class<?>, Schema<?>> cachedSchemas; //Schemas缓存
 
     private static final Objenesis objenesis;
 
@@ -52,10 +52,10 @@ public final class ProtostuffSerializationUtil implements SerializationUtil {
      * @return 反序列化后的对象
      */
     public <T> T deserialize(byte[] data, Class<T> clazz) {
-        T message = objenesis.newInstance(clazz);
+        T emptyObj = objenesis.newInstance(clazz);
         Schema<T> schema = getSchema(clazz);
-        GraphIOUtil.mergeFrom(data, message, schema);
-        return message;
+        GraphIOUtil.mergeFrom(data, emptyObj, schema);
+        return emptyObj;
     }
 
     @SuppressWarnings("unchecked")
