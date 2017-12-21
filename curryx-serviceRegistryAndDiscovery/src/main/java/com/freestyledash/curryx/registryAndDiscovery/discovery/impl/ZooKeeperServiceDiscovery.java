@@ -87,9 +87,11 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
         this.serviceRoot = serviceRoot;
         this.balancer = balancer;
         zkClient = new ZkClient(zkAddress, zkSessionTimeout, zkConnectionTimeout);
-        this.zkClient.subscribeStateChanges(this); //注册事件监听器
+        //注册事件监听器
+        this.zkClient.subscribeStateChanges(this);
         this.zkClient.subscribeChildChanges(serviceRoot, this);
-        cachedServiceAddress = new ConcurrentHashMap<>(); // 初始化缓存
+        // 初始化缓存
+        cachedServiceAddress = new ConcurrentHashMap<>();
         listenedNodeList = new ArrayList();
     }
 
@@ -130,7 +132,8 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
         cachedServiceAddress.put(serviceFullName, childNodes);
         logger.info("获取到{}服务的{}个可用节点,并加入缓存", serviceFullName, childNodes.size());
         //将这个节点加入被监听的行列中,如果node
-        if (!listenedNodeList.contains(serviceFullName)) {//如果没有被监听
+        //如果没有被监听
+        if (!listenedNodeList.contains(serviceFullName)) {
             synchronized (lock) {
                 if (!listenedNodeList.contains(serviceFullName)) {
                     this.zkClient.subscribeChildChanges(servicePath, this);
@@ -139,8 +142,10 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
                 }
             }
         }
-        String winner = balancer.elect(serviceFullName, childNodes);//读取节点
-        String data = zkClient.readData(servicePath + "/" + winner); //读取节点内的内容
+        //读取节点
+        String winner = balancer.elect(serviceFullName, childNodes);
+        //读取节点内的内容
+        String data = zkClient.readData(servicePath + "/" + winner);
         String result = winner + "/" + data;
         return result;
     }
@@ -180,7 +185,8 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
      */
     @Override
     public void handleChildChange(String parentPath, List<String> currentChilds) throws Exception {
-        if (parentPath.equals(serviceRoot)) {//如果是根节点改变,则删除所有缓存
+        //如果是根节点改变,则删除所有缓存
+        if (parentPath.equals(serviceRoot)) {
             logger.info("根节点{}的子节点发生变化,清除所有缓存", parentPath);
             cachedServiceAddress.clear();
         } else {

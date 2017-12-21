@@ -49,7 +49,8 @@ public final class RPCClient {
      */
     @SuppressWarnings("unchecked")
     public <T> T create(final Class<T> clazz, final String version) {
-        final String serviceFullName = clazz.getName() + Constants.SERVICE_SEP + version; //获得需要的服务的全名
+        //获得需要的服务的全名
+        final String serviceFullName = clazz.getName() + Constants.SERVICE_SEP + version;
         Object proxy;
         //这里用双重校验锁保证对于每个serviceFullName内存中有唯一的代理实例与之对应
         if ((proxy = cachedProxy.get(serviceFullName)) == null) {
@@ -73,9 +74,9 @@ public final class RPCClient {
     public static class RpcInvocationHandler implements InvocationHandler {
 
         /**
-         * @param version 服务版本
-         * @param serviceFullName   服务全称
-         * @param clazz 被代理对象
+         * @param version          服务版本
+         * @param serviceFullName  服务全称
+         * @param clazz            被代理对象
          * @param serviceDiscovery 服务发现
          */
         public RpcInvocationHandler(String version, String serviceFullName, Class clazz, ServiceDiscovery serviceDiscovery) {
@@ -85,10 +86,14 @@ public final class RPCClient {
             this.serviceDiscovery = serviceDiscovery;
         }
 
-        private String version; //版本
-        private String serviceFullName; //服务全称
-        private Class clazz; //被代理的class类型
-        private ServiceDiscovery serviceDiscovery; //服务发现接口
+        //版本
+        private String version;
+        //服务全称
+        private String serviceFullName;
+        //被代理的class类型
+        private Class clazz;
+        //服务发现接口
+        private ServiceDiscovery serviceDiscovery;
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -109,8 +114,10 @@ public final class RPCClient {
                 request.setNonNullArgs(nonNull);
             }
 
-            String node; //名字服务器存放该服务的节点名称
-            String serverAddress;//节点地址
+            //名字服务器存放该服务的节点名称
+            String node;
+            //节点地址
+            String serverAddress;
             if (serviceDiscovery != null) {
                 logger.debug("向服务中心查询服务：{}", serviceFullName);
                 String[] addressData = serviceDiscovery.discoverService(request.getServiceName(), request.getServiceVersion()).split("/");

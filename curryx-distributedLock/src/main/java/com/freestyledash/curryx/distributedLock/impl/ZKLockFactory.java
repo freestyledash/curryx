@@ -27,11 +27,20 @@ import java.util.UUID;
 public class ZKLockFactory implements LockFactory {
 
 
-    private ThreadLocal<String> workId = new ThreadLocal(); //zookeeper客户端工作id
+    /**
+     * zookeeper客户端工作id
+     */
+    private ThreadLocal<String> workId = new ThreadLocal();
 
-    private static ZKLockFactory factory = null; //zookeeper
+    /**
+     * zookeeper工厂
+     */
+    private static ZKLockFactory factory = null;
 
-    private static List<String> zkAddr; //zookeeper地址
+    /**
+     * zookeeper地址
+     */
+    private static List<String> zkAddr;
 
     private static boolean isInit = false;
 
@@ -41,8 +50,9 @@ public class ZKLockFactory implements LockFactory {
      * @param list
      */
     public static void initConfiguration(List<String> list) {
+        //确保只初始化一次
         if (isInit) {
-            throw new IllegalStateException("zookeeper地址已经初始化了"); //确保只初始化一次
+            throw new IllegalStateException("zookeeper地址已经初始化了");
         }
         zkAddr = list;
         isInit = true;
@@ -60,8 +70,10 @@ public class ZKLockFactory implements LockFactory {
         return factory;
     }
 
-
-    private static final String ROOT = "/locks"; //存放锁资源的根路径
+    /**
+     * 存放锁资源的根路径
+     */
+    private static final String ROOT = "/locks";
 
     private static final Logger logger = LoggerFactory.getLogger(ZKLockFactory.class);
 
@@ -88,9 +100,12 @@ public class ZKLockFactory implements LockFactory {
         this.client =
                 CuratorFrameworkFactory.newClient(
                         addr,
-                        5000, //会话超时时间，单位毫秒，默认60000ms
-                        3000,//连接创建超时时间，单位毫秒，默认60000ms
-                        retryPolicy //重试策略,内建有四种重试策略,也可以自行实现RetryPolicy接口
+                        //会话超时时间，单位毫秒，默认60000ms
+                        5000,
+                        //连接创建超时时间，单位毫秒，默认60000ms
+                        3000,
+                        //重试策略,内建有四种重试策略,也可以自行实现RetryPolicy接口
+                        retryPolicy
                 );
         logger.info("初始化客户端成功,开始启动");
         client.start();
@@ -125,18 +140,22 @@ public class ZKLockFactory implements LockFactory {
     @Override
     public synchronized boolean tryLock(String resourceName, Integer time) throws Exception {
         boolean result = true;
-        if (time == null || time.equals(0)) { //尝试的次数够了
+        //尝试的次数够了
+        if (time == null || time.equals(0)) {
             return false;
         }
-        initZookeeper(); //初始化
-        Stat stat = null; //询问是否有锁
+        //初始化
+        initZookeeper();
+        //询问是否有锁
+        Stat stat = null;
         try {
             stat = client.checkExists().forPath(ROOT + FORWARDSLASH + resourceName);
         } catch (Exception e) {
             logger.error("获得锁情况失败");
             throw new IllegalStateException("获得锁情况失败");
         }
-        if (stat == null) { //该资源没有锁
+        //该资源没有锁
+        if (stat == null) {
             if (this.workId.get() == null || this.workId.get().isEmpty()) {
                 workId.set(UUID.randomUUID().toString());
             }
@@ -156,7 +175,8 @@ public class ZKLockFactory implements LockFactory {
                 logger.error(e.getMessage());
             }
             String workId_ = new String(bytes);
-            if (workId_ != null && this.workId.get() != null && this.workId.get().equals(workId_)) { //锁重入
+            //锁重入
+            if (workId_ != null && this.workId.get() != null && this.workId.get().equals(workId_)) {
                 return true;
             } else { //无法获得锁,尝试重新获得
                 try {
@@ -188,7 +208,8 @@ public class ZKLockFactory implements LockFactory {
      */
     @Override
     public synchronized boolean unLock(String resourceName) {
-        Stat stat = null;   //询问是否有锁
+        //询问是否有锁
+        Stat stat = null;
         try {
             stat = client.checkExists().forPath(ROOT + FORWARDSLASH + resourceName);
         } catch (Exception e) {
@@ -196,7 +217,8 @@ public class ZKLockFactory implements LockFactory {
             throw new IllegalStateException("获得锁情况失败");
         }
         if (stat == null) {
-            return true;// 改资源没有锁
+            // 改资源没有锁
+            return true;
         } else {
             byte[] bytes = null;
             try {
@@ -206,7 +228,9 @@ public class ZKLockFactory implements LockFactory {
                 throw new RuntimeException(e);
             }
             String workId_ = new String(bytes);
-            if (workId.get() != null && (workId_ == null || workId.get().equals(workId_) || workId_.isEmpty())) { //可以解锁
+            //可以解锁
+            String s = workId.get();
+            if (s!= null && (workId_ == null || workId.get().equals(workId_) || workId_.isEmpty())) {
                 try {
                     client.delete().forPath(ROOT + FORWARDSLASH + resourceName);
                     return true;

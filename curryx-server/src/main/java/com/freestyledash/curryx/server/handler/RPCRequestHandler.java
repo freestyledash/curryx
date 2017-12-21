@@ -21,7 +21,6 @@ import java.util.Map;
  * 利用了netty的InboundHandler
  * 处理的请求由其之前的InboundHandler即RPC解码器解码得到
  * 根据反射机制调用相应方法并将调用的结果或者发生的异常写入到RPC响应
- *
  */
 public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
 
@@ -52,6 +51,7 @@ public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
         }
 
         context.writeAndFlush(response).addListener(new ChannelFutureListener() {
+            @Override
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
                 channelFuture.channel().close();
 
@@ -60,6 +60,13 @@ public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
         });
     }
 
+    /**
+     * 处理请求并返回返回值
+     *
+     * @param request 请求
+     * @return 方法返回值
+     * @throws Exception
+     */
     private Object handleRequest(RPCRequest request) throws Exception {
         String serviceFullName = request.getServiceName() + Constants.SERVICE_SEP + request.getServiceVersion();
 

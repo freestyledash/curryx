@@ -16,7 +16,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class ProtostuffSerializationUtil implements SerializationUtil {
 
-    private static final Map<Class<?>, Schema<?>> cachedSchemas; //Schemas缓存
+    /**
+     * schemas缓存
+     */
+    private static final Map<Class<?>, Schema<?>> cachedSchemas;
 
     private static final Objenesis objenesis;
 
