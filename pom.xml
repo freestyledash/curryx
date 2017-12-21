@@ -6,7 +6,7 @@
 
     <groupId>com.freestyledash</groupId>
     <artifactId>curryx</artifactId>
-    <version>1.0.8-SNAPSHOT</version>
+    <version>1.0.8</version>
 
     <packaging>pom</packaging>
 
