@@ -12,8 +12,12 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.freestyledash.curryx.registryAndDiscovery.util.constant.Constants.COMMA;
+
 /**
  * 使用ZooKeeper名字服务器实现的服务发现
+ *
+ * @author zhangyanqi
  */
 public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListener {
 
@@ -58,7 +62,7 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
         this.serviceMap = new HashMap<>();
         this.serviceRoot = serviceRoot;
         this.zkClient = new ZkClient(zkAddress, zkSessionTimeout, zkConnectionTimeout);
-        if (zkAddress.contains(",")) {
+        if (zkAddress.contains(COMMA)) {
             logger.info("连接到ZooKeeper服务器集群：{}", zkAddress);
         } else {
             logger.info("连接到ZooKeeper单机服务器：{}", zkAddress);
@@ -77,6 +81,7 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
      * @param version       服务版本
      * @param serverAddress 提供服务的服务器的地址
      */
+    @Override
     public void registerService(String name, String version, String serverAddress) {
         registerService(name + Constants.SERVICE_SEP + version, serverAddress);
     }
@@ -87,6 +92,7 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
      * @param serviceFullName 服务全称
      * @param serverAddress   提供服务的服务器的地址
      */
+    @Override
     public void registerService(String serviceFullName, String serverAddress) {
         StringBuilder sb = new StringBuilder();
         sb.append(serviceRoot);

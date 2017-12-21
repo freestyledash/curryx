@@ -2,8 +2,11 @@ package com.freestyledash.curryx.common.util;
 
 /**
  * 字符串常用操作工具类
+ *
+ * @author zhangyanqi
+ * @since 1.0 2017/11/8
  */
-public abstract class StringUtil {
+public final class StringUtil {
 
     private StringUtil() {
 

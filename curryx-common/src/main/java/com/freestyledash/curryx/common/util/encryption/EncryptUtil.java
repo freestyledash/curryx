@@ -14,6 +14,7 @@ public interface EncryptUtil {
      *
      * @param content 被加密的内容
      * @return 加密结果
+     * @throws Exception 加密失败
      */
     public byte[] encrypt(byte[] content) throws Exception;
 
@@ -22,6 +23,7 @@ public interface EncryptUtil {
      *
      * @param content 被解密内容
      * @return 解密结果
+     * @throws Exception 解密失败
      */
     public byte[] decode(byte[] content) throws Exception;
 

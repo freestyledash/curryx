@@ -4,6 +4,8 @@ import java.util.List;
 
 /**
  * 客户端请求的可用服务器的负载均衡接口
+ *
+ * @author zhangyanqi
  */
 public interface Balancer {
 

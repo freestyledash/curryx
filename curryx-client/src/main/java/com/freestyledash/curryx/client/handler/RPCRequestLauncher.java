@@ -15,16 +15,26 @@ import org.slf4j.LoggerFactory;
 /**
  * 客户端使用nio和服务器通讯
  * 每次通讯都创建一个新的RPCRequestLauncher对象
+ *
+ * @author zhangyanqi
  */
 public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse> {
 
     private static final Logger logger = LoggerFactory.getLogger(RPCRequestLauncher.class);
 
-    //目标ip地址
+    /**
+     * 目标ip地址
+     */
     private String host;
-    //目标端口
+
+    /**
+     * 目标端口
+     */
     private int port;
-    //请求响应
+
+    /**
+     * 请求响应
+     */
     private RPCResponse response;
 
     public RPCRequestLauncher(String host, int port) {

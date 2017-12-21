@@ -13,7 +13,10 @@ import java.util.Random;
  */
 public class RandomBalancer implements Balancer {
 
-    private static final Random random = new Random();
+    /**
+     * 随机数生成器
+     */
+    private final Random random = new Random();
 
     /**
      * 从候选地址<code>candidates</code>中根据一定的负载均衡算法选出一台服务器的地址

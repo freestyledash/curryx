@@ -13,17 +13,22 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 将对象序列化为字节数组以及将字节数组反序列化为对象的工具类
  * 使用框架:protostuff
+ *
+ * @author zhangyanqi
  */
 public final class ProtostuffSerializationUtil implements SerializationUtil {
 
     /**
      * schemas缓存
      */
-    private static final Map<Class<?>, Schema<?>> cachedSchemas;
+    private final Map<Class<?>, Schema<?>> cachedSchemas;
 
-    private static final Objenesis objenesis;
+    /**
+     * 生成对象工具
+     */
+    private final Objenesis objenesis;
 
-    static {
+    {
         cachedSchemas = new ConcurrentHashMap<Class<?>, Schema<?>>();
         objenesis = new ObjenesisStd(true);
     }
@@ -35,6 +40,7 @@ public final class ProtostuffSerializationUtil implements SerializationUtil {
      * @return 序列化后的字节数组
      */
     @SuppressWarnings("unchecked")
+    @Override
     public byte[] serialize(Object message) {
         Class clazz = message.getClass();
         LinkedBuffer buffer = LinkedBuffer.allocate();
@@ -54,6 +60,7 @@ public final class ProtostuffSerializationUtil implements SerializationUtil {
      * @param <T>   对象的类型参数
      * @return 反序列化后的对象
      */
+    @Override
     public <T> T deserialize(byte[] data, Class<T> clazz) {
         T emptyObj = objenesis.newInstance(clazz);
         Schema<T> schema = getSchema(clazz);

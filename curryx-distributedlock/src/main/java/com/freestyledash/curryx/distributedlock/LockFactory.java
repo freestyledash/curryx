@@ -1,4 +1,4 @@
-package com.freestyledash.curryx.distributedLock;
+package com.freestyledash.curryx.distributedlock;
 
 /**
  * lock接口
@@ -14,6 +14,7 @@ public interface LockFactory {
      *
      * @param resourceName 资源名字
      * @return 是否成功获得锁
+     * @throws Exception 获得锁失败抛出异常
      */
     boolean getLock(String resourceName) throws Exception;
 
@@ -23,12 +24,14 @@ public interface LockFactory {
      * @param resourceName 资源名称
      * @param time         等待时间
      * @return 是否成功获得锁
+     * @throws Exception 获得锁失败抛出异常
      */
     boolean tryLock(String resourceName, Integer time) throws Exception;
 
     /**
      * 释放锁
      *
+     * @param resourceName 资源名字
      * @return 释放锁是否成功
      */
     boolean unLock(String resourceName);

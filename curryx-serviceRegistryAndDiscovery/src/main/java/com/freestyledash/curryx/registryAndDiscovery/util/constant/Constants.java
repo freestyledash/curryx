@@ -1,7 +1,11 @@
 package com.freestyledash.curryx.registryAndDiscovery.util.constant;
 
-
-public abstract class Constants {
+/**
+ * zookeeper使用的常量
+ *
+ * @author zhangyanqi
+ */
+public final class Constants {
 
     private Constants() {
 
@@ -21,5 +25,10 @@ public abstract class Constants {
      * 服务名与版本号的连接符
      */
     public static final String SERVICE_SEP = "-";
+
+    /**
+     * 逗号
+     */
+    public static final String COMMA = ",";
 
 }

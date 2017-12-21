@@ -1,6 +1,6 @@
-package com.freestyledash.curryx.distributedLock.impl;
+package com.freestyledash.curryx.distributedlock.impl;
 
-import com.freestyledash.curryx.distributedLock.LockFactory;
+import com.freestyledash.curryx.distributedlock.LockFactory;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -10,7 +10,6 @@ import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -174,9 +173,9 @@ public class ZKLockFactory implements LockFactory {
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
-            String workId_ = new String(bytes);
+            String workId2 = new String(bytes);
             //锁重入
-            if (workId_ != null && this.workId.get() != null && this.workId.get().equals(workId_)) {
+            if (workId2 != null && this.workId.get() != null && this.workId.get().equals(workId2)) {
                 return true;
             } else { //无法获得锁,尝试重新获得
                 try {
@@ -227,10 +226,12 @@ public class ZKLockFactory implements LockFactory {
                 logger.error(e.getMessage());
                 throw new RuntimeException(e);
             }
-            String workId_ = new String(bytes);
+            String workId2 = new String(bytes);
             //可以解锁
             String s = workId.get();
-            if (s!= null && (workId_ == null || workId.get().equals(workId_) || workId_.isEmpty())) {
+            boolean b = s != null && (workId2 == null || s.equals(workId2) || workId2.isEmpty());
+            if (b) {
+                workId.remove();
                 try {
                     client.delete().forPath(ROOT + FORWARDSLASH + resourceName);
                     return true;
@@ -243,26 +244,4 @@ public class ZKLockFactory implements LockFactory {
             }
         }
     }
-
-
-    public static void main(String[] args) throws Exception {
-
-        String addr = "127.0.0.1:2181";
-        List<String> addrs = new ArrayList<>();
-        addrs.add(addr);
-        initConfiguration(addrs);
-        for (int a = 0; a < 30; a++) {
-            new Thread(() -> {
-                LockFactory zkLock = ZKLockFactory.getLockFactory();
-                try {
-                    zkLock.tryLock("test", 1);
-                    zkLock.tryLock("test", 1);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                zkLock.unLock("test");
-            }).start();
-        }
-    }
-
 }

@@ -4,10 +4,11 @@ import java.util.UUID;
 
 /**
  * RPC通讯请求报文的格式
- * <p>
  * 请求报文中包含了一个id用于标识一次请求
  * 通过服务的名称和版本来定位所需服务的具体实现
  * 通过调用的方法名称以及参数类型来定位服务具体实现中要调用的方法
+ *
+ *  @author zhangyanqi
  */
 public class RPCRequest {
 

@@ -17,10 +17,11 @@ import java.util.Map;
 
 /**
  * 处理RPC请求的类
- * <p>
  * 利用了netty的InboundHandler
  * 处理的请求由其之前的InboundHandler即RPC解码器解码得到
  * 根据反射机制调用相应方法并将调用的结果或者发生的异常写入到RPC响应
+ *
+ * @author zhangyanqi
  */
 public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
 

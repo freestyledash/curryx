@@ -3,6 +3,8 @@ package com.freestyledash.curryx.common.util.serialization;
 /**
  * 序列化工具的接口
  * 序列化工具接口需要实现该接口
+ *
+ * @author zhangyanqi
  */
 public interface SerializationUtil {
 

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.freestyledash.curryx.registryAndDiscovery.util.constant.Constants.COMMA;
 import static com.freestyledash.curryx.registryAndDiscovery.util.constant.Constants.DEFAULT_ZK_SESSION_TIMEOUT;
 import static com.freestyledash.curryx.registryAndDiscovery.util.constant.Constants.SERVICE_SEP;
 
@@ -105,7 +106,7 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
      */
     @Override
     public String discoverService(String name, String version) throws Exception {
-        if (zkAddress.contains(",")) {
+        if (zkAddress.contains(COMMA)) {
             logger.info("连接到ZooKeeper服务器集群：{}", zkAddress);
         } else {
             logger.info("连接到ZooKeeper单机服务器：{}", zkAddress);

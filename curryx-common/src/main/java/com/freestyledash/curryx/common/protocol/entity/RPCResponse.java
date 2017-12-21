@@ -2,11 +2,11 @@ package com.freestyledash.curryx.common.protocol.entity;
 
 /**
  * RPC通讯响应报文的格式
- * <p>
  * 包含对应于请求报文的id
  * 若服务成功调用则需要将调用的结果存于<code>result</code>字段中
  * 否则，若调用过程中发生异常则需要将异常存于<code>exception</code>字段中
  *
+ * @author zhangyanqi
  */
 public class RPCResponse {
 
