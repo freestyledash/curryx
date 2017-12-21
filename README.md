@@ -116,3 +116,6 @@ public class HelloworldImpl implements Helloworld {
      T t = client.create(Class<T> tClazz);
      t.dosth();
  ```
+ 
+ ### 注意
+ 序列化工具采用谷歌的protostuff框架无法正确序列化BigDecimal对象
