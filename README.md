@@ -57,6 +57,8 @@ public class HelloworldImpl implements Helloworld {
 
 启动服务（使用spring来组织各个组件，并启动
 ```
+   <context:component-scan base-package="xxxx"/>
+    
    <!--RPC Server配置-->
     <!--服务注册与发现-->
     <bean id="serviceRegistry"
