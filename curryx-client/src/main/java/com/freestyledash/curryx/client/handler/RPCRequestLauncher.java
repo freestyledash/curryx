@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
  */
 public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse> {
 
+    private static NioEventLoopGroup group = new NioEventLoopGroup();
+
     private static final Logger logger = LoggerFactory.getLogger(RPCRequestLauncher.class);
 
     /**
@@ -63,8 +65,6 @@ public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse>
      * @throws Exception
      */
     public RPCResponse launch(RPCRequest request) throws Exception {
-        NioEventLoopGroup group = new NioEventLoopGroup();
-
         try {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(group)
