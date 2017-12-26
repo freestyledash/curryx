@@ -110,6 +110,7 @@ public class HelloworldImpl implements Helloworld {
 
     <bean class="com.freestyledash.curryx.client.RPCClient" id="rpcClient" scope="singleton">
         <constructor-arg name="serviceDiscovery" ref="serviceDiscovery"/>
+        <constructor-org name=""
     </bean>
  ```
  使用代码调用一个服务

@@ -6,6 +6,7 @@ import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
 import com.freestyledash.curryx.common.util.StringUtil;
 import com.freestyledash.curryx.registryAndDiscovery.discovery.ServiceDiscovery;
 import com.freestyledash.curryx.registryAndDiscovery.util.constant.Constants;
+import io.netty.channel.nio.NioEventLoopGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +23,7 @@ public final class RPCClient {
 
     private static final Logger logger = LoggerFactory.getLogger(RPCClient.class);
 
+
     /**
      * 发现服务
      */
@@ -32,9 +34,15 @@ public final class RPCClient {
      */
     private Map<String, Object> cachedProxy;
 
-    public RPCClient(ServiceDiscovery serviceDiscovery) {
+    /**
+     * 客户端用于发送请求的NioEventLoop
+     */
+    private NioEventLoopGroup group = null;
+
+    public RPCClient(ServiceDiscovery serviceDiscovery, int nioEventGroupThreadCount) {
         this.serviceDiscovery = serviceDiscovery;
         cachedProxy = new HashMap();
+        group = new NioEventLoopGroup(nioEventGroupThreadCount);
     }
 
     /**
@@ -49,6 +57,9 @@ public final class RPCClient {
      */
     @SuppressWarnings("unchecked")
     public <T> T create(final Class<T> clazz, final String version) {
+        if (group == null) {
+            throw new IllegalStateException("nioEventGroup 没有初始化");
+        }
         //获得需要的服务的全名
         final String serviceFullName = clazz.getName() + Constants.SERVICE_SEP + version;
         Object proxy;
@@ -71,7 +82,7 @@ public final class RPCClient {
     /**
      * rpc代理执行类
      */
-    public static class RpcInvocationHandler implements InvocationHandler {
+    public class RpcInvocationHandler implements InvocationHandler {
 
         /**
          * @param version          服务版本
@@ -124,21 +135,21 @@ public final class RPCClient {
                 node = addressData[0];
                 serverAddress = addressData[1];
             } else {
-                throw new RuntimeException("服务中心不可用");
+                throw new IllegalAccessException("服务中心不可用");
             }
             if (StringUtil.isEmpty(serverAddress)) {
-                throw new RuntimeException("未查询到服务：" + serviceFullName);
+                throw new IllegalAccessException("未查询到服务：" + serviceFullName);
             }
             logger.debug("选取服务{}节点：{}", serviceFullName, node + "/" + serverAddress);
 
             String[] address = serverAddress.split(":");
             String host = address[0];
             int port = Integer.parseInt(address[1]);
-            RPCResponse response = new RPCRequestLauncher(host, port).launch(request);
+            RPCResponse response = new RPCRequestLauncher(host, port, group).launch(request);
             long requestTimeCost = System.currentTimeMillis() - requestStartTime;
 
             if (response == null) {
-                throw new RuntimeException(String.format("空的服务器响应(请求号为%s)", request.getRequestId()));
+                throw new IllegalAccessException(String.format("空的服务器响应(请求号为%s)", request.getRequestId()));
             }
             logger.debug("请求{}耗时：{}ms", request.getRequestId(), requestTimeCost);
 
