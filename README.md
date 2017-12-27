@@ -111,10 +111,15 @@ public class HelloworldImpl implements Helloworld {
         <constructor-arg name="zkAddress" value="127.0.0.1:2181"/>
     </bean>
 
+    <!--请求发送组件-->
+    <bean class="com.freestyledash.curryx.client.handler.RPCRequestLauncher" id="launcher">
+        <constructor-arg name="eventLoopThreadCount" value="2"/>
+    </bean>
+
     <!--rpc客户端-->
     <bean class="com.freestyledash.curryx.client.RPCClient" id="rpcClient" scope="singleton">
         <constructor-arg name="serviceDiscovery" ref="serviceDiscovery"/>
-        <constructor-org name=""
+        <constructor-arg name="launcher" ref="launcher"/>
     </bean>
  ```
  使用代码调用一个服务
