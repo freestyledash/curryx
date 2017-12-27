@@ -2,6 +2,8 @@ package com.freestyledash.curryx.server.server.impl;
 
 import com.freestyledash.curryx.common.protocol.codec.RPCDecoder;
 import com.freestyledash.curryx.common.protocol.codec.RPCEncoder;
+import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
+import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
 import com.freestyledash.curryx.registryAndDiscovery.util.constant.Constants;
 import com.freestyledash.curryx.server.annotation.Service;
 import com.freestyledash.curryx.server.handler.RPCRequestHandler;
@@ -123,8 +125,8 @@ public class NettyServer implements Server, ApplicationContextAware {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         protected void initChannel(SocketChannel channel) throws Exception {
                             channel.pipeline()
-                                    .addLast(new RPCEncoder())    //第一个OutboundHandler，用于编码RPC响应
-                                    .addLast(new RPCDecoder())  //第一个InboundHandler，用于解码RPC请求
+                                    .addLast(new RPCEncoder(RPCResponse.class))   //第一个OutboundHandler，用于编码RPC响应
+                                    .addLast(new RPCDecoder(RPCRequest.class))  //第一个InboundHandler，用于解码RPC请求
                                     .addLast(new RPCRequestHandler(serviceMap)); //第二个InboundHandler，用于处理RPC请求并生成RPC响应
                         }
                     });

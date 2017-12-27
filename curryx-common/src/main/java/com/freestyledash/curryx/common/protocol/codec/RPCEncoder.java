@@ -16,10 +16,15 @@ import org.slf4j.LoggerFactory;
  *
  * @author zhangyanqi
  */
-public class RPCEncoder extends MessageToByteEncoder<RPCRequest> {
+public class RPCEncoder extends MessageToByteEncoder {
 
 
     private static final Logger logger = LoggerFactory.getLogger(RPCEncoder.class);
+
+    /**
+     * 要编码的对象类型
+     */
+    private final Class<?> clazz;
 
     /**
      * 序列化工具
@@ -31,29 +36,34 @@ public class RPCEncoder extends MessageToByteEncoder<RPCRequest> {
      */
     private EncryptUtil encryptUtil;
 
-    public RPCEncoder(SerializationUtil serializationUtil, EncryptUtil encryptUtil) {
+    public RPCEncoder(SerializationUtil serializationUtil, EncryptUtil encryptUtil, Class toEncodeType) {
         this.serializationUtil = serializationUtil;
         this.encryptUtil = encryptUtil;
+        this.clazz = toEncodeType;
     }
 
-    public RPCEncoder(EncryptUtil encryptUtil) {
+    public RPCEncoder(EncryptUtil encryptUtil, Class toEncodeType) {
         this.encryptUtil = encryptUtil;
         this.serializationUtil = new ProtostuffSerializationUtil();
+        this.clazz = toEncodeType;
     }
 
-    public RPCEncoder(SerializationUtil serializationUtil) {
+    public RPCEncoder(SerializationUtil serializationUtil, Class toEncodeType) {
         this.encryptUtil = new DESEncryptUtil();
         this.serializationUtil = serializationUtil;
+        this.clazz = toEncodeType;
     }
 
-    public RPCEncoder() {
+    public RPCEncoder(Class toEncodeType) {
         this.encryptUtil = new DESEncryptUtil();
         this.serializationUtil = new ProtostuffSerializationUtil();
+        this.clazz = toEncodeType;
     }
+
 
     @Override
-    protected void encode(ChannelHandlerContext channelHandlerContext, RPCRequest o, ByteBuf byteBuf) throws Exception {
-        if (RPCRequest.class.isInstance(o)) {
+    protected void encode(ChannelHandlerContext channelHandlerContext, Object o, ByteBuf byteBuf) throws Exception {
+        if (clazz.isInstance(o)) {
             byte[] buffer = serializationUtil.serialize(o);
             logger.debug("将({})类型的对象编码为长度为{}的字节数组", RPCRequest.class.getName(), buffer.length);
             byte[] encrypt = encryptUtil.encrypt(buffer);

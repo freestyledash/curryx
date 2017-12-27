@@ -23,7 +23,6 @@ public final class RPCClient {
 
     private static final Logger logger = LoggerFactory.getLogger(RPCClient.class);
 
-
     /**
      * 发现服务
      */
@@ -34,15 +33,10 @@ public final class RPCClient {
      */
     private Map<String, Object> cachedProxy;
 
-    /**
-     * 客户端用于发送请求的NioEventLoop
-     */
-    private NioEventLoopGroup group = null;
 
-    public RPCClient(ServiceDiscovery serviceDiscovery, int nioEventGroupThreadCount) {
+    public RPCClient(ServiceDiscovery serviceDiscovery) {
         this.serviceDiscovery = serviceDiscovery;
         cachedProxy = new HashMap();
-        group = new NioEventLoopGroup(nioEventGroupThreadCount);
     }
 
     /**
@@ -57,9 +51,6 @@ public final class RPCClient {
      */
     @SuppressWarnings("unchecked")
     public <T> T create(final Class<T> clazz, final String version) {
-        if (group == null) {
-            throw new IllegalStateException("nioEventGroup 没有初始化");
-        }
         //获得需要的服务的全名
         final String serviceFullName = clazz.getName() + Constants.SERVICE_SEP + version;
         Object proxy;
@@ -145,7 +136,7 @@ public final class RPCClient {
             String[] address = serverAddress.split(":");
             String host = address[0];
             int port = Integer.parseInt(address[1]);
-            RPCResponse response = new RPCRequestLauncher(host, port, group).launch(request);
+            RPCResponse response = new RPCRequestLauncher(host, port).launch(request);
             long requestTimeCost = System.currentTimeMillis() - requestStartTime;
 
             if (response == null) {

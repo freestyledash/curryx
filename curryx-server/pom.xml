@@ -25,17 +25,17 @@
         <dependency>
             <groupId>com.freestyledash</groupId>
             <artifactId>curryx-common</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.freestyledash</groupId>
             <artifactId>curryx-serviceRegistryAndDiscovery</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.freestyledash</groupId>
             <artifactId>curryx-client</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${parent.version}</version>
         </dependency>
     </dependencies>
 

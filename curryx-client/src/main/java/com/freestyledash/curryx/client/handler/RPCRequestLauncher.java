@@ -20,8 +20,6 @@ import org.slf4j.LoggerFactory;
  */
 public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse> {
 
-    private NioEventLoopGroup group = null;
-
     private static final Logger logger = LoggerFactory.getLogger(RPCRequestLauncher.class);
 
     /**
@@ -39,17 +37,9 @@ public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse>
      */
     private RPCResponse response;
 
-
-    public RPCRequestLauncher(String host, int port, NioEventLoopGroup group) {
-        this.host = host;
-        this.port = port;
-        this.group = group;
-    }
-
     public RPCRequestLauncher(String host, int port) {
         this.host = host;
         this.port = port;
-        this.group = new NioEventLoopGroup();
     }
 
     /**
@@ -73,9 +63,8 @@ public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse>
      * @throws Exception
      */
     public RPCResponse launch(RPCRequest request) throws Exception {
-        if (group == null) {
-            throw new IllegalStateException("NioEventGroup not init");
-        }
+        NioEventLoopGroup group = new NioEventLoopGroup();
+
         try {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(group)
@@ -88,8 +77,8 @@ public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse>
                         @Override
                         protected void initChannel(SocketChannel channel) throws Exception {
                             channel.pipeline()
-                                    .addLast(new RPCEncoder())
-                                    .addLast(new RPCDecoder())
+                                    .addLast(new RPCEncoder(RPCRequest.class))
+                                    .addLast(new RPCDecoder(RPCResponse.class))
                                     .addLast(RPCRequestLauncher.this);
                         }
                     });

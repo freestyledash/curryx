@@ -1,6 +1,5 @@
 package com.freestyledash.curryx.common.protocol.codec;
 
-import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
 import com.freestyledash.curryx.common.util.encryption.DESEncryptUtil;
 import com.freestyledash.curryx.common.util.encryption.EncryptUtil;
 import com.freestyledash.curryx.common.util.serialization.ProtostuffSerializationUtil;
@@ -15,7 +14,7 @@ import java.util.List;
 
 
 /**
- * 将数组解码为对象
+ * 将字节数组解码为对象
  *
  * @author zhangyanqi
  */
@@ -26,7 +25,7 @@ public class RPCDecoder extends ByteToMessageDecoder {
     /**
      * 要解码的对象类型
      */
-    private final Class<?> clazz = RPCResponse.class;
+    private final Class<?> clazz;
 
     /**
      * 序列化工具
@@ -39,24 +38,28 @@ public class RPCDecoder extends ByteToMessageDecoder {
     private EncryptUtil encryptUtil;
 
 
-    public RPCDecoder(SerializationUtil serializationUtil, EncryptUtil encryptUtil) {
+    public RPCDecoder(SerializationUtil serializationUtil, EncryptUtil encryptUtil, Class decodeType) {
         this.serializationUtil = serializationUtil;
         this.encryptUtil = encryptUtil;
+        this.clazz = decodeType;
     }
 
-    public RPCDecoder(EncryptUtil encryptUtil) {
+    public RPCDecoder(EncryptUtil encryptUtil, Class decodeType) {
         this.encryptUtil = encryptUtil;
         this.serializationUtil = new ProtostuffSerializationUtil();
+        this.clazz = decodeType;
     }
 
-    public RPCDecoder(SerializationUtil serializationUtil) {
+    public RPCDecoder(SerializationUtil serializationUtil, Class decodeType) {
         this.encryptUtil = new DESEncryptUtil();
         this.serializationUtil = serializationUtil;
+        this.clazz = decodeType;
     }
 
-    public RPCDecoder() {
+    public RPCDecoder(Class decodeType) {
         this.encryptUtil = new DESEncryptUtil();
         this.serializationUtil = new ProtostuffSerializationUtil();
+        this.clazz = decodeType;
     }
 
     /**
