@@ -5,7 +5,10 @@ import com.freestyledash.curryx.common.protocol.codec.RPCEncoder;
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -13,60 +16,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 客户端使用nio和服务器通讯
- * 每次通讯都创建一个新的RPCRequestLauncher对象
- *
  * @author zhangyanqi
  */
-public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse> {
+public class RPCRequestLauncher {
 
     private static final Logger logger = LoggerFactory.getLogger(RPCRequestLauncher.class);
 
     /**
-     * 目标ip地址
+     * netty启动类
      */
-    private String host;
+    private Bootstrap bootstrap = null;
 
     /**
-     * 目标端口
+     * 响应处理类
      */
-    private int port;
+    private RPCResponseHandler handler = null;
 
-    /**
-     * 请求响应
-     */
-    private RPCResponse response;
 
-    public RPCRequestLauncher(String host, int port) {
-        this.host = host;
-        this.port = port;
-    }
-
-    /**
-     * 获得相应内容
-     *
-     * @param channelHandlerContext channel上下文
-     * @param response              RPC响应对象
-     * @throws Exception
-     */
-    @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, RPCResponse response) throws Exception {
-        this.response = response;
-        logger.debug("收到服务器响应：{}", response.getRequestId());
-    }
-
-    /**
-     * 启动服务器发送请求
-     *
-     * @param request 请求实体
-     * @return 响应
-     * @throws Exception
-     */
-    public RPCResponse launch(RPCRequest request) throws Exception {
-        NioEventLoopGroup group = new NioEventLoopGroup();
-
+    public RPCRequestLauncher(int eventLoopThreadCount) {
+        RPCResponseHandler handler = new RPCResponseHandler();
+        this.handler = handler;
+        NioEventLoopGroup group = new NioEventLoopGroup(eventLoopThreadCount);
         try {
-            Bootstrap bootstrap = new Bootstrap();
+            bootstrap = new Bootstrap();
             bootstrap.group(group)
                     //指定创建连接类型
                     .channel(NioSocketChannel.class)
@@ -79,21 +51,43 @@ public class RPCRequestLauncher extends SimpleChannelInboundHandler<RPCResponse>
                             channel.pipeline()
                                     .addLast(new RPCEncoder(RPCRequest.class))
                                     .addLast(new RPCDecoder(RPCResponse.class))
-                                    .addLast(RPCRequestLauncher.this);
+                                    .addLast(handler);
                         }
                     });
-            //同步等待连接，连接得到之后再继续
-            ChannelFuture future = bootstrap.connect(host, port).sync();
-            logger.debug("连接到服务器：{}", host + ":" + port);
-            logger.debug("发送请求：{}", request.getRequestId());
-            //连接成功
-            Channel channel = future.channel();
-            channel.writeAndFlush(request).sync();
-            channel.closeFuture().sync();
-            return response;
-        } finally {
+        } catch (Exception e) {
             group.shutdownGracefully();
+            throw new RuntimeException(e);
         }
+        //在jvm退出时确保group退出
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (!group.isShutdown()) {
+                group.shutdownGracefully();
+            }
+            logger.debug("HOOK：RPC服务器已关闭");
+        }) {
+        });
     }
 
+
+    /**
+     * 启动服务器发送请求
+     *
+     * @param host    ip地址
+     * @param port    端口
+     * @param request 请求实体
+     * @return
+     * @throws Exception
+     */
+    public RPCResponse launch(String host, int port, RPCRequest request) throws Exception {
+
+        //同步等待连接，连接得到之后再继续
+        ChannelFuture future = bootstrap.connect(host, port).sync();
+        logger.debug("连接到服务器：{}", host + ":" + port);
+        logger.debug("发送请求：{}", request.getRequestId());
+        //连接成功
+        Channel channel = future.channel();
+        channel.writeAndFlush(request).sync();
+        channel.closeFuture().sync();
+        return handler.getResponse(request.getRequestId());
+    }
 }
