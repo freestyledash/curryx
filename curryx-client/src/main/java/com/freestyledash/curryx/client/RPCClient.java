@@ -6,7 +6,6 @@ import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
 import com.freestyledash.curryx.common.util.StringUtil;
 import com.freestyledash.curryx.registryAndDiscovery.discovery.ServiceDiscovery;
 import com.freestyledash.curryx.registryAndDiscovery.util.constant.Constants;
-import io.netty.channel.nio.NioEventLoopGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +14,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * rpc通信客户端
@@ -33,9 +33,15 @@ public final class RPCClient {
      */
     private Map<String, Object> cachedProxy;
 
+    /**
+     * 通讯服务器客户端
+     */
+    private RPCRequestLauncher launcher;
 
-    public RPCClient(ServiceDiscovery serviceDiscovery) {
+
+    public RPCClient(ServiceDiscovery serviceDiscovery, RPCRequestLauncher launcher) {
         this.serviceDiscovery = serviceDiscovery;
+        this.launcher = launcher;
         cachedProxy = new HashMap();
     }
 
@@ -100,13 +106,14 @@ public final class RPCClient {
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             long requestStartTime = System.currentTimeMillis();
-            //构建请求对象
+            //构建请求对象，使用UUID给每个请求编上id
             RPCRequest request = new RPCRequest();
             request.setServiceName(clazz.getName());
             request.setServiceVersion(version);
             request.setMethodName(method.getName());
             request.setArgsTypes(method.getParameterTypes());
             request.setArgsValues(args);
+            request.setRequestId(UUID.randomUUID().toString());
             //请求参数被封装在一个数组中，在反序列话的过程中，数组中不为null的元素会被提前
             if (args != null && args.length > 0) {
                 boolean[] nonNull = new boolean[args.length];
@@ -132,13 +139,11 @@ public final class RPCClient {
                 throw new IllegalAccessException("未查询到服务：" + serviceFullName);
             }
             logger.debug("选取服务{}节点：{}", serviceFullName, node + "/" + serverAddress);
-
             String[] address = serverAddress.split(":");
             String host = address[0];
             int port = Integer.parseInt(address[1]);
-            RPCResponse response = new RPCRequestLauncher(host, port).launch(request);
+            RPCResponse response = launcher.launch(host, port, request);
             long requestTimeCost = System.currentTimeMillis() - requestStartTime;
-
             if (response == null) {
                 throw new IllegalAccessException(String.format("空的服务器响应(请求号为%s)", request.getRequestId()));
             }
