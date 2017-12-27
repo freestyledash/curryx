@@ -57,6 +57,7 @@ public class HelloworldImpl implements Helloworld {
 
 启动服务（使用spring来组织各个组件，并启动
 ```
+    <!--配置spring扫描需要作为服务的类所在的包-->
    <context:component-scan base-package="xxxx"/>
     
    <!--RPC Server配置-->
@@ -76,7 +77,7 @@ public class HelloworldImpl implements Helloworld {
         <constructor-arg name="workerThreadCount" value="8"/>
     </bean>
 
-    <!--整合-->
+    <!--整合zookeeper和netty-->
     <bean id="rpcServer" class="com.freestyledash.curryx.server.RPCServer">
         <constructor-arg name="serverAddress" value="127.0.0.1:8001"/>
         <constructor-arg name="serviceRegistry" ref="serviceRegistry"/>
@@ -99,8 +100,10 @@ public class HelloworldImpl implements Helloworld {
 
 使用spring来组织服服务调用者
 ```
+    <!--负载均衡-->
     <bean class="com.freestyledash.curryx.registryAndDiscovery.util.balance.impl.RandomBalancer" id="randomBalancer"/>
 
+    <!--服务发现-->
     <bean class="com.freestyledash.curryx.registryAndDiscovery.discovery.impl.ZooKeeperServiceDiscovery" id="serviceDiscovery"
           scope="singleton">
         <constructor-arg name="balancer" ref="randomBalancer"/>
@@ -108,6 +111,7 @@ public class HelloworldImpl implements Helloworld {
         <constructor-arg name="zkAddress" value="127.0.0.1:2181"/>
     </bean>
 
+    <!--rpc客户端-->
     <bean class="com.freestyledash.curryx.client.RPCClient" id="rpcClient" scope="singleton">
         <constructor-arg name="serviceDiscovery" ref="serviceDiscovery"/>
         <constructor-org name=""
