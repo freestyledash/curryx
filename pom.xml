@@ -15,7 +15,7 @@
         <module>curryx-serviceRegistryAndDiscovery</module>
         <module>curryx-server</module>
         <module>curryx-client</module>
-        <module>curryx-distributedLock</module>
+        <module>curryx-distributedlock</module>
     </modules>
 
     <properties>

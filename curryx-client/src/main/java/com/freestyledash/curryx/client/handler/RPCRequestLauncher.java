@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * rpc请求发起
+ *
  * @author zhangyanqi
  */
 public class RPCRequestLauncher {
@@ -75,8 +77,8 @@ public class RPCRequestLauncher {
      * @param host    ip地址
      * @param port    端口
      * @param request 请求实体
-     * @return
-     * @throws Exception
+     * @return 响应
+     * @throws Exception 异常
      */
     public RPCResponse launch(String host, int port, RPCRequest request) throws Exception {
 
