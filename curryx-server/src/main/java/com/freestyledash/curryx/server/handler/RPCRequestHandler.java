@@ -75,23 +75,18 @@ public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
         if (serviceBean == null) {
             throw new RuntimeException(String.format("未找到与(%s)相对应的服务", serviceFullName));
         }
-
         Class<?> clazz = serviceBean.getClass();
-
         //request对象中使用一个object数组来存储请求的参数,在反序列化的过程中不为null的都会被排在前面
         Object[] args = request.getArgsValues();
         if (args != null && args.length > 0) {
             Object[] temp = new Object[args.length];
             boolean[] nonNull = request.getNonNullArgs();
-
             int index = 0;
             for (int i = 0; i < args.length; i++) {
                 temp[i] = nonNull[i] ? args[index++] : null;
             }
-
             request.setArgsValues(temp);
         }
-
         Method method = clazz.getMethod(request.getMethodName(), request.getArgsTypes());
         return method.invoke(serviceBean, request.getArgsValues());
     }

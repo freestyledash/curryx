@@ -114,7 +114,7 @@ public final class RPCClient {
             request.setArgsTypes(method.getParameterTypes());
             request.setArgsValues(args);
             request.setRequestId(UUID.randomUUID().toString());
-            //请求参数被封装在一个数组中，在反序列话的过程中，数组中不为null的元素会被提前
+            //请求参数被封装在一个Object数组中，在反序列化的过程中，数组中不为null的元素会被提前
             if (args != null && args.length > 0) {
                 boolean[] nonNull = new boolean[args.length];
                 for (int i = 0; i < args.length; i++) {
@@ -122,7 +122,6 @@ public final class RPCClient {
                 }
                 request.setNonNullArgs(nonNull);
             }
-
             //名字服务器存放该服务的节点名称
             String node;
             //节点地址
