@@ -81,7 +81,6 @@ public class RPCRequestLauncher {
      * @throws Exception 异常
      */
     public RPCResponse launch(String host, int port, RPCRequest request) throws Exception {
-
         //同步等待连接，连接得到之后再继续
         ChannelFuture future = bootstrap.connect(host, port).sync();
         logger.debug("连接到服务器：{}", host + ":" + port);

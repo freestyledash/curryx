@@ -10,7 +10,8 @@
 
   ├── curryx-client   客户端<br>
   ├── curryx-server   服务端<br>
-  ├── curryx-serviceRegistryAndDiscovery  业务注册和业务发现<br>
+  ├── curryx-registry  业务注册<br>
+  ├── curryx-discovery 业务发现<br>
   ├── curryx-common   公共工具，包含请求报文格式，编码和解码器<br>
   ├── curryx-distributedLock 分布式锁<br>
   
@@ -42,6 +43,9 @@
 zookeeper在本框架中充当名字服务器的功能，zookeeper的下载和使用请参照官方文档
 下载zookeeper之后启动zookeeper
 
+###声明服务接口
+使用一个项目开发接口，这些接口需要被client和server依赖，项目用于声明有哪些服务
+
 ### 服务提供者初始化
 将某个方法设置为服务（该服务会在服务器启动时自动将服务地址注册到名字服务器中
 ```
@@ -63,7 +67,7 @@ public class HelloworldImpl implements Helloworld {
    <!--RPC Server配置-->
     <!--服务注册与发现-->
     <bean id="serviceRegistry"
-          class="com.freestyledash.curryx.registryAndDiscovery.registry.impl.ZooKeeperServiceRegistry">
+          class="com.freestyledash.curryx.registry.impl.ZooKeeperServiceRegistry">
         <constructor-arg name="zkAddress" value="127.0.0.1:2181"/>
         <constructor-arg name="serviceRoot" value="/x"/>
         <!--<constructor-arg name="zkConnectionTimeout" value="3000"/>-->
@@ -101,7 +105,7 @@ public class HelloworldImpl implements Helloworld {
 使用spring来组织服服务调用者
 ```
     <!--负载均衡-->
-    <bean class="com.freestyledash.curryx.registryAndDiscovery.util.balance.impl.RandomBalancer" id="randomBalancer"/>
+    <bean class="com.freestyledash.curryx.registry.util.balance.impl.RandomBalancer" id="randomBalancer"/>
 
     <!--服务发现-->
     <bean class="com.freestyledash.curryx.registryAndDiscovery.discovery.impl.ZooKeeperServiceDiscovery" id="serviceDiscovery"

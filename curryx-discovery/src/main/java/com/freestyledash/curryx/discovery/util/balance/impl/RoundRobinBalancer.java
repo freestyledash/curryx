@@ -1,6 +1,6 @@
-package com.freestyledash.curryx.registryAndDiscovery.util.balance.impl;
+package com.freestyledash.curryx.discovery.util.balance.impl;
 
-import com.freestyledash.curryx.registryAndDiscovery.util.balance.Balancer;
+import com.freestyledash.curryx.discovery.util.balance.Balancer;
 
 import java.util.List;
 import java.util.Map;

@@ -29,12 +29,7 @@
         </dependency>
         <dependency>
             <groupId>com.freestyledash</groupId>
-            <artifactId>curryx-serviceRegistryAndDiscovery</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.freestyledash</groupId>
-            <artifactId>curryx-client</artifactId>
+            <artifactId>curryx-registry</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>

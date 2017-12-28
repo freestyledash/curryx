@@ -1,12 +1,12 @@
-package com.freestyledash.curryx.registryAndDiscovery.discovery.impl;
+package com.freestyledash.curryx.discovery.impl;
 
 /**
  * @author zhangyanqi
  * @since 1.0 2017/11/27
  */
 
-import com.freestyledash.curryx.registryAndDiscovery.discovery.ServiceDiscovery;
-import com.freestyledash.curryx.registryAndDiscovery.util.balance.Balancer;
+import com.freestyledash.curryx.discovery.ServiceDiscovery;
+import com.freestyledash.curryx.discovery.util.balance.Balancer;
 import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.IZkStateListener;
 import org.I0Itec.zkclient.ZkClient;
@@ -19,9 +19,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.freestyledash.curryx.registryAndDiscovery.util.constant.Constants.COMMA;
-import static com.freestyledash.curryx.registryAndDiscovery.util.constant.Constants.DEFAULT_ZK_SESSION_TIMEOUT;
-import static com.freestyledash.curryx.registryAndDiscovery.util.constant.Constants.SERVICE_SEP;
+import static com.freestyledash.curryx.discovery.util.constant.Constants.COMMA;
+import static com.freestyledash.curryx.discovery.util.constant.Constants.DEFAULT_ZK_SESSION_TIMEOUT;
+import static com.freestyledash.curryx.discovery.util.constant.Constants.SERVICE_SEP;
+
 
 /**
  * 使用ZooKeeper实现的服务发现

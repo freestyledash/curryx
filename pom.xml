@@ -12,10 +12,11 @@
 
     <modules>
         <module>curryx-common</module>
-        <module>curryx-serviceRegistryAndDiscovery</module>
         <module>curryx-server</module>
         <module>curryx-client</module>
         <module>curryx-distributedlock</module>
+        <module>curryx-discovery</module>
+        <module>curryx-registry</module>
     </modules>
 
     <properties>

@@ -24,7 +24,7 @@
         </dependency>
         <dependency>
             <groupId>com.freestyledash</groupId>
-            <artifactId>curryx-serviceRegistryAndDiscovery</artifactId>
+            <artifactId>curryx-discovery</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
