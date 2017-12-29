@@ -10,6 +10,7 @@ import java.util.UUID;
  *
  *  @author zhangyanqi
  */
+@SuppressWarnings("ALL")
 public class RPCRequest {
 
     /**

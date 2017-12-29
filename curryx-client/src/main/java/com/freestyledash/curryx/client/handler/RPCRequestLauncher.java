@@ -16,11 +16,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * rpc请求发起
+ *
  * @author zhangyanqi
  */
+@SuppressWarnings("ALL")
 public class RPCRequestLauncher {
 
-    private static final Logger logger = LoggerFactory.getLogger(RPCRequestLauncher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RPCRequestLauncher.class);
 
     /**
      * netty启动类
@@ -63,7 +66,7 @@ public class RPCRequestLauncher {
             if (!group.isShutdown()) {
                 group.shutdownGracefully();
             }
-            logger.debug("HOOK：RPC服务器已关闭");
+            LOGGER.debug("HOOK：RPC服务器已关闭");
         }) {
         });
     }
@@ -75,15 +78,14 @@ public class RPCRequestLauncher {
      * @param host    ip地址
      * @param port    端口
      * @param request 请求实体
-     * @return
-     * @throws Exception
+     * @return 响应
+     * @throws Exception 异常
      */
     public RPCResponse launch(String host, int port, RPCRequest request) throws Exception {
-
         //同步等待连接，连接得到之后再继续
         ChannelFuture future = bootstrap.connect(host, port).sync();
-        logger.debug("连接到服务器：{}", host + ":" + port);
-        logger.debug("发送请求：{}", request.getRequestId());
+        LOGGER.debug("连接到服务器：{}", host + ":" + port);
+        LOGGER.debug("发送请求：{}", request.getRequestId());
         //连接成功
         Channel channel = future.channel();
         channel.writeAndFlush(request).sync();

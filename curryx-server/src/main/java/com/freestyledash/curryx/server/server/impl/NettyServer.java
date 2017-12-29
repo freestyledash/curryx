@@ -4,7 +4,7 @@ import com.freestyledash.curryx.common.protocol.codec.RPCDecoder;
 import com.freestyledash.curryx.common.protocol.codec.RPCEncoder;
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
-import com.freestyledash.curryx.registryAndDiscovery.util.constant.Constants;
+import com.freestyledash.curryx.registry.util.constant.Constants;
 import com.freestyledash.curryx.server.annotation.Service;
 import com.freestyledash.curryx.server.handler.RPCRequestHandler;
 import com.freestyledash.curryx.server.server.Server;
@@ -34,7 +34,7 @@ import java.util.concurrent.CountDownLatch;
  */
 public class NettyServer implements Server, ApplicationContextAware {
 
-    private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NettyServer.class);
 
     /**
      * 被注册为服务的集合
@@ -108,7 +108,7 @@ public class NettyServer implements Server, ApplicationContextAware {
             if (!bossGroup.isShutdown()) {
                 bossGroup.shutdownGracefully();
             }
-            logger.debug("HOOK：RPC服务器已关闭");
+            LOGGER.debug("HOOK：RPC服务器已关闭");
         }) {
         });
 
@@ -137,13 +137,13 @@ public class NettyServer implements Server, ApplicationContextAware {
 
             ChannelFuture future = bootstrap.bind(host, port).sync();
 
-            logger.debug("服务器已启动（端口号：{}）", port);
+            LOGGER.debug("服务器已启动（端口号：{}）", port);
 
             latch.countDown(); //将栅栏-1
 
             future.channel().closeFuture().sync();
         } catch (Exception e) {
-            logger.error("启动服务器过程中发生异常", e);
+            LOGGER.error("启动服务器过程中发生异常", e);
         } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
@@ -152,6 +152,6 @@ public class NettyServer implements Server, ApplicationContextAware {
 
     @Override
     public synchronized void shutdown() {
-        logger.info("netty服务器关闭");
+        LOGGER.info("netty服务器关闭");
     }
 }

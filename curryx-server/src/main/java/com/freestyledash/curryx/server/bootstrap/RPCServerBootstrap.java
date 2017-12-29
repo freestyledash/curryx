@@ -8,6 +8,7 @@ import com.freestyledash.curryx.server.RPCServer;
  *
  * @author zhangyanqi
  */
+@SuppressWarnings("ALL")
 public class RPCServerBootstrap {
 
     private RPCServer rpcServer;
