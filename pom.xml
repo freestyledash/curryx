@@ -20,13 +20,7 @@
     </modules>
 
     <properties>
-        <version.protostuff-core>1.6.0</version.protostuff-core>
-        <version.protostuff-runtime>1.6.0</version.protostuff-runtime>
-        <version.objenesis>2.6</version.objenesis>
-        <version.netty>4.1.16.Final</version.netty>
         <version.slf4j>1.7.21</version.slf4j>
-        <version.zookeeper-client>0.10</version.zookeeper-client>
-        <version.spring>4.3.12.RELEASE</version.spring>
         <version.maven-compiler-plugin>3.6.1</version.maven-compiler-plugin>
         <version.maven-javadoc-plugin>2.10.4</version.maven-javadoc-plugin>
         <version.maven-source-plugin>3.0.1</version.maven-source-plugin>
@@ -35,59 +29,11 @@
 
     <dependencyManagement>
         <dependencies>
-            <!--https://mvnrepository.com/artifact/io.protostuff/protostuff-core-->
-            <dependency>
-                <groupId>io.protostuff</groupId>
-                <artifactId>protostuff-core</artifactId>
-                <version>${version.protostuff-core}</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/io.protostuff/protostuff-runtime -->
-            <dependency>
-                <groupId>io.protostuff</groupId>
-                <artifactId>protostuff-runtime</artifactId>
-                <version>${version.protostuff-runtime}</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.objenesis/objenesis -->
-            <dependency>
-                <groupId>org.objenesis</groupId>
-                <artifactId>objenesis</artifactId>
-                <version>${version.objenesis}</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-all</artifactId>
-                <version>${version.netty}</version>
-            </dependency>
             <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${version.slf4j}</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/com.101tec/zkclient -->
-            <dependency>
-                <groupId>com.101tec</groupId>
-                <artifactId>zkclient</artifactId>
-                <version>${version.zookeeper-client}</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.springframework/spring-core -->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-core</artifactId>
-                <version>${version.spring}</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-context</artifactId>
-                <version>${version.spring}</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/com.caucho/hessian -->
-            <dependency>
-                <groupId>com.caucho</groupId>
-                <artifactId>hessian</artifactId>
-                <version>4.0.51</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

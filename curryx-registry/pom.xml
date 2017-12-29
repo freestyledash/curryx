@@ -11,11 +11,17 @@
 
     <artifactId>curryx-registry</artifactId>
 
+    <properties>
+        <version.zkclient>0.10</version.zkclient>
+    </properties>
+
+
     <dependencies>
         <!-- https://mvnrepository.com/artifact/com.101tec/zkclient -->
         <dependency>
             <groupId>com.101tec</groupId>
             <artifactId>zkclient</artifactId>
+            <version>${version.zkclient}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
         <dependency>
