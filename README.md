@@ -68,6 +68,7 @@ public class HelloworldImpl implements Helloworld {
     <!--服务注册与发现-->
     <bean id="serviceRegistry"
           class="com.freestyledash.curryx.registry.impl.ZooKeeperServiceRegistry">
+        <!--zookeeper地址-->
         <constructor-arg name="zkAddress" value="127.0.0.1:2181"/>
         <constructor-arg name="serviceRoot" value="/x"/>
         <!--<constructor-arg name="zkConnectionTimeout" value="3000"/>-->
@@ -76,6 +77,7 @@ public class HelloworldImpl implements Helloworld {
 
     <!--通讯服务器-->
     <bean id="nettyServer" class="com.freestyledash.curryx.server.server.impl.NettyServer">
+        <!--netty服务器监听的地址，一般使用0.0.0.0:prot即可-->
         <constructor-arg name="serverListeningAddress" value="127.0.0.1:8001"/>
         <constructor-arg name="bossThreadCount" value="2"/>
         <constructor-arg name="workerThreadCount" value="8"/>
@@ -83,7 +85,9 @@ public class HelloworldImpl implements Helloworld {
 
     <!--整合zookeeper和netty-->
     <bean id="rpcServer" class="com.freestyledash.curryx.server.RPCServer">
+        <!--服务器注册在zookeeper中的地址，客户端使用改地址和服务器进行通讯-->
         <constructor-arg name="serverAddress" value="127.0.0.1:8001"/>
+        <constructor-arg name="serverName" value="xxxxx"/>
         <constructor-arg name="serviceRegistry" ref="serviceRegistry"/>
         <constructor-arg name="server" ref="nettyServer"/>
     </bean>

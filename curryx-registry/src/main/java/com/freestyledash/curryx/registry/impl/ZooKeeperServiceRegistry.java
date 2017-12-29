@@ -34,9 +34,9 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
     private final String serviceRoot;
 
     /**
-     * 储存被发布到zookeeper中的服务名称和服务地址
+     * 储存已经或者曾经被发布到zookeeper中的服务名称和服务地址
      */
-    private Map<String, String> serviceMap;
+    private Map<String, ServiceNode> registeredServiceMapCache;
 
     /**
      * @param zkAddress   zookeeper地址
@@ -59,7 +59,7 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
         if (serviceRoot == null || "".equals(serviceRoot)) {
             throw new RuntimeException("无效的服务根节点");
         }
-        this.serviceMap = new HashMap<>();
+        this.registeredServiceMapCache = new HashMap<>(20);
         this.serviceRoot = serviceRoot;
         this.zkClient = new ZkClient(zkAddress, zkSessionTimeout, zkConnectionTimeout);
         if (zkAddress.contains(COMMA)) {
@@ -77,34 +77,24 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
     /**
      * 注册服务
      *
-     * @param name          服务名称
-     * @param version       服务版本
-     * @param serverAddress 提供服务的服务器的地址
-     */
-    @Override
-    public void registerService(String name, String version, String serverAddress) {
-        registerService(name + Constants.SERVICE_SEP + version, serverAddress);
-    }
-
-    /**
-     * 注册服务
-     *
      * @param serviceFullName 服务全称
+     * @param serverName      服务提供者的名字
      * @param serverAddress   提供服务的服务器的地址
      */
     @Override
-    public void registerService(String serviceFullName, String serverAddress) {
+    public void registerService(String serviceFullName, String serverName, String serverAddress) {
         StringBuilder sb = new StringBuilder();
         sb.append(serviceRoot);
         sb.append('/');
         sb.append(serviceFullName);
         String servicePath = sb.toString();
+        //如果root/serviceName不存在，则先创建持久节点
         if (!zkClient.exists(servicePath)) {
             zkClient.createPersistent(servicePath);
         }
         LOGGER.info("注册服务路径（持久节点）：{}", servicePath);
         sb.append("/");
-        sb.append(serverAddress);
+        sb.append(serverName);
         String serviceNode = sb.toString();
         try {
             //注册包含服务地址的临时节点
@@ -116,8 +106,9 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
             // 只需要保证一定有该临时节点存在即可
         }
         LOGGER.debug("注册服务节点（临时节点）：{}", serviceNode);
-        if (!serviceMap.containsKey(serviceFullName)) {
-            serviceMap.put(serviceFullName, serverAddress);
+        //将已经注册的节点放入cache中缓存
+        if (!registeredServiceMapCache.containsKey(serviceFullName)) {
+            registeredServiceMapCache.put(serviceFullName, new ServiceNode(serverName, serverAddress));
         }
     }
 
@@ -149,9 +140,9 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
     @Override
     public void handleNewSession() throws Exception {
         LOGGER.info("ZooKeeper创建新的会话，重新注册节点");
-        for (String serviceFullName : serviceMap.keySet()) {
-            String serverAddress = serviceMap.get(serviceFullName);
-            registerService(serviceFullName, serverAddress);
+        for (String serviceFullName : registeredServiceMapCache.keySet()) {
+            ServiceNode serviceNode = registeredServiceMapCache.get(serviceFullName);
+            registerService(serviceFullName, serviceNode.getServerName(),serviceNode.getServiceAddress());
         }
     }
 
@@ -164,5 +155,40 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
     @Override
     public void handleSessionEstablishmentError(Throwable error) throws Exception {
         LOGGER.info("handleSessionEstablishmentError:{}", error.getCause());
+    }
+
+
+    private static class ServiceNode {
+
+        public String getServerName() {
+            return serverName;
+        }
+
+        public void setServerName(String serverName) {
+            this.serverName = serverName;
+        }
+
+        public String getServiceAddress() {
+            return serviceAddress;
+        }
+
+        public void setServiceAddress(String serviceAddress) {
+            this.serviceAddress = serviceAddress;
+        }
+
+        public ServiceNode(String serverName, String serviceAddress) {
+            this.serverName = serverName;
+            this.serviceAddress = serviceAddress;
+        }
+
+        /**
+         * 服务器名称
+         */
+        private String serverName;
+
+        /**
+         * 服务器地址
+         */
+        private String serviceAddress;
     }
 }

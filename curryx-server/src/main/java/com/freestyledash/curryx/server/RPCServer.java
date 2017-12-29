@@ -12,6 +12,7 @@ import org.springframework.context.ApplicationContextAware;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -23,6 +24,11 @@ public class RPCServer implements ApplicationContextAware {
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RPCServer.class);
+
+    /**
+     * 服务器名字，在注册服务的时候，服务节点名字为该名字，默认为一个随机的UUID,不推荐使用
+     */
+    private String serverName;
 
     /**
      * 通讯服务器
@@ -48,6 +54,14 @@ public class RPCServer implements ApplicationContextAware {
         this.serverAddress = serverAddress;
         this.serviceRegistry = serviceRegistry;
         this.server = server;
+        this.serverName = UUID.randomUUID().toString();
+    }
+
+    public RPCServer(String serverAddress, ServiceRegistry serviceRegistry, Server server, String serverName) {
+        this.serverAddress = serverAddress;
+        this.serviceRegistry = serviceRegistry;
+        this.server = server;
+        this.serverName = serverName;
     }
 
     /**
@@ -69,8 +83,8 @@ public class RPCServer implements ApplicationContextAware {
         for (Object serviceBean : map.values()) {
             Service serviceAnnotation = serviceBean.getClass().getAnnotation(Service.class);
             boolean assignableFrom = serviceAnnotation.name().isAssignableFrom(serviceBean.getClass());
-            if(!assignableFrom){
-                throw new IllegalStateException(serviceBean.getClass().getName()+" 注解中的接口和该类实现的接口不一致");
+            if (!assignableFrom) {
+                throw new IllegalStateException(serviceBean.getClass().getName() + " 注解中的接口和该类实现的接口不一致");
             }
             String serviceFullName = serviceAnnotation.name().getName() + Constants.SERVICE_SEP + serviceAnnotation.version();
             serviceMap.put(serviceFullName, serviceBean);
@@ -86,8 +100,7 @@ public class RPCServer implements ApplicationContextAware {
     public void start() {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         new Thread(
-                () ->
-                this.server.start(countDownLatch)).start();
+                () -> this.server.start(countDownLatch)).start();
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {
@@ -103,7 +116,7 @@ public class RPCServer implements ApplicationContextAware {
         if (serviceRegistry != null) {
             for (String serviceFullName : serviceMap.keySet()) {
                 LOGGER.debug("向注册中心注册服务：{}", serviceFullName);
-                serviceRegistry.registerService(serviceFullName, serverAddress);
+                serviceRegistry.registerService(serviceFullName, serverName, serverAddress);
             }
         } else {
             throw new RuntimeException("服务中心不可用");
