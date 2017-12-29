@@ -22,7 +22,7 @@ import java.util.concurrent.CountDownLatch;
 public class RPCServer implements ApplicationContextAware {
 
 
-    private static final Logger logger = LoggerFactory.getLogger(RPCServer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RPCServer.class);
 
     /**
      * 通讯服务器
@@ -62,7 +62,7 @@ public class RPCServer implements ApplicationContextAware {
         Map<String, Object> map = context.getBeansWithAnnotation(Service.class);
         //若扫描到的map为空则说明当前服务器没有提供任何服务，警告
         if (map == null || map.size() == 0) {
-            logger.warn("在当前服务器下没有任何服务");
+            LOGGER.warn("在当前服务器下没有任何服务");
             return;
         }
         //对扫描到的每一个service，记录其服务名称和版本
@@ -70,7 +70,7 @@ public class RPCServer implements ApplicationContextAware {
             Service serviceAnnotation = serviceBean.getClass().getAnnotation(Service.class);
             String serviceFullName = serviceAnnotation.name().getName() + Constants.SERVICE_SEP + serviceAnnotation.version();
             serviceMap.put(serviceFullName, serviceBean);
-            logger.debug("扫描到服务：{}", serviceFullName);
+            LOGGER.debug("扫描到服务：{}", serviceFullName);
         }
     }
 
@@ -87,7 +87,7 @@ public class RPCServer implements ApplicationContextAware {
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {
-            logger.error("启动netty失败");
+            LOGGER.error("启动netty失败");
         }
         registerServices();
     }
@@ -98,7 +98,7 @@ public class RPCServer implements ApplicationContextAware {
     private void registerServices() {
         if (serviceRegistry != null) {
             for (String serviceFullName : serviceMap.keySet()) {
-                logger.debug("向注册中心注册服务：{}", serviceFullName);
+                LOGGER.debug("向注册中心注册服务：{}", serviceFullName);
                 serviceRegistry.registerService(serviceFullName, serverAddress);
             }
         } else {

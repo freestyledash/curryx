@@ -25,7 +25,7 @@ import java.util.Map;
  */
 public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
 
-    private static final Logger logger = LoggerFactory.getLogger(RPCServer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RPCServer.class);
 
     /**
      * 保存服务bean的map
@@ -38,7 +38,7 @@ public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext context, final RPCRequest request) throws Exception {
-        logger.debug("请求处理开始：{}", request.getRequestId());
+        LOGGER.debug("请求处理开始：{}", request.getRequestId());
 
         RPCResponse response = new RPCResponse();
         response.setRequestId(request.getRequestId());
@@ -47,7 +47,7 @@ public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
             Object result = handleRequest(request);
             response.setResult(result);
         } catch (Exception e) {
-            logger.error("请求处理({})过程中出错", request.getRequestId(), e);
+            LOGGER.error("请求处理({})过程中出错", request.getRequestId(), e);
             response.setException(e);
         }
 
@@ -55,8 +55,7 @@ public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
             @Override
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
                 channelFuture.channel().close();
-
-                logger.debug("请求处理完毕：{}", request.getRequestId());
+                LOGGER.debug("请求处理完毕：{}", request.getRequestId());
             }
         });
     }

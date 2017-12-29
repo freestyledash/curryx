@@ -41,7 +41,10 @@ public class ZKLockFactory implements LockFactory {
      */
     private static List<String> zkAddr;
 
-    private static boolean isInit = false;
+    /**
+     * 是否初始化
+     */
+    private static volatile boolean isInit = false;
 
     /**
      * 初始化地址
@@ -74,7 +77,7 @@ public class ZKLockFactory implements LockFactory {
      */
     private static final String ROOT = "/locks";
 
-    private static final Logger logger = LoggerFactory.getLogger(ZKLockFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZKLockFactory.class);
 
     private volatile CuratorFramework client;
 
@@ -94,7 +97,7 @@ public class ZKLockFactory implements LockFactory {
             sb.append(addr);
         }
         String addr = sb.toString();
-        logger.info("zookeeper地址为{}", addr);
+        LOGGER.info("zookeeper地址为{}", addr);
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
         this.client =
                 CuratorFrameworkFactory.newClient(
@@ -106,9 +109,9 @@ public class ZKLockFactory implements LockFactory {
                         //重试策略,内建有四种重试策略,也可以自行实现RetryPolicy接口
                         retryPolicy
                 );
-        logger.info("初始化客户端成功,开始启动");
+        LOGGER.info("初始化客户端成功,开始启动");
         client.start();
-        logger.info("启动完成,耗时{}", System.currentTimeMillis() - begin);
+        LOGGER.info("启动完成,耗时{}", System.currentTimeMillis() - begin);
         //确保存在/locks节点
         initZookeeper();
     }
@@ -126,7 +129,7 @@ public class ZKLockFactory implements LockFactory {
                 client.create().withMode(CreateMode.PERSISTENT).forPath(ROOT);
             }
         } catch (Exception e) {
-            logger.error("出错了{}", e.getMessage());
+            LOGGER.error("出错了{}", e.getMessage());
         }
     }
 
@@ -150,7 +153,7 @@ public class ZKLockFactory implements LockFactory {
         try {
             stat = client.checkExists().forPath(ROOT + FORWARDSLASH + resourceName);
         } catch (Exception e) {
-            logger.error("获得锁情况失败");
+            LOGGER.error("获得锁情况失败");
             throw new IllegalStateException("获得锁情况失败");
         }
         //该资源没有锁
@@ -161,17 +164,17 @@ public class ZKLockFactory implements LockFactory {
             try {
                 client.create().withMode(CreateMode.EPHEMERAL).forPath(ROOT + FORWARDSLASH + resourceName, workId.get().getBytes());
             } catch (Exception e) {
-                logger.error("创建锁失败");
+                LOGGER.error("创建锁失败");
                 throw new IllegalStateException("创建锁失败");
             }
-            System.out.println("创建锁成功");
+            LOGGER.info("创建锁成功");
             return true;
         } else { //该资源有锁
             byte[] bytes = null;
             try {
                 bytes = client.getData().storingStatIn(stat).forPath(ROOT + FORWARDSLASH + resourceName);
             } catch (Exception e) {
-                logger.error(e.getMessage());
+                LOGGER.error(e.getMessage());
             }
             String workId2 = new String(bytes);
             //锁重入
@@ -212,7 +215,7 @@ public class ZKLockFactory implements LockFactory {
         try {
             stat = client.checkExists().forPath(ROOT + FORWARDSLASH + resourceName);
         } catch (Exception e) {
-            logger.error("获得锁情况失败");
+            LOGGER.error("获得锁情况失败");
             throw new IllegalStateException("获得锁情况失败");
         }
         if (stat == null) {
@@ -223,7 +226,7 @@ public class ZKLockFactory implements LockFactory {
             try {
                 bytes = client.getData().storingStatIn(stat).forPath(ROOT + FORWARDSLASH + resourceName);
             } catch (Exception e) {
-                logger.error(e.getMessage());
+                LOGGER.error(e.getMessage());
                 throw new RuntimeException(e);
             }
             String workId2 = new String(bytes);
@@ -236,7 +239,7 @@ public class ZKLockFactory implements LockFactory {
                     client.delete().forPath(ROOT + FORWARDSLASH + resourceName);
                     return true;
                 } catch (Exception e) {
-                    logger.error(e.getMessage());
+                    LOGGER.error(e.getMessage());
                     throw new RuntimeException(e);
                 }
             } else { //改资源上锁,但是不是该client上的锁

@@ -21,7 +21,7 @@ import java.util.UUID;
  */
 public final class RPCClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(RPCClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RPCClient.class);
 
     /**
      * 发现服务
@@ -127,7 +127,7 @@ public final class RPCClient {
             //节点地址
             String serverAddress;
             if (serviceDiscovery != null) {
-                logger.debug("向服务中心查询服务：{}", serviceFullName);
+                LOGGER.debug("向服务中心查询服务：{}", serviceFullName);
                 String[] addressData = serviceDiscovery.discoverService(request.getServiceName(), request.getServiceVersion()).split("/");
                 node = addressData[0];
                 serverAddress = addressData[1];
@@ -137,7 +137,7 @@ public final class RPCClient {
             if (StringUtil.isEmpty(serverAddress)) {
                 throw new IllegalAccessException("未查询到服务：" + serviceFullName);
             }
-            logger.debug("选取服务{}节点：{}", serviceFullName, node + "/" + serverAddress);
+            LOGGER.debug("选取服务{}节点：{}", serviceFullName, node + "/" + serverAddress);
             String[] address = serverAddress.split(":");
             String host = address[0];
             int port = Integer.parseInt(address[1]);
@@ -146,7 +146,7 @@ public final class RPCClient {
             if (response == null) {
                 throw new IllegalAccessException(String.format("空的服务器响应(请求号为%s)", request.getRequestId()));
             }
-            logger.debug("请求{}耗时：{}ms", request.getRequestId(), requestTimeCost);
+            LOGGER.debug("请求{}耗时：{}ms", request.getRequestId(), requestTimeCost);
 
             if (response.getException() != null) {
                 throw response.getException();

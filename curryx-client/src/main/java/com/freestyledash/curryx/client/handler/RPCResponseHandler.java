@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @ChannelHandler.Sharable
 public class RPCResponseHandler extends SimpleChannelInboundHandler<RPCResponse> {
 
-    private static final Logger logger = LoggerFactory.getLogger(RPCResponseHandler.class.getClass());
+    private static final Logger LOGGER = LoggerFactory.getLogger(RPCResponseHandler.class.getClass());
 
     /**
      * 响应
@@ -31,11 +31,11 @@ public class RPCResponseHandler extends SimpleChannelInboundHandler<RPCResponse>
         String requestId = response.getRequestId();
         if (requestId == null || requestId.isEmpty()) {
             channelHandlerContext.close();
-            logger.error("无效的请求id");
+            LOGGER.error("无效的请求id");
             return;
         }
         this.responseMap.put(requestId, response);
-        logger.debug("收到服务器响应：{}", response.getRequestId());
+        LOGGER.debug("收到服务器响应：{}", response.getRequestId());
     }
 
     /**

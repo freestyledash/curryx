@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class RPCDecoder extends ByteToMessageDecoder {
 
-    private static final Logger logger = LoggerFactory.getLogger(RPCDecoder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RPCDecoder.class);
 
     /**
      * 要解码的对象类型
@@ -91,7 +91,7 @@ public class RPCDecoder extends ByteToMessageDecoder {
         byte[] body = new byte[length];
         byteBuf.readBytes(body);
         byte[] decode = encryptUtil.decode(body);
-        logger.debug("将长度为({})的字节数组为({})类型的对象", decode.length, clazz.getName());
+        LOGGER.debug("将长度为({})的字节数组为({})类型的对象", decode.length, clazz.getName());
         Object message = serializationUtil.deserialize(decode, clazz);
         list.add(message);
 
