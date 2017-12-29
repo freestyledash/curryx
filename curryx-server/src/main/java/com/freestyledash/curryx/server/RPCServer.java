@@ -68,6 +68,10 @@ public class RPCServer implements ApplicationContextAware {
         //对扫描到的每一个service，记录其服务名称和版本
         for (Object serviceBean : map.values()) {
             Service serviceAnnotation = serviceBean.getClass().getAnnotation(Service.class);
+            boolean assignableFrom = serviceAnnotation.name().isAssignableFrom(serviceBean.getClass());
+            if(!assignableFrom){
+                throw new IllegalStateException(serviceBean.getClass().getName()+" 注解中的接口和该类实现的接口不一致");
+            }
             String serviceFullName = serviceAnnotation.name().getName() + Constants.SERVICE_SEP + serviceAnnotation.version();
             serviceMap.put(serviceFullName, serviceBean);
             LOGGER.debug("扫描到服务：{}", serviceFullName);
@@ -105,4 +109,5 @@ public class RPCServer implements ApplicationContextAware {
             throw new RuntimeException("服务中心不可用");
         }
     }
+
 }
