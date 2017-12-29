@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author zhangyanqi
  */
+@SuppressWarnings("ALL")
 public class RPCRequestLauncher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RPCRequestLauncher.class);

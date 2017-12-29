@@ -8,6 +8,7 @@ package com.freestyledash.curryx.common.protocol.entity;
  *
  * @author zhangyanqi
  */
+@SuppressWarnings("ALL")
 public class RPCResponse {
 
     /**

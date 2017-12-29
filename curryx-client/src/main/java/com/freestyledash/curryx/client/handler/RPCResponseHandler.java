@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 1.0 2017/12/27
  */
 
+@SuppressWarnings("ALL")
 @ChannelHandler.Sharable
 public class RPCResponseHandler extends SimpleChannelInboundHandler<RPCResponse> {
 

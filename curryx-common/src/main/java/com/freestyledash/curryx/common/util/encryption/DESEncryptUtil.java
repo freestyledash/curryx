@@ -10,6 +10,7 @@ import javax.crypto.spec.SecretKeySpec;
  * @author zhangyanqi
  * @since 1.0 2017/11/8
  */
+@SuppressWarnings("ALL")
 public class DESEncryptUtil implements EncryptUtil {
 
     private byte[] key = null;

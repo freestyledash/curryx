@@ -23,6 +23,7 @@ import java.util.Map;
  *
  * @author zhangyanqi
  */
+@SuppressWarnings("ALL")
 public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RPCServer.class);

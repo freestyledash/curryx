@@ -18,6 +18,7 @@ import java.util.List;
  *
  * @author zhangyanqi
  */
+@SuppressWarnings("ALL")
 public class RPCDecoder extends ByteToMessageDecoder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RPCDecoder.class);

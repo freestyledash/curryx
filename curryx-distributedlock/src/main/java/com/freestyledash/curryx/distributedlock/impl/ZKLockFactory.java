@@ -23,6 +23,7 @@ import java.util.UUID;
  * @author zhangyanqi
  * @since 1.0 2017/9/13
  */
+@SuppressWarnings("ALL")
 public class ZKLockFactory implements LockFactory {
 
 

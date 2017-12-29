@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author zhangyanqi
  */
+@SuppressWarnings("ALL")
 public class RPCEncoder extends MessageToByteEncoder {
 
 
