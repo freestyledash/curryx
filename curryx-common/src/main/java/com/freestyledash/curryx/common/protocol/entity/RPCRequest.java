@@ -1,5 +1,6 @@
 package com.freestyledash.curryx.common.protocol.entity;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 /**
@@ -106,5 +107,18 @@ public class RPCRequest {
 
     public void setNonNullArgs(boolean[] nonNullArgs) {
         this.nonNullArgs = nonNullArgs;
+    }
+
+    @Override
+    public String toString() {
+        return "RPCRequest{" +
+                "requestId='" + requestId + '\'' +
+                ", serviceName='" + serviceName + '\'' +
+                ", serviceVersion='" + serviceVersion + '\'' +
+                ", methodName='" + methodName + '\'' +
+                ", argsTypes=" + Arrays.toString(argsTypes) +
+                ", argsValues=" + Arrays.toString(argsValues) +
+                ", nonNullArgs=" + Arrays.toString(nonNullArgs) +
+                '}';
     }
 }

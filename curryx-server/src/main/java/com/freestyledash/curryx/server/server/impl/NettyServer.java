@@ -109,7 +109,7 @@ public class NettyServer implements Server, ApplicationContextAware {
                 bossGroup.shutdownGracefully();
             }
             LOGGER.debug("HOOK：RPC服务器已关闭");
-        }) {
+        },"NettyServerShutdownHook") {
         });
 
         try {

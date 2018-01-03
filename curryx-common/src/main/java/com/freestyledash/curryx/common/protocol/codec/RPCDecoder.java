@@ -66,13 +66,13 @@ public class RPCDecoder extends ByteToMessageDecoder {
     /**
      * 可以解码最短的字节
      */
-    private static final int SHORTESTLEGTH = 4;
+    private static final int SHORTEST_LEGTH = 4;
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
 
         //传入的字节数组的头表示需要反序列化的字节数组的长度，用int也就是4个字节来表示，所以当可读的字节数小于4时直接返回
-        if (byteBuf.readableBytes() < SHORTESTLEGTH) {
+        if (byteBuf.readableBytes() < SHORTEST_LEGTH) {
             return;
         }
 

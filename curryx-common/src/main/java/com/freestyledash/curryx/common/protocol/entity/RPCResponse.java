@@ -52,4 +52,14 @@ public class RPCResponse {
     public void setException(Exception exception) {
         this.exception = exception;
     }
+
+
+    @Override
+    public String toString() {
+        return "RPCResponse{" +
+                "requestId='" + requestId + '\'' +
+                ", result=" + result +
+                ", exception=" + exception +
+                '}';
+    }
 }

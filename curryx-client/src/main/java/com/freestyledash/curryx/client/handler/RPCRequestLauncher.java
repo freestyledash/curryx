@@ -67,7 +67,7 @@ public class RPCRequestLauncher {
                 group.shutdownGracefully();
             }
             LOGGER.debug("HOOK：RPC服务器已关闭");
-        }) {
+        },"NettyShutdownHook") {
         });
     }
 
