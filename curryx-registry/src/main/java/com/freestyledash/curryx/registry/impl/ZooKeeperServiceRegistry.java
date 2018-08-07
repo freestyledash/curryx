@@ -78,11 +78,11 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
      * 注册服务
      *
      * @param serviceFullName 服务全称
-     * @param serverName      服务提供者的名字
-     * @param serverAddress   提供服务的服务器的地址
+     * @param serviceName     服务提供者的名字
+     * @param serviceAddress  提供服务的服务器的地址
      */
     @Override
-    public void registerService(String serviceFullName, String serverName, String serverAddress) {
+    public void registerService(String serviceFullName, String serviceName, String serviceAddress) {
         StringBuilder sb = new StringBuilder();
         sb.append(serviceRoot);
         sb.append('/');
@@ -92,30 +92,29 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
         if (!zkClient.exists(servicePath)) {
             zkClient.createPersistent(servicePath);
         }
-        LOGGER.info("注册服务路径（持久节点）：{}", servicePath);
+        LOGGER.info("注册服务路径（持久节点）:{}", servicePath);
         sb.append("/");
-        sb.append(serverName);
+        sb.append(serviceName);
         String serviceNode = sb.toString();
         try {
             //注册包含服务地址的临时节点
             if (!zkClient.exists(serviceNode)) {
-                zkClient.createEphemeral(serviceNode, serverAddress);
+                zkClient.createEphemeral(serviceNode, serviceAddress);
             }
         } catch (ZkNodeExistsException e) {
-            // do nothing
             // 只需要保证一定有该临时节点存在即可
         }
         LOGGER.debug("注册服务节点（临时节点）：{}", serviceNode);
         //将已经注册的节点放入cache中缓存
         if (!registeredServiceMapCache.containsKey(serviceFullName)) {
-            registeredServiceMapCache.put(serviceFullName, new ServiceNode(serverName, serverAddress));
+            registeredServiceMapCache.put(serviceFullName, new ServiceNode(serviceName, serviceAddress));
         }
     }
 
     /**
      * 处理zookeeper状态变化
      *
-     * @param state
+     * @param state 状态
      * @throws Exception
      */
     @Override
@@ -142,7 +141,7 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
         LOGGER.info("ZooKeeper创建新的会话，重新注册节点");
         for (String serviceFullName : registeredServiceMapCache.keySet()) {
             ServiceNode serviceNode = registeredServiceMapCache.get(serviceFullName);
-            registerService(serviceFullName, serviceNode.getServerName(),serviceNode.getServiceAddress());
+            registerService(serviceFullName, serviceNode.getServerName(), serviceNode.getServiceAddress());
         }
     }
 

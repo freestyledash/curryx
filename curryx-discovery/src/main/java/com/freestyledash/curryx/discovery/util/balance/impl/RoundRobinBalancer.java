@@ -5,6 +5,7 @@ import com.freestyledash.curryx.discovery.util.balance.Balancer;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 轮询负载均衡器，将请求按序轮流发送到每台服务器上
@@ -18,7 +19,7 @@ public class RoundRobinBalancer implements Balancer {
     /**
      * 记录每个服务使用的服务历史
      */
-    private Map<String, Integer> requestMap = new ConcurrentHashMap<>();
+    private Map<String, AtomicLong> requestMap = new ConcurrentHashMap<>();
 
     /**
      * 从候选list中选出合适的节点
@@ -26,14 +27,15 @@ public class RoundRobinBalancer implements Balancer {
      *
      * @param serviceFullName 服务的全称
      * @param candidates      服务的候选地址
-     * @return
+     * @return 选择的节点
      */
     @Override
     public String elect(String serviceFullName, List<String> candidates) {
-        requestMap.putIfAbsent(serviceFullName, 0);
-        int index = requestMap.get(serviceFullName) % candidates.size();
-        requestMap.put(serviceFullName, index + 1);
-        return candidates.get(index);
+        requestMap.putIfAbsent(serviceFullName, new AtomicLong(0));
+        AtomicLong atomicLong = requestMap.get(serviceFullName);
+        int i = atomicLong.intValue() % candidates.size();
+        atomicLong.set(i);
+        return candidates.get(i);
     }
 
 }

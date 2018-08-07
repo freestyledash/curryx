@@ -1,6 +1,7 @@
 package com.freestyledash.curryx.client;
 
 import com.freestyledash.curryx.client.handler.RPCRequestLauncher;
+import com.freestyledash.curryx.common.interceptor.PointCut;
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
 import com.freestyledash.curryx.common.util.StringUtil;
@@ -12,14 +13,27 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * rpc通信客户端
  */
 public final class RPCClient {
+
+    private static final Set methodFromObject = new HashSet<String>(10);
+
+    static {
+        methodFromObject.add("equals");
+        methodFromObject.add("toString");
+        methodFromObject.add("hashCode");
+        methodFromObject.add("getClass");
+        methodFromObject.add("clone");
+        methodFromObject.add("notify");
+        methodFromObject.add("notifyAll");
+        methodFromObject.add("wait");
+        methodFromObject.add("finalize");
+    }
+
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RPCClient.class);
 
@@ -38,11 +52,17 @@ public final class RPCClient {
      */
     private RPCRequestLauncher launcher;
 
+    /**
+     *
+     */
+    private List<PointCut> pointCuts;
+
 
     public RPCClient(ServiceDiscovery serviceDiscovery, RPCRequestLauncher launcher) {
         this.serviceDiscovery = serviceDiscovery;
         this.launcher = launcher;
         cachedProxy = new HashMap();
+        pointCuts = new ArrayList<>();
     }
 
     /**
@@ -94,23 +114,37 @@ public final class RPCClient {
             this.serviceDiscovery = serviceDiscovery;
         }
 
-        //版本
+        /**
+         * 版本
+         */
         private String version;
-        //服务全称
+        /**
+         * 服务全称
+         */
         private String serviceFullName;
-        //被代理的class类型
+        /**
+         * 被代理的class类型
+         */
         private Class clazz;
-        //服务发现接口
+        /**
+         * 服务发现接口
+         */
         private ServiceDiscovery serviceDiscovery;
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            String methodName = method.getName();
+            if (methodFromObject.contains(methodName)) {
+                throw new UnsupportedOperationException("不能在代理对象上执行Object的方法");
+            }
+            for (PointCut p : pointCuts) {
+                p.before();
+            }
             long requestStartTime = System.currentTimeMillis();
-            //构建请求对象，使用UUID给每个请求编上id
             RPCRequest request = new RPCRequest();
             request.setServiceName(clazz.getName());
             request.setServiceVersion(version);
-            request.setMethodName(method.getName());
+            request.setMethodName(methodName);
             request.setArgsTypes(method.getParameterTypes());
             request.setArgsValues(args);
             request.setRequestId(UUID.randomUUID().toString());
@@ -151,6 +185,9 @@ public final class RPCClient {
             if (response.getException() != null) {
                 throw response.getException();
             } else {
+                for (PointCut p : pointCuts) {
+                    p.before();
+                }
                 return response.getResult();
             }
         }
