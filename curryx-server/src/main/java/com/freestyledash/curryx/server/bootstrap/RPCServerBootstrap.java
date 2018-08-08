@@ -11,6 +11,9 @@ import com.freestyledash.curryx.server.RPCServer;
 @SuppressWarnings("ALL")
 public class RPCServerBootstrap {
 
+    /**
+     * 服务
+     */
     private RPCServer rpcServer;
 
     public RPCServerBootstrap(RPCServer rpcServer) {

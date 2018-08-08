@@ -1,7 +1,7 @@
 package com.freestyledash.curryx.server;
 
+import com.freestyledash.curryx.registry.Constants;
 import com.freestyledash.curryx.registry.ServiceRegistry;
-import com.freestyledash.curryx.registry.util.constant.Constants;
 import com.freestyledash.curryx.server.annotation.Service;
 import com.freestyledash.curryx.server.server.Server;
 import org.slf4j.Logger;
@@ -105,6 +105,7 @@ public class RPCServer implements ApplicationContextAware {
             countDownLatch.await();
         } catch (InterruptedException e) {
             LOGGER.error("启动netty失败");
+            System.exit(0);
         }
         registerServices();
     }
