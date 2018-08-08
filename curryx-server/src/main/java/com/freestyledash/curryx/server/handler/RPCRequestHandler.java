@@ -1,5 +1,7 @@
 package com.freestyledash.curryx.server.handler;
 
+import com.freestyledash.curryx.common.interceptor.Advice;
+import com.freestyledash.curryx.common.interceptor.impl.CalculateExecutTimeAdvice;
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
 import com.freestyledash.curryx.registry.util.constant.Constants;
@@ -12,7 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,29 +32,50 @@ public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
     private static final Logger LOGGER = LoggerFactory.getLogger(RPCServer.class);
 
     /**
-     * 保存服务bean的map
+     * 保存服务bean
+     * key:servicename
+     * value:serviceObject
      */
-    private Map<String, Object> serviceMap = new HashMap();
+    private Map<String, Object> serviceMap;
+
+
+    /**
+     * aop通知对象
+     */
+    private List<Advice> advices;
+
 
     public RPCRequestHandler(Map<String, Object> serviceMap) {
         this.serviceMap = serviceMap;
+        this.advices = new ArrayList<>();
+        this.advices.add(new CalculateExecutTimeAdvice());
+    }
+
+    public RPCRequestHandler(Map<String, Object> serviceMap, List<Advice> advices) {
+        this(serviceMap);
+        this.advices = advices;
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext context, final RPCRequest request) throws Exception {
         LOGGER.debug("请求处理开始：{}", request.getRequestId());
-
         RPCResponse response = new RPCResponse();
         response.setRequestId(request.getRequestId());
-
+        Object result = null;
+        boolean processOk = true;
         try {
-            Object result = handleRequest(request);
-            response.setResult(result);
+            result = handleRequest(request);
         } catch (Exception e) {
-            LOGGER.error("请求处理({})过程中出错", request.getRequestId(), e);
+            LOGGER.error("请求处理({})过程中框架出错", request.getRequestId(), result);
             response.setException(e);
+            processOk = false;
         }
-
+        if (processOk && Exception.class.isAssignableFrom(result.getClass())) {
+            //业务代码出现异常
+            LOGGER.error("请求处理({})过程中业务代码出错", request.getRequestId(), result);
+            response.setException((Exception) result);
+        }
+        response.setResult(result);
         context.writeAndFlush(response).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
@@ -69,8 +93,10 @@ public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
      * @throws Exception
      */
     private Object handleRequest(RPCRequest request) throws Exception {
+        for (Advice a : advices) {
+            a.before();
+        }
         String serviceFullName = request.getServiceName() + Constants.SERVICE_SEP + request.getServiceVersion();
-
         Object serviceBean = serviceMap.get(serviceFullName);
         if (serviceBean == null) {
             throw new RuntimeException(String.format("未找到与(%s)相对应的服务", serviceFullName));
@@ -88,6 +114,15 @@ public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
             request.setArgsValues(temp);
         }
         Method method = clazz.getMethod(request.getMethodName(), request.getArgsTypes());
-        return method.invoke(serviceBean, request.getArgsValues());
+        Object result = null;
+        try {
+            result = method.invoke(serviceBean, request.getArgsValues());
+        } catch (Exception e) {
+            for (Advice a : advices) {
+                a.encounterException(e);
+            }
+            return e;
+        }
+        return result;
     }
 }

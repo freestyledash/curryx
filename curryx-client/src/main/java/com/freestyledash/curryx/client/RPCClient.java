@@ -1,7 +1,8 @@
 package com.freestyledash.curryx.client;
 
 import com.freestyledash.curryx.client.handler.RPCRequestLauncher;
-import com.freestyledash.curryx.common.interceptor.PointCut;
+import com.freestyledash.curryx.common.interceptor.Advice;
+import com.freestyledash.curryx.common.interceptor.impl.CalculateExecutTimeAdvice;
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
 import com.freestyledash.curryx.common.util.StringUtil;
@@ -53,16 +54,24 @@ public final class RPCClient {
     private RPCRequestLauncher launcher;
 
     /**
-     *
+     * aop通知对象
      */
-    private List<PointCut> pointCuts;
+    private List<Advice> advice;
 
 
     public RPCClient(ServiceDiscovery serviceDiscovery, RPCRequestLauncher launcher) {
         this.serviceDiscovery = serviceDiscovery;
         this.launcher = launcher;
-        cachedProxy = new HashMap();
-        pointCuts = new ArrayList<>();
+        this.cachedProxy = new HashMap();
+        this.advice = new ArrayList<>();
+        this.advice.add(new CalculateExecutTimeAdvice());
+    }
+
+    public RPCClient(ServiceDiscovery serviceDiscovery, RPCRequestLauncher launcher, List<Advice> advices) {
+        this.serviceDiscovery = serviceDiscovery;
+        this.launcher = launcher;
+        this.cachedProxy = new HashMap();
+        this.advice = advices;
     }
 
     /**
@@ -96,10 +105,8 @@ public final class RPCClient {
         return (T) proxy;
     }
 
-    /**
-     * rpc代理执行类
-     */
-    public class RpcInvocationHandler implements InvocationHandler {
+
+    private class RpcInvocationHandler implements InvocationHandler {
 
         /**
          * @param version          服务版本
@@ -115,7 +122,7 @@ public final class RPCClient {
         }
 
         /**
-         * 版本
+         * 服务版本
          */
         private String version;
         /**
@@ -137,7 +144,7 @@ public final class RPCClient {
             if (methodFromObject.contains(methodName)) {
                 throw new UnsupportedOperationException("不能在代理对象上执行Object的方法");
             }
-            for (PointCut p : pointCuts) {
+            for (Advice p : advice) {
                 p.before();
             }
             long requestStartTime = System.currentTimeMillis();
@@ -180,13 +187,14 @@ public final class RPCClient {
             if (response == null) {
                 throw new IllegalAccessException(String.format("空的服务器响应(请求号为%s)", request.getRequestId()));
             }
-            LOGGER.debug("请求{}耗时：{}ms", request.getRequestId(), requestTimeCost);
-
             if (response.getException() != null) {
+                for (Advice p : advice) {
+                    p.encounterException(response.getException());
+                }
                 throw response.getException();
             } else {
-                for (PointCut p : pointCuts) {
-                    p.before();
+                for (Advice p : advice) {
+                    p.after();
                 }
                 return response.getResult();
             }
