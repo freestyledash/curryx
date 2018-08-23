@@ -4,15 +4,17 @@
  */
 public class Test extends Thread {
 
-    static class A {
-    }
-
-    static class B extends A {
-
+    static void dosth() {
+        throw new RuntimeException("error");
     }
 
     public static void main(String[] args) {
-        boolean assignableFrom = A.class.isAssignableFrom(A.class);
-        System.out.println(assignableFrom);
+        String a = "a" + "b";
+        String b = "ab";
+        String c = new String("ab");
+        String d = new String("ab");
+        System.out.println(a == b);
+        System.out.println(a == c);
+        System.out.println(c == d);
     }
 }

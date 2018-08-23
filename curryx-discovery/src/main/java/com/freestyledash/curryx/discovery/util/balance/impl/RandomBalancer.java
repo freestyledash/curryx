@@ -14,11 +14,6 @@ import java.util.Random;
 public class RandomBalancer implements Balancer {
 
     /**
-     * 随机数生成器
-     */
-    private final Random random = new Random();
-
-    /**
      * 从候选地址<code>candidates</code>中根据一定的负载均衡算法选出一台服务器的地址
      *
      * @param serviceFullName 服务的全称
@@ -27,6 +22,7 @@ public class RandomBalancer implements Balancer {
      */
     @Override
     public String elect(String serviceFullName, List<String> candidates) {
+        Random random = new Random();
         int size = candidates.size();
         if (size == 0) {
             return null;

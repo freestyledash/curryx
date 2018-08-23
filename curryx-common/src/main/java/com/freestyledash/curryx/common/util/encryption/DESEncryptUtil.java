@@ -48,7 +48,7 @@ public class DESEncryptUtil implements EncryptUtil {
      * @return 解密结果
      */
     @Override
-    public byte[] decode(byte[] content) throws Exception {
+    public byte[] decode(byte[] content)  throws Exception {
         //恢复密钥
         SecretKey secretKey = new SecretKeySpec(key, keyGenName);
         //Cipher完成加密或解密工作类
@@ -57,6 +57,7 @@ public class DESEncryptUtil implements EncryptUtil {
         cipher.init(Cipher.DECRYPT_MODE, secretKey);
         //解密data
         byte[] origin = cipher.doFinal(content);
+
         return origin;
     }
 
