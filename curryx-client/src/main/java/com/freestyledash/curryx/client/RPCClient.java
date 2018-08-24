@@ -5,7 +5,6 @@ import com.freestyledash.curryx.common.interceptor.Advice;
 import com.freestyledash.curryx.common.interceptor.impl.CalculateExecutTimeAdvice;
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
-import com.freestyledash.curryx.common.util.StringUtil;
 import com.freestyledash.curryx.discovery.ServiceDiscovery;
 import com.freestyledash.curryx.discovery.util.constant.Constants;
 import org.slf4j.Logger;
@@ -175,7 +174,7 @@ public final class RPCClient {
             } else {
                 throw new IllegalAccessException("服务中心不可用");
             }
-            if (StringUtil.isEmpty(serverAddress)) {
+            if (serverAddress == null || "".equals(serverAddress)) {
                 throw new IllegalAccessException("未查询到服务：" + serviceFullName);
             }
             LOGGER.debug("选取服务{}节点：{}", serviceFullName, node + "/" + serverAddress);

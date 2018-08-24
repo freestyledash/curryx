@@ -1,9 +1,9 @@
 package com.freestyledash.curryx.common.protocol.codec;
 
-import com.freestyledash.curryx.common.util.encryption.DESEncryptUtil;
-import com.freestyledash.curryx.common.util.encryption.EncryptUtil;
-import com.freestyledash.curryx.common.util.serialization.ProtostuffSerializationUtil;
-import com.freestyledash.curryx.common.util.serialization.SerializationUtil;
+import com.freestyledash.curryx.common.encryption.DESEncryptUtil;
+import com.freestyledash.curryx.common.encryption.EncryptUtil;
+import com.freestyledash.curryx.common.serialization.ProtostuffSerializationUtil;
+import com.freestyledash.curryx.common.serialization.SerializationUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;

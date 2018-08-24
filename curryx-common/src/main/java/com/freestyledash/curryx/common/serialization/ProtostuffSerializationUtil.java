@@ -1,4 +1,4 @@
-package com.freestyledash.curryx.common.util.serialization;
+package com.freestyledash.curryx.common.serialization;
 
 import io.protostuff.GraphIOUtil;
 import io.protostuff.LinkedBuffer;

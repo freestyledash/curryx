@@ -1,4 +1,4 @@
-package com.freestyledash.curryx.common.util.serialization;
+package com.freestyledash.curryx.common.serialization;
 
 /**
  * 序列化工具的接口

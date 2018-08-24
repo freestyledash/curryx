@@ -1,4 +1,4 @@
-package com.freestyledash.curryx.common.util.encryption;
+package com.freestyledash.curryx.common.encryption;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;

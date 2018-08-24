@@ -1,4 +1,4 @@
-package com.freestyledash.curryx.common.util.encryption;
+package com.freestyledash.curryx.common.encryption;
 
 /**
  * 加密工具接口
