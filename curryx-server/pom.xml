@@ -11,16 +11,11 @@
 
     <artifactId>curryx-server</artifactId>
 
-    <properties>
-        <version.spring>4.3.12.RELEASE</version.spring>
-    </properties>
-
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>${version.spring}</version>
         </dependency>
         <dependency>
             <groupId>com.freestyledash</groupId>

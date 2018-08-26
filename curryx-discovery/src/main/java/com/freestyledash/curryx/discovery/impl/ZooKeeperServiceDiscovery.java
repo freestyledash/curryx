@@ -7,6 +7,7 @@ package com.freestyledash.curryx.discovery.impl;
 
 import com.freestyledash.curryx.discovery.ServiceDiscovery;
 import com.freestyledash.curryx.discovery.util.balance.Balancer;
+import com.freestyledash.curryx.discovery.util.balance.impl.RandomBalancer;
 import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.IZkStateListener;
 import org.I0Itec.zkclient.ZkClient;
@@ -19,9 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.freestyledash.curryx.discovery.util.constant.Constants.COMMA;
-import static com.freestyledash.curryx.discovery.util.constant.Constants.DEFAULT_ZK_SESSION_TIMEOUT;
-import static com.freestyledash.curryx.discovery.util.constant.Constants.SERVICE_SEP;
+import static com.freestyledash.curryx.discovery.util.constant.Constants.*;
 
 
 /**
@@ -75,6 +74,10 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
      */
     public ZooKeeperServiceDiscovery(String zkAddress, String serviceRoot, Balancer balancer) {
         this(zkAddress, serviceRoot, balancer, DEFAULT_ZK_SESSION_TIMEOUT, DEFAULT_ZK_SESSION_TIMEOUT);
+    }
+
+    public ZooKeeperServiceDiscovery(String zkAddress, String serviceRoot) {
+        this(zkAddress, serviceRoot, new RandomBalancer(), DEFAULT_ZK_SESSION_TIMEOUT, DEFAULT_ZK_SESSION_TIMEOUT);
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.freestyledash.curryx.server.server.impl;
 
 import com.freestyledash.curryx.common.addressTools.GetAddressTool;
+import com.freestyledash.curryx.common.addressTools.impl.GetIpv4AddressByTraverseInterface;
 import com.freestyledash.curryx.common.protocol.codec.RPCDecoder;
 import com.freestyledash.curryx.common.protocol.codec.RPCEncoder;
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
@@ -27,6 +28,8 @@ import org.springframework.context.ApplicationContextAware;
 import java.util.Map;
 import java.util.concurrent.*;
 
+import static com.freestyledash.curryx.common.constant.ServerConst.DEFAULT_SERVER_PORT;
+
 /**
  * 使用netty实现的服务器
  *
@@ -40,7 +43,7 @@ public class NettyServer implements Server, ApplicationContextAware {
     /**
      * 组件加载使用的线程池
      */
-    private Executor threadPoolExecutor;
+    private ExecutorService threadPoolExecutor;
 
     /**
      * 被注册为服务的集合
@@ -53,19 +56,20 @@ public class NettyServer implements Server, ApplicationContextAware {
     private String ip;
 
     /**
-     * netty监听的服务器网络进程ip
+     * 端口
      */
     private int port;
 
     /**
-     * boss工作线程个数,默认为1
+     * boss工作线程个数
      */
-    private int bossThreadCount = 1;
+    private int bossThreadCount;
 
     /**
-     * worker工作线程个数，默认为1
+     * worker工作线程个数
      */
-    private int workerThreadCount = 1;
+    private int workerThreadCount;
+
 
     public NettyServer(String ip, int port, int bossThreadCount, int workerThreadCount) {
         this.ip = ip;
@@ -94,6 +98,10 @@ public class NettyServer implements Server, ApplicationContextAware {
         this(tool.getAddress(), prot, bossThreadCount, workerThreadCount);
     }
 
+    public NettyServer() {
+        this(new GetIpv4AddressByTraverseInterface(), DEFAULT_SERVER_PORT, 1, 1);
+    }
+
 
     /**
      * 在spring初始化该类对象完成之后运行，用于等级被注册的服务
@@ -110,13 +118,21 @@ public class NettyServer implements Server, ApplicationContextAware {
             LOGGER.warn("没有服务被加载");
             return;
         }
+        final CountDownLatch countDownLatch = new CountDownLatch(map.size());
         //对扫描到的每一个service，记录其服务名称和版本
         for (Object serviceBean : map.values()) {
             threadPoolExecutor.execute(() -> {
                 Service serviceAnnotation = serviceBean.getClass().getAnnotation(Service.class);
                 String serviceFullName = serviceAnnotation.name().getName() + Constants.SERVICE_SEP + serviceAnnotation.version();
                 serviceMap.put(serviceFullName, serviceBean);
+                countDownLatch.countDown();
             });
+        }
+        try {
+            countDownLatch.await();
+            threadPoolExecutor.shutdown();
+        } catch (InterruptedException e) {
+            threadPoolExecutor.shutdown();
         }
     }
 
@@ -159,7 +175,7 @@ public class NettyServer implements Server, ApplicationContextAware {
                         }
                     });
             ChannelFuture future = bootstrap.bind(ip, port).sync();
-            LOGGER.debug("服务器已启动（端口号：{}）", port);
+            LOGGER.debug("服务器已启动(端口号:{})", port);
             latch.countDown();
             future.channel().closeFuture().sync();
         } catch (Exception e) {
@@ -174,4 +190,6 @@ public class NettyServer implements Server, ApplicationContextAware {
     public synchronized void shutdown() {
         LOGGER.info("netty服务器关闭");
     }
+
+
 }

@@ -46,11 +46,14 @@
     </modules>
 
     <properties>
-        <version.slf4j>1.7.21</version.slf4j>
         <version.maven-compiler-plugin>3.6.1</version.maven-compiler-plugin>
         <version.maven-javadoc-plugin>2.10.4</version.maven-javadoc-plugin>
         <version.maven-source-plugin>3.0.1</version.maven-source-plugin>
+        <!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
+        <version.slf4j>1.7.21</version.slf4j>
         <version.java>1.8</version.java>
+        <version.spring>5.0.8.RELEASE</version.spring>
+        <version.netty>4.1.29.Final</version.netty>
     </properties>
 
     <dependencyManagement>
@@ -60,6 +63,16 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${version.slf4j}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${version.spring}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>${version.netty}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -16,7 +16,6 @@
         <version.protostuff-runtime>1.6.0</version.protostuff-runtime>
         <version.objenesis>2.6</version.objenesis>
         <version.hessian>4.0.51</version.hessian>
-        <version.netty>4.1.16.Final</version.netty>
     </properties>
 
     <dependencies>
@@ -42,7 +41,6 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>${version.netty}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.caucho/hessian -->
         <dependency>
