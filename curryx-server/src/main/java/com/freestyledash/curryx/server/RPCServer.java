@@ -26,7 +26,7 @@ public class RPCServer implements ApplicationContextAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(RPCServer.class);
 
     /**
-     * 服务器名字，在注册服务的时候，服务节点名字为该名字，默认为一个随机的UUID,不推荐使用
+     * 服务器名字，在注册服务的时候，服务节点名字为该名字，默认为{ip}:{一个随机的UUID},不推荐使用
      */
     private String serverName;
 
@@ -50,18 +50,18 @@ public class RPCServer implements ApplicationContextAware {
      */
     private Map<String, Object> serviceMap = new HashMap();
 
-    public RPCServer(String serverAddress, ServiceRegistry serviceRegistry, Server server) {
-        this.serverAddress = serverAddress;
+    public RPCServer(ServiceRegistry serviceRegistry, Server server) {
         this.serviceRegistry = serviceRegistry;
         this.server = server;
         this.serverName = UUID.randomUUID().toString();
+        this.serverAddress = server.getAddress();
     }
 
-    public RPCServer(String serverAddress, ServiceRegistry serviceRegistry, Server server, String serverName) {
-        this.serverAddress = serverAddress;
+    public RPCServer(ServiceRegistry serviceRegistry, Server server, String serverName) {
         this.serviceRegistry = serviceRegistry;
         this.server = server;
         this.serverName = serverName;
+        this.serverAddress = server.getAddress();
     }
 
     /**

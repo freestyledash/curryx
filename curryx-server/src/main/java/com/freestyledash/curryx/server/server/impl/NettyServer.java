@@ -144,6 +144,31 @@ public class NettyServer implements Server, ApplicationContextAware {
         }
     }
 
+
+    /**
+     * @return 服务器监听的ip  例如:127.0.0.1
+     */
+    @Override
+    public String getIp() {
+        return ip;
+    }
+
+    /**
+     * @return 服务器监听的端口 例如 80
+     */
+    @Override
+    public int getPort() {
+        return port;
+    }
+
+    /**
+     * @return 服务器监听的完整地址
+     */
+    @Override
+    public String getAddress() {
+        return ip + ":" + port;
+    }
+
     /**
      * 服务器启动
      */

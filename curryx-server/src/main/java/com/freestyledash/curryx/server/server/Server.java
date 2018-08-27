@@ -24,4 +24,22 @@ public interface Server {
      */
     void shutdown();
 
+
+    /**
+     * @return 服务器监听的ip  例如:127.0.0.1
+     */
+    String getIp();
+
+
+    /**
+     * @return 服务器监听的端口 例如 80
+     */
+    int getPort();
+
+
+    /**
+     * @return 服务器监听的完整地址
+     */
+    String getAddress();
+
 }
