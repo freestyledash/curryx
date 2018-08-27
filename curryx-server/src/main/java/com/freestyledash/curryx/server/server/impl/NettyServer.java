@@ -122,6 +122,9 @@ public class NettyServer implements Server, ApplicationContextAware {
         //对扫描到的每一个service，记录其服务名称和版本
         for (Object serviceBean : map.values()) {
             threadPoolExecutor.execute(() -> {
+                if (Thread.interrupted()) {
+                    return;
+                }
                 Service serviceAnnotation = serviceBean.getClass().getAnnotation(Service.class);
                 String serviceFullName = serviceAnnotation.name().getName() + Constants.SERVICE_SEP + serviceAnnotation.version();
                 serviceMap.put(serviceFullName, serviceBean);
@@ -130,9 +133,14 @@ public class NettyServer implements Server, ApplicationContextAware {
         }
         try {
             countDownLatch.await();
-            threadPoolExecutor.shutdown();
+            threadPoolExecutor.shutdownNow();
         } catch (InterruptedException e) {
-            threadPoolExecutor.shutdown();
+            threadPoolExecutor.shutdownNow();
+            throw new IllegalThreadStateException("停止模块加载");
+        } finally {
+            if (!threadPoolExecutor.isShutdown()) {
+                threadPoolExecutor.shutdownNow();
+            }
         }
     }
 
