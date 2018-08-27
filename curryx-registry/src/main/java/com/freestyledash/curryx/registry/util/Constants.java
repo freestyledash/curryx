@@ -1,4 +1,4 @@
-package com.freestyledash.curryx.registry;
+package com.freestyledash.curryx.registry.util;
 
 /**
  * zookeeper使用的常量

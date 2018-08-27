@@ -4,7 +4,7 @@ import com.freestyledash.curryx.common.interceptor.Advice;
 import com.freestyledash.curryx.common.interceptor.impl.CalculateExecutTimeAdvice;
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
-import com.freestyledash.curryx.registry.Constants;
+import com.freestyledash.curryx.registry.util.Constants;
 import com.freestyledash.curryx.server.RPCServer;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;

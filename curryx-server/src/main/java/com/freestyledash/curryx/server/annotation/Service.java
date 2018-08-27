@@ -1,5 +1,6 @@
 package com.freestyledash.curryx.server.annotation;
 
+import com.freestyledash.curryx.common.constant.ServiceVersion;
 import org.springframework.stereotype.Component;
 
 import java.lang.annotation.ElementType;
@@ -24,6 +25,6 @@ public @interface Service {
     /**
      * @return 服务版本
      */
-    String version() default "debug";
+    String version() default ServiceVersion.DEBUG;
 
 }

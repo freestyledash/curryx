@@ -6,7 +6,7 @@ import com.freestyledash.curryx.common.protocol.codec.RPCDecoder;
 import com.freestyledash.curryx.common.protocol.codec.RPCEncoder;
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
-import com.freestyledash.curryx.registry.Constants;
+import com.freestyledash.curryx.registry.util.Constants;
 import com.freestyledash.curryx.server.annotation.Service;
 import com.freestyledash.curryx.server.handler.RPCRequestHandler;
 import com.freestyledash.curryx.server.server.Server;

@@ -1,6 +1,6 @@
 package com.freestyledash.curryx.server;
 
-import com.freestyledash.curryx.registry.Constants;
+import com.freestyledash.curryx.registry.util.Constants;
 import com.freestyledash.curryx.registry.ServiceRegistry;
 import com.freestyledash.curryx.server.annotation.Service;
 import com.freestyledash.curryx.server.server.Server;

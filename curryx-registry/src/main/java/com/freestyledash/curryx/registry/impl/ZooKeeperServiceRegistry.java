@@ -1,7 +1,7 @@
 package com.freestyledash.curryx.registry.impl;
 
 import com.freestyledash.curryx.registry.ServiceRegistry;
-import com.freestyledash.curryx.registry.Constants;
+import com.freestyledash.curryx.registry.util.Constants;
 import org.I0Itec.zkclient.IZkStateListener;
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.exception.ZkNodeExistsException;
@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.freestyledash.curryx.registry.Constants.COMMA;
+import static com.freestyledash.curryx.registry.util.Constants.COMMA;
 
 /**
  * 使用ZooKeeper名字服务器实现的服务发现
