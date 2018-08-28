@@ -54,12 +54,12 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
      */
     public ZooKeeperServiceRegistry(String zkAddress, String serviceRoot, int zkSessionTimeout, int zkConnectionTimeout) {
         if (zkAddress == null || "".equals(zkAddress)) {
-            throw new RuntimeException("无效的ZooKeeper地址");
+            throw new IllegalArgumentException("无效的ZooKeeper地址");
         }
         if (serviceRoot == null || "".equals(serviceRoot)) {
-            throw new RuntimeException("无效的服务根节点");
+            throw new IllegalArgumentException("无效的服务根节点");
         }
-        this.registeredServiceMapCache = new HashMap<>(20);
+        this.registeredServiceMapCache = new HashMap<>(30);
         this.serviceRoot = serviceRoot;
         this.zkClient = new ZkClient(zkAddress, zkSessionTimeout, zkConnectionTimeout);
         if (zkAddress.contains(COMMA)) {
@@ -76,28 +76,33 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
 
     /**
      * 注册服务
+     * 将一个"类路径"注册到zookeeper中
+     * <p>
+     * 一个服务注册的预期结果为：
+     * /root/serviceFullName/serverName
+     * 节点内包含信息为ip:port
+     * <p>
+     * 其中/root/serviceFullName/为永久节点
+     * serverName为临时节点
      *
      * @param serviceFullName 服务全称
-     * @param serviceName     服务提供者的名字
-     * @param serviceAddress  提供服务的服务器的地址
+     * @param serverName      服务提供者的名字
+     * @param serviceAddress  提供服务的服务器的地址,格式: ip:port 例如: 127.0.0.1:8080
      */
     @Override
-    public void registerService(String serviceFullName, String serviceName, String serviceAddress) {
+    public void registerService(String serviceFullName, String serverName, String serviceAddress) {
         StringBuilder sb = new StringBuilder();
-        sb.append(serviceRoot);
-        sb.append('/');
-        sb.append(serviceFullName);
+        sb.append(serviceRoot).append('/').append(serviceFullName);
         String servicePath = sb.toString();
-        //如果root/serviceName不存在，则先创建持久节点
+        //如果root/serviceFullName 不存在，则先创建持久节点
         if (!zkClient.exists(servicePath)) {
             zkClient.createPersistent(servicePath);
         }
         LOGGER.info("注册服务路径（持久节点）:{}", servicePath);
-        sb.append("/");
-        sb.append(serviceName);
+        sb.append("/").append(serverName);
         String serviceNode = sb.toString();
         try {
-            //注册包含服务地址的临时节点
+            //注册临时节点
             if (!zkClient.exists(serviceNode)) {
                 zkClient.createEphemeral(serviceNode, serviceAddress);
             }
@@ -107,7 +112,7 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
         LOGGER.debug("注册服务节点（临时节点）：{}", serviceNode);
         //将已经注册的节点放入cache中缓存
         if (!registeredServiceMapCache.containsKey(serviceFullName)) {
-            registeredServiceMapCache.put(serviceFullName, new ServiceNode(serviceName, serviceAddress));
+            registeredServiceMapCache.put(serviceFullName, new ServiceNode(serverName, serviceAddress));
         }
     }
 
@@ -115,10 +120,9 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
      * 处理zookeeper状态变化
      *
      * @param state 状态
-     * @throws Exception
      */
     @Override
-    public void handleStateChanged(Watcher.Event.KeeperState state) throws Exception {
+    public void handleStateChanged(Watcher.Event.KeeperState state) {
         LOGGER.info("观察到ZooKeeper状态码：{}", state.getIntValue());
         if (state == Watcher.Event.KeeperState.SyncConnected) {
             LOGGER.info("检测到zookeeper事件:SyncConnected(连接)");
@@ -133,15 +137,13 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
 
     /**
      * 创建新的session
-     *
-     * @throws Exception
      */
     @Override
-    public void handleNewSession() throws Exception {
+    public void handleNewSession() {
         LOGGER.info("ZooKeeper创建新的会话，重新注册节点");
-        for (String serviceFullName : registeredServiceMapCache.keySet()) {
-            ServiceNode serviceNode = registeredServiceMapCache.get(serviceFullName);
-            registerService(serviceFullName, serviceNode.getServerName(), serviceNode.getServiceAddress());
+        for (Map.Entry<String, ServiceNode> entry : registeredServiceMapCache.entrySet()) {
+            ServiceNode serviceNode = entry.getValue();
+            registerService(entry.getKey(), serviceNode.getServerName(), serviceNode.getServiceAddress());
         }
     }
 
@@ -149,10 +151,9 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
      * session创建失败
      *
      * @param error
-     * @throws Exception
      */
     @Override
-    public void handleSessionEstablishmentError(Throwable error) throws Exception {
+    public void handleSessionEstablishmentError(Throwable error) {
         LOGGER.info("handleSessionEstablishmentError:{}", error.getCause());
     }
 
