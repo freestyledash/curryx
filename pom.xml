@@ -39,10 +39,11 @@
     <modules>
         <module>curryx-common</module>
         <module>curryx-server</module>
-        <module>curryx-client</module>
+        <module>curryx-rpcClient</module>
         <module>curryx-distributedlock</module>
         <module>curryx-discovery</module>
         <module>curryx-registry</module>
+        <module>curryx-rpcServer</module>
     </modules>
 
     <properties>
@@ -54,6 +55,7 @@
         <version.java>1.8</version.java>
         <version.spring>5.0.8.RELEASE</version.spring>
         <version.netty>4.1.29.Final</version.netty>
+        <version.com.101tec.zkclient>0.10</version.com.101tec.zkclient>
     </properties>
 
     <dependencyManagement>
@@ -73,6 +75,11 @@
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
                 <version>${version.netty}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.101tec</groupId>
+                <artifactId>zkclient</artifactId>
+                <version>${version.com.101tec.zkclient}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

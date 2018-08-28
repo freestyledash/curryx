@@ -1,5 +1,7 @@
 package com.freestyledash.curryx.registry;
 
+import com.freestyledash.curryx.server.server.Server;
+
 /**
  * 服务端向注册中心注册服务的接口
  *
@@ -15,5 +17,13 @@ public interface ServiceRegistry {
      * @param serverAddress   提供服务的服务器的地址
      */
     void registerService(String serviceFullName, String serverName, String serverAddress);
+
+
+    /**
+     * 注册组件需要能够检测到服务器的健康状态
+     *
+     * @param server
+     */
+    void setServer(Server server);
 
 }

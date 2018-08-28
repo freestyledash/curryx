@@ -21,14 +21,5 @@ public final class Constants {
      */
     public static final int DEFAULT_ZK_CONNECTION_TIMEOUT = 3 * 1000;
 
-    /**
-     * 服务名与版本号的连接符
-     */
-    public static final String SERVICE_SEP = "-";
-
-    /**
-     * 逗号
-     */
-    public static final String COMMA = ",";
 
 }

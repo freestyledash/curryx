@@ -1,4 +1,4 @@
-package com.freestyledash.curryx.client.handler;
+package com.freestyledash.curryx.rpcClient.handler;
 
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
 import io.netty.channel.ChannelHandler;

@@ -1,7 +1,7 @@
-package com.freestyledash.curryx.server;
+package com.freestyledash.curryx.rpcServer;
 
-import com.freestyledash.curryx.registry.util.Constants;
 import com.freestyledash.curryx.registry.ServiceRegistry;
+import com.freestyledash.curryx.registry.util.Constants;
 import com.freestyledash.curryx.server.annotation.Service;
 import com.freestyledash.curryx.server.server.Server;
 import org.slf4j.Logger;
@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+
+import static com.freestyledash.curryx.common.constant.PunctuationConst.STRIGULA;
 
 /**
  * RPC服务端
@@ -55,6 +57,7 @@ public class RPCServer implements ApplicationContextAware {
         this.server = server;
         this.serverName = UUID.randomUUID().toString();
         this.serverAddress = server.getAddress();
+        this.serviceRegistry.setServer(server);
     }
 
     public RPCServer(ServiceRegistry serviceRegistry, Server server, String serverName) {
@@ -62,6 +65,7 @@ public class RPCServer implements ApplicationContextAware {
         this.server = server;
         this.serverName = serverName;
         this.serverAddress = server.getAddress();
+        this.serviceRegistry.setServer(server);
     }
 
     /**
@@ -86,7 +90,7 @@ public class RPCServer implements ApplicationContextAware {
             if (!assignableFrom) {
                 throw new IllegalStateException(serviceBean.getClass().getName() + " 注解中的接口和该类实现的接口不一致");
             }
-            String serviceFullName = serviceAnnotation.name().getName() + Constants.SERVICE_SEP + serviceAnnotation.version();
+            String serviceFullName = serviceAnnotation.name().getName() + STRIGULA + serviceAnnotation.version();
             serviceMap.put(serviceFullName, serviceBean);
             LOGGER.debug("扫描到服务：{}", serviceFullName);
         }
@@ -122,6 +126,15 @@ public class RPCServer implements ApplicationContextAware {
         } else {
             throw new RuntimeException("服务中心不可用");
         }
+    }
+
+
+    /**
+     * 停止服务器时调用
+     */
+    public void stop() {
+
+
     }
 
 }

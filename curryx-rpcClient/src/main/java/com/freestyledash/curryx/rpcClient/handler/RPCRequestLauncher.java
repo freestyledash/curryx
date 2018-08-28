@@ -1,4 +1,4 @@
-package com.freestyledash.curryx.client.handler;
+package com.freestyledash.curryx.rpcClient.handler;
 
 import com.freestyledash.curryx.common.protocol.codec.RPCDecoder;
 import com.freestyledash.curryx.common.protocol.codec.RPCEncoder;

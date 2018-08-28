@@ -11,8 +11,8 @@
 
     <artifactId>curryx-server</artifactId>
 
+
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
@@ -22,12 +22,5 @@
             <artifactId>curryx-common</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.freestyledash</groupId>
-            <artifactId>curryx-registry</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
     </dependencies>
-
-
 </project>

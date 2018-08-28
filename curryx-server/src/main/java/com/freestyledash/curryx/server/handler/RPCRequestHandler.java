@@ -4,8 +4,6 @@ import com.freestyledash.curryx.common.interceptor.Advice;
 import com.freestyledash.curryx.common.interceptor.impl.CalculateExecutTimeAdvice;
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
-import com.freestyledash.curryx.registry.util.Constants;
-import com.freestyledash.curryx.server.RPCServer;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -18,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.freestyledash.curryx.common.constant.PunctuationConst.STRIGULA;
+
 /**
  * 处理RPC请求的类
  * 利用了netty的InboundHandler
@@ -29,7 +29,7 @@ import java.util.Map;
 @SuppressWarnings("ALL")
 public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RPCServer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RPCRequestHandler.class);
 
     /**
      * 保存服务bean
@@ -96,7 +96,7 @@ public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
         for (Advice a : advices) {
             a.before();
         }
-        String serviceFullName = request.getServiceName() + Constants.SERVICE_SEP + request.getServiceVersion();
+        String serviceFullName = request.getServiceName() + STRIGULA + request.getServiceVersion();
         Object serviceBean = serviceMap.get(serviceFullName);
         if (serviceBean == null) {
             throw new RuntimeException(String.format("未找到与(%s)相对应的服务", serviceFullName));

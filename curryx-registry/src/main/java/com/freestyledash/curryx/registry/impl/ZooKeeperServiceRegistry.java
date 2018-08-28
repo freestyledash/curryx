@@ -2,6 +2,7 @@ package com.freestyledash.curryx.registry.impl;
 
 import com.freestyledash.curryx.registry.ServiceRegistry;
 import com.freestyledash.curryx.registry.util.Constants;
+import com.freestyledash.curryx.server.server.Server;
 import org.I0Itec.zkclient.IZkStateListener;
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.exception.ZkNodeExistsException;
@@ -12,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.freestyledash.curryx.registry.util.Constants.COMMA;
+import static com.freestyledash.curryx.common.constant.PunctuationConst.COMMA;
 
 /**
  * 使用ZooKeeper名字服务器实现的服务发现
@@ -38,6 +39,13 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
      */
     private Map<String, ServiceNode> registeredServiceMapCache;
 
+    private Server server;
+
+    @Override
+    public void setServer(Server server) {
+        this.server = server;
+    }
+
     /**
      * @param zkAddress   zookeeper地址
      * @param serviceRoot 根节点
@@ -53,6 +61,9 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
      * @param zkConnectionTimeout 连接失效时间
      */
     public ZooKeeperServiceRegistry(String zkAddress, String serviceRoot, int zkSessionTimeout, int zkConnectionTimeout) {
+        if (server == null) {
+            throw new IllegalStateException("无法检测到服务器");
+        }
         if (zkAddress == null || "".equals(zkAddress)) {
             throw new IllegalArgumentException("无效的ZooKeeper地址");
         }
@@ -137,13 +148,16 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
 
     /**
      * 创建新的session
+     * 同时重新注册节点
      */
     @Override
     public void handleNewSession() {
-        LOGGER.info("ZooKeeper创建新的会话，重新注册节点");
+        LOGGER.warn("ZooKeeper创建新的会话，重新注册节点");
         for (Map.Entry<String, ServiceNode> entry : registeredServiceMapCache.entrySet()) {
-            ServiceNode serviceNode = entry.getValue();
-            registerService(entry.getKey(), serviceNode.getServerName(), serviceNode.getServiceAddress());
+            if (server.checkHealth()) {
+                ServiceNode serviceNode = entry.getValue();
+                registerService(entry.getKey(), serviceNode.getServerName(), serviceNode.getServiceAddress());
+            }
         }
     }
 
@@ -154,10 +168,14 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
      */
     @Override
     public void handleSessionEstablishmentError(Throwable error) {
-        LOGGER.info("handleSessionEstablishmentError:{}", error.getCause());
+        LOGGER.error("handleSessionEstablishmentError:{}", error.getCause());
+        // todo 停止服务器
     }
 
 
+    /**
+     * 服务节点信息
+     */
     private static class ServiceNode {
 
         public String getServerName() {

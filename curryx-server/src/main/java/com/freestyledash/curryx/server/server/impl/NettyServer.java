@@ -6,7 +6,6 @@ import com.freestyledash.curryx.common.protocol.codec.RPCDecoder;
 import com.freestyledash.curryx.common.protocol.codec.RPCEncoder;
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
-import com.freestyledash.curryx.registry.util.Constants;
 import com.freestyledash.curryx.server.annotation.Service;
 import com.freestyledash.curryx.server.handler.RPCRequestHandler;
 import com.freestyledash.curryx.server.server.Server;
@@ -28,6 +27,7 @@ import org.springframework.context.ApplicationContextAware;
 import java.util.Map;
 import java.util.concurrent.*;
 
+import static com.freestyledash.curryx.common.constant.PunctuationConst.STRIGULA;
 import static com.freestyledash.curryx.common.constant.ServerConst.DEFAULT_SERVER_PORT;
 
 /**
@@ -126,7 +126,7 @@ public class NettyServer implements Server, ApplicationContextAware {
                     return;
                 }
                 Service serviceAnnotation = serviceBean.getClass().getAnnotation(Service.class);
-                String serviceFullName = serviceAnnotation.name().getName() + Constants.SERVICE_SEP + serviceAnnotation.version();
+                String serviceFullName = serviceAnnotation.name().getName() + STRIGULA + serviceAnnotation.version();
                 serviceMap.put(serviceFullName, serviceBean);
                 countDownLatch.countDown();
             });
@@ -224,5 +224,12 @@ public class NettyServer implements Server, ApplicationContextAware {
         LOGGER.info("netty服务器关闭");
     }
 
-
+    /**
+     * @return 服务器健康状态
+     */
+    @Override
+    public boolean checkHealth() {
+        //todo 服务器健康检查方案
+        return false;
+    }
 }

@@ -1,6 +1,6 @@
-package com.freestyledash.curryx.client;
+package com.freestyledash.curryx.rpcClient;
 
-import com.freestyledash.curryx.client.handler.RPCRequestLauncher;
+import com.freestyledash.curryx.rpcClient.handler.RPCRequestLauncher;
 import com.freestyledash.curryx.common.interceptor.Advice;
 import com.freestyledash.curryx.common.interceptor.impl.CalculateExecutTimeAdvice;
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;

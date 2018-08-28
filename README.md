@@ -68,7 +68,7 @@ public class HelloworldImpl implements Helloworld {
         <bean id="nettyServer" class="com.freestyledash.curryx.server.server.impl.NettyServer"/>
     
         <!--server-->
-        <bean id="rpcServer" class="com.freestyledash.curryx.server.RPCServer">
+        <bean id="rpcServer" class="com.freestyledash.curryx.rpcServer.RPCServer">
             <!--服务器注册在zookeeper中的地址，客户端使用改地址和服务器进行通讯-->
             <constructor-arg name="serviceRegistry" ref="serviceRegistry"/>
             <constructor-arg name="server" ref="nettyServer"/>
@@ -97,12 +97,12 @@ public class HelloworldImpl implements Helloworld {
         </bean>
     
         <!--请求发送组件-->
-        <bean class="com.freestyledash.curryx.client.handler.RPCRequestLauncher" id="launcher">
+        <bean class="com.freestyledash.curryx.rpcClient.handler.RPCRequestLauncher" id="launcher">
             <constructor-arg name="eventLoopThreadCount" value="2"/>
         </bean>
     
         <!--rpc客户端-->
-        <bean class="com.freestyledash.curryx.client.RPCClient" id="rpcClient" scope="singleton">
+        <bean class="com.freestyledash.curryx.rpcClient.RPCClient" id="rpcClient" scope="singleton">
             <constructor-arg name="serviceDiscovery" ref="serviceDiscovery"/>
             <constructor-arg name="launcher" ref="launcher"/>
         </bean>

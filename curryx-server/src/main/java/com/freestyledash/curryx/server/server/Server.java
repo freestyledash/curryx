@@ -42,4 +42,9 @@ public interface Server {
      */
     String getAddress();
 
+    /**
+     * @return 服务器健康状态
+     */
+    boolean checkHealth();
+
 }
