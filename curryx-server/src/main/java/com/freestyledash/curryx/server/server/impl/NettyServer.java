@@ -70,6 +70,10 @@ public class NettyServer implements Server, ApplicationContextAware {
      */
     private int workerThreadCount;
 
+    private EventLoopGroup workerGroup;
+
+    private EventLoopGroup bossGroup;
+
 
     public NettyServer(String ip, int port, int bossThreadCount, int workerThreadCount) {
         this.ip = ip;
@@ -144,7 +148,6 @@ public class NettyServer implements Server, ApplicationContextAware {
         }
     }
 
-
     /**
      * @return 服务器监听的ip  例如:127.0.0.1
      */
@@ -176,6 +179,8 @@ public class NettyServer implements Server, ApplicationContextAware {
     public synchronized void start(CountDownLatch latch) {
         final EventLoopGroup bossGroup = new NioEventLoopGroup(this.bossThreadCount);
         final EventLoopGroup workerGroup = new NioEventLoopGroup(this.workerThreadCount);
+        this.workerGroup = workerGroup;
+        this.bossGroup = bossGroup;
         /**
          * 在jvm退出时，确保netty服务器安全退出，注意退出是指ctrl+c或者kill -15，如果用kill -9 那是没办法的
          */
@@ -221,7 +226,9 @@ public class NettyServer implements Server, ApplicationContextAware {
 
     @Override
     public synchronized void shutdown() {
-        LOGGER.info("netty服务器关闭");
+        bossGroup.shutdownGracefully();
+        workerGroup.shutdownGracefully();
+        LOGGER.warn("netty服务器关闭");
     }
 
     /**

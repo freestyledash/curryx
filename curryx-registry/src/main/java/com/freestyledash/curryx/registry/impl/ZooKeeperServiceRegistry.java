@@ -157,6 +157,8 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
             if (server.checkHealth()) {
                 ServiceNode serviceNode = entry.getValue();
                 registerService(entry.getKey(), serviceNode.getServerName(), serviceNode.getServiceAddress());
+            } else {
+                server.shutdown();
             }
         }
     }
@@ -169,7 +171,7 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
     @Override
     public void handleSessionEstablishmentError(Throwable error) {
         LOGGER.error("handleSessionEstablishmentError:{}", error.getCause());
-        // todo 停止服务器
+        server.shutdown();
     }
 
 
