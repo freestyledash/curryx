@@ -120,7 +120,7 @@ public class NettyServer implements Server {
      */
     @Override
     public synchronized void start(CountDownLatch latch) {
-        LOGGER.info("开始启动通讯服务器");
+        LOGGER.info("开始启动netty");
         final EventLoopGroup bossGroup = new NioEventLoopGroup(this.bossThreadCount);
         final EventLoopGroup workerGroup = new NioEventLoopGroup(this.workerThreadCount);
         this.workerGroup = workerGroup;
@@ -143,7 +143,7 @@ public class NettyServer implements Server {
                         }
                     });
             ChannelFuture future = bootstrap.bind(ip, port).sync();
-            LOGGER.info("服务器成功启动(端口号:{})", port);
+            LOGGER.info("netty成功启动(端口号:{})", port);
             latch.countDown();
             future.channel().closeFuture().sync();
         } catch (Exception e) {

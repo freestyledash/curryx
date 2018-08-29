@@ -48,6 +48,7 @@ public class SpringServiceContainer implements ServiceContainer, ApplicationCont
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.context = applicationContext;
+        Map<String, Object> map = context.getBeansWithAnnotation(Service.class);
     }
 
     /**
@@ -57,11 +58,10 @@ public class SpringServiceContainer implements ServiceContainer, ApplicationCont
      */
     @Override
     public boolean load() {
-
         if (context == null) {
             throw new IllegalStateException("没有加载springContext");
         }
-        LOGGER.info("开始实例化服务对象...");
+        LOGGER.info("开始实例化服务对象");
         //扫描指定路径下被Service注解修饰的类
         Map<String, Object> map = context.getBeansWithAnnotation(Service.class);
         //若扫描到的map为空则说明当前服务器没有提供任何服务，警告

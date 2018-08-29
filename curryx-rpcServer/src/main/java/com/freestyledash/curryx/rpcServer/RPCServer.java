@@ -55,6 +55,7 @@ public class RPCServer {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             this.shutdown();
         }, "rpcServerShutDownHook"));
+        serviceContainer.load();
         this.serviceRegistry.setServer(server);
         this.server.setServiceContainer(serviceContainer);
     }
@@ -65,7 +66,6 @@ public class RPCServer {
         this.server = server;
         this.serverName = UUID.randomUUID().toString();
         this.serverAddress = server.getAddress();
-        init();
     }
 
     public RPCServer(ServiceContainer loader, ServiceRegistry serviceRegistry, Server server, String serverName) {
@@ -75,7 +75,6 @@ public class RPCServer {
         this.serverName = serverName;
         this.serverAddress = server.getAddress();
         this.serviceRegistry.setServer(server);
-        init();
     }
 
     /**
@@ -84,6 +83,7 @@ public class RPCServer {
      * 只有服务启动了，才能注册服务到名字服务器中
      */
     public void start() {
+        init();
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         new Thread(
                 () -> this.server.start(countDownLatch)).start();
@@ -102,9 +102,9 @@ public class RPCServer {
     private void registerServices() {
         if (serviceRegistry != null && serviceContainer != null) {
             Map serviceMap = serviceContainer.getServiceMap();
-            for (Object serviceFullName : serviceMap.keySet()){
-                LOGGER.debug("向注册中心注册服务：{}", (String)serviceFullName);
-                serviceRegistry.registerService((String)serviceFullName, serverName, serverAddress);
+            for (Object serviceFullName : serviceMap.keySet()) {
+                LOGGER.info("向注册中心注册服务：{}", (String) serviceFullName);
+                serviceRegistry.registerService((String) serviceFullName, serverName, serverAddress);
             }
         } else {
             throw new RuntimeException("服务中心不可用");
