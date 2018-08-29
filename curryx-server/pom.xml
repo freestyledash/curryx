@@ -19,6 +19,11 @@
         </dependency>
         <dependency>
             <groupId>com.freestyledash</groupId>
+            <artifactId>curryx-serviceContainer</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.freestyledash</groupId>
             <artifactId>curryx-common</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

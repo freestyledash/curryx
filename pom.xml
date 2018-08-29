@@ -44,6 +44,7 @@
         <module>curryx-discovery</module>
         <module>curryx-registry</module>
         <module>curryx-rpcServer</module>
+        <module>curryx-serviceContainer</module>
     </modules>
 
     <properties>

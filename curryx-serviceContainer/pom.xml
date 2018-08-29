@@ -9,18 +9,18 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>curryx-rpcServer</artifactId>
+    <artifactId>curryx-serviceContainer</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>com.freestyledash</groupId>
-            <artifactId>curryx-registry</artifactId>
-            <version>${project.parent.version}</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
         </dependency>
         <dependency>
             <groupId>com.freestyledash</groupId>
-            <artifactId>curryx-serviceContainer</artifactId>
-            <version>${project.parent.version}</version>
+            <artifactId>curryx-common</artifactId>
+            <version>1.1.2-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

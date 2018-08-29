@@ -1,6 +1,7 @@
 package com.freestyledash.curryx.server.server;
 
-import java.util.Map;
+import com.freestyledash.curryx.serviceContainer.ServiceContainer;
+
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -48,12 +49,11 @@ public interface Server {
      */
     boolean checkHealth();
 
-
     /**
      * 注册服务列表
      *
-     * @param map
+     * @param container 服务实例容器
      */
-    void setServiceMap(Map map);
+    void setServiceContainer(ServiceContainer container);
 
 }

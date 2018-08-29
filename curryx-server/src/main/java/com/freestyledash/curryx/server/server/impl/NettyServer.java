@@ -8,6 +8,7 @@ import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
 import com.freestyledash.curryx.server.handler.RPCRequestHandler;
 import com.freestyledash.curryx.server.server.Server;
+import com.freestyledash.curryx.serviceContainer.ServiceContainer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -19,7 +20,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import static com.freestyledash.curryx.common.constant.ServerConst.DEFAULT_SERVER_PORT;
@@ -34,19 +34,14 @@ public class NettyServer implements Server {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyServer.class);
 
-
     /**
      * 被注册为服务的集合
      */
-    private Map serviceMap;
-
-    public Map getServiceMap() {
-        return serviceMap;
-    }
+    private ServiceContainer serviceContainer;
 
     @Override
-    public void setServiceMap(Map serviceMap) {
-        this.serviceMap = serviceMap;
+    public void setServiceContainer(ServiceContainer serviceContainer) {
+        this.serviceContainer = serviceContainer;
     }
 
     /**
@@ -144,7 +139,7 @@ public class NettyServer implements Server {
                             channel.pipeline()
                                     .addLast(new RPCEncoder(RPCResponse.class))   //第一个OutboundHandler，用于编码RPC响应
                                     .addLast(new RPCDecoder(RPCRequest.class))  //第一个InboundHandler，用于解码RPC请求
-                                    .addLast(new RPCRequestHandler(serviceMap)); //第二个InboundHandler，用于处理RPC请求并生成RPC响应
+                                    .addLast(new RPCRequestHandler(serviceContainer)); //第二个InboundHandler，用于处理RPC请求并生成RPC响应
                         }
                     });
             ChannelFuture future = bootstrap.bind(ip, port).sync();
@@ -179,4 +174,6 @@ public class NettyServer implements Server {
         //todo 服务器健康检查方案
         return false;
     }
+
+
 }

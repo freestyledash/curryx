@@ -4,6 +4,7 @@ import com.freestyledash.curryx.common.interceptor.Advice;
 import com.freestyledash.curryx.common.interceptor.impl.CalculateExecutTimeAdvice;
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
+import com.freestyledash.curryx.serviceContainer.ServiceContainer;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -14,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static com.freestyledash.curryx.common.constant.PunctuationConst.STRIGULA;
 
@@ -32,12 +32,9 @@ public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
     private static final Logger LOGGER = LoggerFactory.getLogger(RPCRequestHandler.class);
 
     /**
-     * 保存服务bean
-     * key:servicename
-     * value:serviceObject
+     * 保存服务容器
      */
-    private Map<String, Object> serviceMap;
-
+    private ServiceContainer serviceContainer;
 
     /**
      * aop通知对象
@@ -45,14 +42,14 @@ public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
     private List<Advice> advices;
 
 
-    public RPCRequestHandler(Map<String, Object> serviceMap) {
-        this.serviceMap = serviceMap;
+    public RPCRequestHandler(ServiceContainer serviceContainer) {
+        this.serviceContainer = serviceContainer;
         this.advices = new ArrayList<>();
         this.advices.add(new CalculateExecutTimeAdvice());
     }
 
-    public RPCRequestHandler(Map<String, Object> serviceMap, List<Advice> advices) {
-        this(serviceMap);
+    public RPCRequestHandler(ServiceContainer serviceContainer, List<Advice> advices) {
+        this(serviceContainer);
         this.advices = advices;
     }
 
@@ -97,7 +94,7 @@ public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
             a.before();
         }
         String serviceFullName = request.getServiceName() + STRIGULA + request.getServiceVersion();
-        Object serviceBean = serviceMap.get(serviceFullName);
+        Object serviceBean = serviceContainer.get(serviceFullName);
         if (serviceBean == null) {
             throw new RuntimeException(String.format("未找到与(%s)相对应的服务", serviceFullName));
         }
