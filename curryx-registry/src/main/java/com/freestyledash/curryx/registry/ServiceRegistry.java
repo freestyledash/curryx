@@ -26,4 +26,10 @@ public interface ServiceRegistry {
      */
     void setServer(Server server);
 
+
+    /**
+     * 关闭服务注册
+     */
+    void shutdown();
+
 }

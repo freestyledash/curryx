@@ -1,5 +1,6 @@
 package com.freestyledash.curryx.server.server;
 
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -15,7 +16,7 @@ public interface Server {
     /**
      * 服务开启
      *
-     * @param latch 控制服务启动的时间
+     * @param latch
      */
     void start(CountDownLatch latch);
 
@@ -46,5 +47,13 @@ public interface Server {
      * @return 服务器健康状态
      */
     boolean checkHealth();
+
+
+    /**
+     * 注册服务列表
+     *
+     * @param map
+     */
+    void setServiceMap(Map map);
 
 }

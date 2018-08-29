@@ -6,7 +6,6 @@ import com.freestyledash.curryx.common.protocol.codec.RPCDecoder;
 import com.freestyledash.curryx.common.protocol.codec.RPCEncoder;
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
-import com.freestyledash.curryx.server.annotation.Service;
 import com.freestyledash.curryx.server.handler.RPCRequestHandler;
 import com.freestyledash.curryx.server.server.Server;
 import io.netty.bootstrap.ServerBootstrap;
@@ -17,17 +16,12 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
 
-import static com.freestyledash.curryx.common.constant.PunctuationConst.STRIGULA;
 import static com.freestyledash.curryx.common.constant.ServerConst.DEFAULT_SERVER_PORT;
 
 /**
@@ -36,19 +30,24 @@ import static com.freestyledash.curryx.common.constant.ServerConst.DEFAULT_SERVE
  * @author zhangyanqi
  * @since 1.0 2017/11/23
  */
-public class NettyServer implements Server, ApplicationContextAware {
+public class NettyServer implements Server {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyServer.class);
 
-    /**
-     * 组件加载使用的线程池
-     */
-    private ExecutorService threadPoolExecutor;
 
     /**
      * 被注册为服务的集合
      */
-    private Map serviceMap = new ConcurrentHashMap();
+    private Map serviceMap;
+
+    public Map getServiceMap() {
+        return serviceMap;
+    }
+
+    @Override
+    public void setServiceMap(Map serviceMap) {
+        this.serviceMap = serviceMap;
+    }
 
     /**
      * netty监听的服务器网络进程ip
@@ -74,7 +73,6 @@ public class NettyServer implements Server, ApplicationContextAware {
 
     private EventLoopGroup bossGroup;
 
-
     public NettyServer(String ip, int port, int bossThreadCount, int workerThreadCount) {
         this.ip = ip;
         this.port = port;
@@ -83,15 +81,6 @@ public class NettyServer implements Server, ApplicationContextAware {
         if (bossThreadCount < 1 || workerThreadCount < 1) {
             throw new IllegalArgumentException("Netty线程数量参数设置不正确");
         }
-        this.threadPoolExecutor = new ThreadPoolExecutor(
-                5,
-                10,
-                10,
-                TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(10),
-                new DefaultThreadFactory("组件加载线程池"),
-                new ThreadPoolExecutor.CallerRunsPolicy()
-        );
     }
 
     public NettyServer(String ip, int port) {
@@ -106,47 +95,6 @@ public class NettyServer implements Server, ApplicationContextAware {
         this(new GetIpv4AddressByTraverseInterface(), DEFAULT_SERVER_PORT, 1, 1);
     }
 
-
-    /**
-     * 在spring初始化该类对象完成之后运行，用于等级被注册的服务
-     *
-     * @param context
-     * @throws BeansException
-     */
-    @Override
-    public void setApplicationContext(ApplicationContext context) throws BeansException {
-        //扫描指定路径下被Service注解修饰的类
-        Map<String, Object> map = context.getBeansWithAnnotation(Service.class);
-        //若扫描到的map为空则说明当前服务器没有提供任何服务，警告
-        if (map == null || map.size() == 0) {
-            LOGGER.warn("没有服务被加载");
-            return;
-        }
-        final CountDownLatch countDownLatch = new CountDownLatch(map.size());
-        //对扫描到的每一个service，记录其服务名称和版本
-        for (Object serviceBean : map.values()) {
-            threadPoolExecutor.execute(() -> {
-                if (Thread.interrupted()) {
-                    return;
-                }
-                Service serviceAnnotation = serviceBean.getClass().getAnnotation(Service.class);
-                String serviceFullName = serviceAnnotation.name().getName() + STRIGULA + serviceAnnotation.version();
-                serviceMap.put(serviceFullName, serviceBean);
-                countDownLatch.countDown();
-            });
-        }
-        try {
-            countDownLatch.await();
-            threadPoolExecutor.shutdownNow();
-        } catch (InterruptedException e) {
-            threadPoolExecutor.shutdownNow();
-            throw new IllegalThreadStateException("停止模块加载");
-        } finally {
-            if (!threadPoolExecutor.isShutdown()) {
-                threadPoolExecutor.shutdownNow();
-            }
-        }
-    }
 
     /**
      * @return 服务器监听的ip  例如:127.0.0.1
@@ -177,24 +125,11 @@ public class NettyServer implements Server, ApplicationContextAware {
      */
     @Override
     public synchronized void start(CountDownLatch latch) {
+        LOGGER.info("开始启动通讯服务器");
         final EventLoopGroup bossGroup = new NioEventLoopGroup(this.bossThreadCount);
         final EventLoopGroup workerGroup = new NioEventLoopGroup(this.workerThreadCount);
         this.workerGroup = workerGroup;
         this.bossGroup = bossGroup;
-        /**
-         * 在jvm退出时，确保netty服务器安全退出，注意退出是指ctrl+c或者kill -15，如果用kill -9 那是没办法的
-         */
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            if (!workerGroup.isShutdown()) {
-                workerGroup.shutdownGracefully();
-            }
-            if (!bossGroup.isShutdown()) {
-                bossGroup.shutdownGracefully();
-            }
-            LOGGER.debug("HOOK：RPC服务器已关闭");
-        }, "NettyServerShutdownHook") {
-        });
-
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup)
@@ -213,7 +148,7 @@ public class NettyServer implements Server, ApplicationContextAware {
                         }
                     });
             ChannelFuture future = bootstrap.bind(ip, port).sync();
-            LOGGER.debug("服务器已启动(端口号:{})", port);
+            LOGGER.info("服务器成功启动(端口号:{})", port);
             latch.countDown();
             future.channel().closeFuture().sync();
         } catch (Exception e) {
@@ -226,9 +161,14 @@ public class NettyServer implements Server, ApplicationContextAware {
 
     @Override
     public synchronized void shutdown() {
-        bossGroup.shutdownGracefully();
-        workerGroup.shutdownGracefully();
-        LOGGER.warn("netty服务器关闭");
+        LOGGER.info("开始关闭通讯服务");
+        if (workerGroup != null && !workerGroup.isShutdown()) {
+            workerGroup.shutdownGracefully();
+        }
+        if (bossGroup != null && !bossGroup.isShutdown()) {
+            bossGroup.shutdownGracefully();
+        }
+        LOGGER.info("通讯服务器已关闭");
     }
 
     /**
