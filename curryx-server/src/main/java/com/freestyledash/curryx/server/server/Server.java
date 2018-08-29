@@ -40,7 +40,7 @@ public interface Server {
 
 
     /**
-     * @return 服务器监听的完整地址
+     * @return 服务器监听的完整地址 例如 127.0.0.1:8080
      */
     String getAddress();
 

@@ -10,10 +10,7 @@ import com.freestyledash.curryx.server.handler.RPCRequestHandler;
 import com.freestyledash.curryx.server.server.Server;
 import com.freestyledash.curryx.serviceContainer.ServiceContainer;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -64,9 +61,6 @@ public class NettyServer implements Server {
      */
     private int workerThreadCount;
 
-    private EventLoopGroup workerGroup;
-
-    private EventLoopGroup bossGroup;
 
     public NettyServer(String ip, int port, int bossThreadCount, int workerThreadCount) {
         this.ip = ip;
@@ -116,6 +110,14 @@ public class NettyServer implements Server {
     }
 
     /**
+     * 通道
+     */
+    private Channel channel;
+
+    private EventLoopGroup bossGroup;
+    private EventLoopGroup workerGroup;
+
+    /**
      * 服务器启动
      */
     @Override
@@ -123,8 +125,8 @@ public class NettyServer implements Server {
         LOGGER.info("开始启动netty");
         final EventLoopGroup bossGroup = new NioEventLoopGroup(this.bossThreadCount);
         final EventLoopGroup workerGroup = new NioEventLoopGroup(this.workerThreadCount);
-        this.workerGroup = workerGroup;
         this.bossGroup = bossGroup;
+        this.workerGroup = workerGroup;
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup)
@@ -145,7 +147,9 @@ public class NettyServer implements Server {
             ChannelFuture future = bootstrap.bind(ip, port).sync();
             LOGGER.info("netty成功启动(端口号:{})", port);
             latch.countDown();
-            future.channel().closeFuture().sync();
+            Channel channel = future.channel();
+            this.channel = channel;
+            channel.closeFuture().sync();
         } catch (Exception e) {
             LOGGER.error("启动服务器过程中发生异常", e);
         } finally {
@@ -157,12 +161,9 @@ public class NettyServer implements Server {
     @Override
     public synchronized void shutdown() {
         LOGGER.info("开始关闭通讯服务");
-        if (workerGroup != null && !workerGroup.isShutdown()) {
-            workerGroup.shutdownGracefully();
-        }
-        if (bossGroup != null && !bossGroup.isShutdown()) {
-            bossGroup.shutdownGracefully();
-        }
+        channel.close();
+        workerGroup.shutdownGracefully();
+        bossGroup.shutdownGracefully();
         LOGGER.info("通讯服务器已关闭");
     }
 

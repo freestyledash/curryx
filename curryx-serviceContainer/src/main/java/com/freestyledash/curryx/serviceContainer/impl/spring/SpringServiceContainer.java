@@ -48,7 +48,6 @@ public class SpringServiceContainer implements ServiceContainer, ApplicationCont
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.context = applicationContext;
-        Map<String, Object> map = context.getBeansWithAnnotation(Service.class);
     }
 
     /**

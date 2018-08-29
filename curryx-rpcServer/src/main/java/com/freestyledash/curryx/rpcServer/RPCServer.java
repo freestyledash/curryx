@@ -6,7 +6,6 @@ import com.freestyledash.curryx.serviceContainer.ServiceContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
@@ -56,16 +55,14 @@ public class RPCServer {
             this.shutdown();
         }, "rpcServerShutDownHook"));
         serviceContainer.load();
-        this.serviceRegistry.setServer(server);
         this.server.setServiceContainer(serviceContainer);
+        this.serviceRegistry.setServiceContainer(serviceContainer);
+        this.serviceRegistry.setServerName(this.serverName);
+        this.serviceRegistry.setServer(server);
     }
 
     public RPCServer(ServiceContainer loader, ServiceRegistry serviceRegistry, Server server) {
-        this.serviceContainer = loader;
-        this.serviceRegistry = serviceRegistry;
-        this.server = server;
-        this.serverName = UUID.randomUUID().toString();
-        this.serverAddress = server.getAddress();
+        this(loader, serviceRegistry, server, UUID.randomUUID().toString());
     }
 
     public RPCServer(ServiceContainer loader, ServiceRegistry serviceRegistry, Server server, String serverName) {
@@ -74,7 +71,6 @@ public class RPCServer {
         this.server = server;
         this.serverName = serverName;
         this.serverAddress = server.getAddress();
-        this.serviceRegistry.setServer(server);
     }
 
     /**
@@ -93,22 +89,8 @@ public class RPCServer {
             LOGGER.error("启动netty失败");
             return;
         }
-        registerServices();
-    }
-
-    /**
-     * 注册服务
-     */
-    private void registerServices() {
-        if (serviceRegistry != null && serviceContainer != null) {
-            Map serviceMap = serviceContainer.getServiceMap();
-            for (Object serviceFullName : serviceMap.keySet()) {
-                LOGGER.info("向注册中心注册服务：{}", (String) serviceFullName);
-                serviceRegistry.registerService((String) serviceFullName, serverName, serverAddress);
-            }
-        } else {
-            throw new RuntimeException("服务中心不可用");
-        }
+        serviceRegistry.connect();
+        serviceRegistry.registerAllService();
     }
 
     /**

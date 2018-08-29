@@ -1,6 +1,7 @@
 package com.freestyledash.curryx.registry;
 
 import com.freestyledash.curryx.server.server.Server;
+import com.freestyledash.curryx.serviceContainer.ServiceContainer;
 
 /**
  * 服务端向注册中心注册服务的接口
@@ -10,26 +11,39 @@ import com.freestyledash.curryx.server.server.Server;
 public interface ServiceRegistry {
 
     /**
-     * 向注册中心注册服务
-     *
-     * @param serviceFullName 服务全称
-     * @param serverName      服务提供者的名字
-     * @param serverAddress   提供服务的服务器的地址
+     * 连接注册中心
      */
-    void registerService(String serviceFullName, String serverName, String serverAddress);
-
+    void connect();
 
     /**
-     * 注册组件需要能够检测到服务器的健康状态
+     * 服务注册组件需要有服务提供者
      *
-     * @param server
+     * @param container
      */
-    void setServer(Server server);
-
+    void setServiceContainer(ServiceContainer container);
 
     /**
      * 关闭服务注册
      */
     void shutdown();
+
+    /**
+     * 注册所有服务
+     *
+     * @return 注册是否成功
+     */
+    boolean registerAllService();
+
+
+    /**
+     * @param server 通讯服务器
+     */
+    void setServer(Server server);
+
+
+    /**
+     * @param name 服务器名字
+     */
+    void setServerName(String name);
 
 }
