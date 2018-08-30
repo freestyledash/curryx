@@ -77,7 +77,7 @@ public class RPCRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
             @Override
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
                 channelFuture.channel().close();
-                LOGGER.debug("请求处理完毕：{}", request.getRequestId());
+                LOGGER.debug("请求处理完毕:{}", request.getRequestId());
             }
         });
     }

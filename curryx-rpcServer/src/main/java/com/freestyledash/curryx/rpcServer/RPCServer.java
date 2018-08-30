@@ -70,6 +70,9 @@ public class RPCServer {
         this.serviceRegistry = serviceRegistry;
         this.server = server;
         this.serverName = serverName;
+        if(serverName.contains("#")){
+            throw  new IllegalArgumentException("serverName不能包含#");
+        }
         this.serverAddress = server.getAddress();
     }
 

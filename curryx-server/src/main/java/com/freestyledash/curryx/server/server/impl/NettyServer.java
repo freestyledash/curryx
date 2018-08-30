@@ -84,6 +84,9 @@ public class NettyServer implements Server {
         this(new GetIpv4AddressByTraverseInterface(), DEFAULT_SERVER_PORT, 1, 1);
     }
 
+    public NettyServer(int bossThreadCount, int workerThreadCount) {
+        this(new GetIpv4AddressByTraverseInterface(), DEFAULT_SERVER_PORT, bossThreadCount, workerThreadCount);
+    }
 
     /**
      * @return 服务器监听的ip  例如:127.0.0.1
@@ -174,6 +177,8 @@ public class NettyServer implements Server {
      */
     @Override
     public boolean checkHealth() {
+        LOGGER.info("开始服务健康检查");
+        LOGGER.error("服务不正常");
         //todo 服务器健康检查方案
         return false;
     }

@@ -15,16 +15,13 @@ import org.apache.zookeeper.Watcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.freestyledash.curryx.discovery.util.constant.Constants.*;
+import static org.apache.zookeeper.Watcher.Event.KeeperState.Disconnected;
 
 
 /**
@@ -111,27 +108,36 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
         String serviceFullName = name + SERVICE_SEP + version;
         String servicePath = serviceRoot + "/" + serviceFullName;
         //询问缓存是否有服务地址,如果有，使用缓存的地址，并使用负载均衡获一个地址返回
-        List<String> childNodes = cachedServiceAddress.get(serviceFullName);
+        List<String> serviceNodes = cachedServiceAddress.get(serviceFullName);
         //cache hit
-        if (childNodes != null && !childNodes.isEmpty()) {
-            LOGGER.info("使用缓存,获取到{}服务的{}个可用节点", serviceFullName, childNodes.size());
-            String winner = balancer.elect(serviceFullName, childNodes);
-            String data = zkClient.readData(servicePath + "/" + winner);
-            return winner + "/" + data;
+        if (serviceNodes != null && !serviceNodes.isEmpty()) {
+            LOGGER.info("使用缓存,获取到{}服务的{}个可用节点", serviceFullName, serviceNodes.size());
+            String winner = balancer.elect(serviceFullName, serviceNodes);
+            String[] split = winner.split("#");
+            if (split.length < 1) {
+                throw new IllegalStateException("错误的服务节点信息");
+            }
+            return winner + "/" + split[1];
         }
         //cache miss
         if (!zkClient.exists(servicePath)) {
             throw new RuntimeException(String.format("服务路径(%s)不存在", servicePath));
         }
-        childNodes = zkClient.getChildren(servicePath);
+        List<String> childNodes = zkClient.getChildren(servicePath);
         if (childNodes == null || childNodes.size() == 0) {
             throw new RuntimeException(String.format("服务路径(%s)下无可用服务器节点", servicePath));
         }
+        serviceNodes = new ArrayList<>(10);
+        for (String serverName : childNodes) {
+            String data = zkClient.readData(servicePath + "/" + serverName);
+            String serviceNode = serverName + "#" + data;
+            serviceNodes.add(serviceNode);
+        }
         //将内容存入缓存
-        cachedServiceAddress.put(serviceFullName, childNodes);
-        LOGGER.info("获取到{}服务的{}个可用节点,并加入缓存", serviceFullName, childNodes.size());
+        cachedServiceAddress.put(serviceFullName, serviceNodes);
+        LOGGER.info("获取到{}服务的{}个可用节点,并加入缓存", serviceFullName, serviceNodes.size());
         //注册监听
-        zkClient.subscribeChildChanges(servicePath,this);
+        zkClient.subscribeChildChanges(servicePath, this);
         //读取节点
         String winner = balancer.elect(serviceFullName, childNodes);
         //读取节点内的内容
@@ -143,14 +149,14 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
     @Override
     public void handleStateChanged(Watcher.Event.KeeperState state) throws Exception {
         if (state == Watcher.Event.KeeperState.SyncConnected) {
-            LOGGER.info("观察到ZooKeeper状态SyncConnected,清除缓存");
+            LOGGER.info("观察到ZooKeeper事件SyncConnected");
         }
-        if (state == Watcher.Event.KeeperState.Disconnected) {
-            LOGGER.warn("检测到zookeeper事件:Disconnected(断开连接),清除缓存");
+        if (state == Disconnected) {
+            LOGGER.warn("检测到zookeeper事件:Disconnected");
         }
         if (state == Watcher.Event.KeeperState.Expired) {
-            LOGGER.warn("检测到zookeeper事件:Expired(session过期)");
-            cachedServiceAddress.clear();//清除缓存
+            LOGGER.warn("检测到zookeeper事件:Expired,清除缓存");
+            cachedServiceAddress.clear();
         }
     }
 
@@ -178,11 +184,12 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
         if (parentPath.equals(serviceRoot)) {
             LOGGER.info("根节点{}的子节点发生变化,清除所有缓存", parentPath);
             cachedServiceAddress.clear();
+            zkClient.subscribeChildChanges(parentPath,this);
         } else {
             LOGGER.info("服务{}的子节点发生变化,清除该服务对应的缓存", parentPath);
-            String serviceFullName = parentPath.substring(serviceRoot.length());
+            String serviceFullName = parentPath.substring(serviceRoot.length()+1);
             cachedServiceAddress.remove(serviceFullName);
+            zkClient.subscribeChildChanges(parentPath, this);
         }
     }
-
 }

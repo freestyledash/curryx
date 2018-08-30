@@ -152,7 +152,7 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
         if (!zkClient.exists(servicePath)) {
             zkClient.createPersistent(servicePath);
         }
-        LOGGER.info("注册服务路径(持久节点):{},节点地址为{}", servicePath,serviceAddress);
+        LOGGER.info("注册服务路径(持久节点):{},节点地址为{}", servicePath, serviceAddress);
         sb.append("/").append(serverName);
         String serviceNode = sb.toString();
         try {
@@ -199,13 +199,13 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
     public void handleStateChanged(Watcher.Event.KeeperState state) {
         LOGGER.info("观察到ZooKeeper状态码：{}", state.getIntValue());
         if (state == Watcher.Event.KeeperState.SyncConnected) {
-            LOGGER.info("检测到zookeeper事件:SyncConnected(连接)");
+            LOGGER.info("检测到zookeeper事件:SyncConnected");
         }
-        if (state == Watcher.Event.KeeperState.Disconnected) {
-            LOGGER.warn("检测到zookeeper事件:Disconnected(断开连接)");
+        if (state == Watcher.Event.KeeperState.Disconnected) { //zk宕机重启不会创建新的session
+            LOGGER.warn("检测到zookeeper事件:Disconnected");
         }
-        if (state == Watcher.Event.KeeperState.Expired) {
-            LOGGER.warn("检测到zookeeper事件:Expired(session过期)");
+        if (state == Watcher.Event.KeeperState.Expired) {  //debug可以导致session过期
+            LOGGER.warn("检测到zookeeper事件:Expired");
         }
     }
 
@@ -216,12 +216,16 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
      */
     @Override
     public void handleNewSession() {
-        LOGGER.warn("ZooKeeper创建新的会话,重新注册节点");
+        LOGGER.info("创建新的Session");
         if (server.checkHealth()) {
+            LOGGER.info("服务器状态检查,正常运行,重新注册节点");
             for (String key : container.getServiceMap().keySet()) {
                 registerService(key, serverName, server.getAddress());
             }
+            return;
         }
+        LOGGER.error("服务器状态检查,非正常运行,放弃节点注册,关闭服务器");
+        Runtime.getRuntime().exit(0);
     }
 
     /**
