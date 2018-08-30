@@ -149,21 +149,20 @@ public class NettyServer implements Server {
             latch.countDown();
             Channel channel = future.channel();
             this.channel = channel;
-            channel.closeFuture().sync();
+            ChannelFuture sync = channel.closeFuture().sync();
         } catch (Exception e) {
             LOGGER.error("启动服务器过程中发生异常", e);
         } finally {
-            workerGroup.shutdownGracefully();
-            bossGroup.shutdownGracefully();
+            shutdown();
         }
     }
 
     @Override
     public synchronized void shutdown() {
         LOGGER.info("开始关闭通讯服务");
-        channel.close();
         workerGroup.shutdownGracefully();
         bossGroup.shutdownGracefully();
+        channel.close();
         LOGGER.info("通讯服务器已关闭");
     }
 
