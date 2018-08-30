@@ -121,7 +121,7 @@ public class NettyServer implements Server {
      * 服务器启动
      */
     @Override
-    public synchronized void start(CountDownLatch latch) {
+    public void start(CountDownLatch latch) {
         LOGGER.info("开始启动netty");
         final EventLoopGroup bossGroup = new NioEventLoopGroup(this.bossThreadCount);
         final EventLoopGroup workerGroup = new NioEventLoopGroup(this.workerThreadCount);
@@ -158,11 +158,10 @@ public class NettyServer implements Server {
     }
 
     @Override
-    public synchronized void shutdown() {
+    public void shutdown() {
         LOGGER.info("开始关闭通讯服务");
         workerGroup.shutdownGracefully();
         bossGroup.shutdownGracefully();
-        channel.close();
         LOGGER.info("通讯服务器已关闭");
     }
 
