@@ -4,6 +4,7 @@
 框架中的组件分为客户端、服务端、服务注册与服务发现，四个主要的模块。在使用时，服务端启动服务，并使用服务注册功能向名字服务器注册服务，客户端通过服务发现找到服务，并进行rpc调用
 
 ## 使用说明
+
 #### 打包该项目
 如果是使用maven工具来构建项目，请下载源码，将源码打包成为jar包并加入本地或者远程的仓库（mvn install or mvn depoly ）,
 然后在使用该框架的项目的pom.xml中加入如下依赖：
@@ -51,6 +52,7 @@ public class HelloworldImpl implements Helloworld {
 ```
 
 #### 启动服务（使用spring来组织各个组件，并启动
+编辑spring配置文件
 ```
      <!--配置spring扫描需要作为服务的类所在的包-->
      <context:component-scan base-package="server"/>
@@ -89,8 +91,7 @@ public class HelloworldImpl implements Helloworld {
 在日志中会显示服务对象的加载，通讯服务器的启动，服务注册的功能
 
 #### 服务调用者初始化
-
-使用spring来组织服服务调用者
+编辑spring配置文件
 ```
     <!--负载均衡-->
     <bean class="com.freestyledash.curryx.discovery.util.balance.impl.RandomBalancer" id="randomBalancer"/>
@@ -125,7 +126,3 @@ public class HelloworldImpl implements Helloworld {
  #### 注意
  序列化工具采用谷歌的protostuff框架无法正确序列化BigDecimal对象
  
-## 设计思路
-- 客户端：
-
-- 服务端：
