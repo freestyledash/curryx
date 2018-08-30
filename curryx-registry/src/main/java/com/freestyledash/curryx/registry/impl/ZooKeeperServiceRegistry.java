@@ -177,7 +177,7 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
         for (String serviceFullName : serviceMap.keySet()) {
             registerService(serviceFullName, serverName, server.getAddress());
         }
-        return false;
+        return true;
     }
 
     /**

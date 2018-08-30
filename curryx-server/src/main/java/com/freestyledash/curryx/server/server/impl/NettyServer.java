@@ -160,8 +160,12 @@ public class NettyServer implements Server {
     @Override
     public void shutdown() {
         LOGGER.info("开始关闭通讯服务");
-        workerGroup.shutdownGracefully();
-        bossGroup.shutdownGracefully();
+        if (workerGroup != null && !workerGroup.isShutdown()) {
+            workerGroup.shutdownGracefully();
+        }
+        if (bossGroup != null && !bossGroup.isShutdown()) {
+            bossGroup.shutdownGracefully();
+        }
         LOGGER.info("通讯服务器已关闭");
     }
 
@@ -173,6 +177,5 @@ public class NettyServer implements Server {
         //todo 服务器健康检查方案
         return false;
     }
-
 
 }

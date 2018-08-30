@@ -15,10 +15,14 @@ import org.apache.zookeeper.Watcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.freestyledash.curryx.discovery.util.constant.Constants.*;
 
@@ -29,16 +33,6 @@ import static com.freestyledash.curryx.discovery.util.constant.Constants.*;
 class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, IZkChildListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperServiceDiscovery.class);
-
-    /**
-     * 锁对象
-     */
-    private final Object lock = new Object();
-
-    /**
-     * 记录被监听的node
-     */
-    private final List listenedNodeList;
 
     /**
      * 缓存服务名称和对应的地址
@@ -97,7 +91,11 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
         this.zkClient.subscribeChildChanges(serviceRoot, this);
         // 初始化缓存
         cachedServiceAddress = new ConcurrentHashMap<>();
-        listenedNodeList = new ArrayList();
+        if (zkAddress.contains(COMMA)) {
+            LOGGER.info("连接到ZooKeeper服务器集群：{}", zkAddress);
+        } else {
+            LOGGER.info("连接到ZooKeeper单机服务器：{}", zkAddress);
+        }
     }
 
     /**
@@ -110,11 +108,6 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
      */
     @Override
     public String discoverService(String name, String version) throws Exception {
-        if (zkAddress.contains(COMMA)) {
-            LOGGER.info("连接到ZooKeeper服务器集群：{}", zkAddress);
-        } else {
-            LOGGER.info("连接到ZooKeeper单机服务器：{}", zkAddress);
-        }
         String serviceFullName = name + SERVICE_SEP + version;
         String servicePath = serviceRoot + "/" + serviceFullName;
         //询问缓存是否有服务地址,如果有，使用缓存的地址，并使用负载均衡获一个地址返回
@@ -137,17 +130,8 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
         //将内容存入缓存
         cachedServiceAddress.put(serviceFullName, childNodes);
         LOGGER.info("获取到{}服务的{}个可用节点,并加入缓存", serviceFullName, childNodes.size());
-        //将这个节点加入被监听的行列中,如果node
-        //如果没有被监听
-        if (!listenedNodeList.contains(serviceFullName)) {
-            synchronized (lock) {
-                if (!listenedNodeList.contains(serviceFullName)) {
-                    this.zkClient.subscribeChildChanges(servicePath, this);
-                    this.listenedNodeList.add(serviceFullName);
-                    LOGGER.info("将{}节点加入子节点监听范围中", servicePath);
-                }
-            }
-        }
+        //注册监听
+        zkClient.subscribeChildChanges(servicePath,this);
         //读取节点
         String winner = balancer.elect(serviceFullName, childNodes);
         //读取节点内的内容
@@ -163,23 +147,21 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
         }
         if (state == Watcher.Event.KeeperState.Disconnected) {
             LOGGER.warn("检测到zookeeper事件:Disconnected(断开连接),清除缓存");
-            cachedServiceAddress.clear();
         }
         if (state == Watcher.Event.KeeperState.Expired) {
             LOGGER.warn("检测到zookeeper事件:Expired(session过期)");
+            cachedServiceAddress.clear();//清除缓存
         }
     }
 
     @Override
     public void handleNewSession() throws Exception {
-        LOGGER.info("ZooKeeper创建新的会话,但是不清清除缓存");
+        LOGGER.info("ZooKeeper创建新的会话");
     }
 
     @Override
     public void handleSessionEstablishmentError(Throwable error) throws Exception {
-        //可能名字服务器宕机，为了保证服务正常调用，不能清理缓存
-        listenedNodeList.clear();
-        LOGGER.error("ZooKeeper会话过期,创建新的会话,失败,为保证服务正常进行,清除缓存");
+        LOGGER.error("ZooKeeper会话过期,创建新的会话,但是失败");
     }
 
     /**
