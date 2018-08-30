@@ -24,7 +24,7 @@ import static com.freestyledash.curryx.discovery.util.constant.Constants.*;
 
 
 /**
- * 使用ZooKeeper实现的服务发现
+ * 使用ZooKeeper实现服务发现
  */
 class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, IZkChildListener {
 
@@ -119,13 +119,14 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
         String servicePath = serviceRoot + "/" + serviceFullName;
         //询问缓存是否有服务地址,如果有，使用缓存的地址，并使用负载均衡获一个地址返回
         List<String> childNodes = cachedServiceAddress.get(serviceFullName);
+        //cache hit
         if (childNodes != null && !childNodes.isEmpty()) {
             LOGGER.info("使用缓存,获取到{}服务的{}个可用节点", serviceFullName, childNodes.size());
             String winner = balancer.elect(serviceFullName, childNodes);
             String data = zkClient.readData(servicePath + "/" + winner);
             return winner + "/" + data;
         }
-        //没有使用缓存
+        //cache miss
         if (!zkClient.exists(servicePath)) {
             throw new RuntimeException(String.format("服务路径(%s)不存在", servicePath));
         }
@@ -176,8 +177,9 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
 
     @Override
     public void handleSessionEstablishmentError(Throwable error) throws Exception {
-        LOGGER.error("ZooKeeper会话过期,创建新的会话,但是失败了");
-        cachedServiceAddress.clear();
+        //可能名字服务器宕机，为了保证服务正常调用，不能清理缓存
+        listenedNodeList.clear();
+        LOGGER.error("ZooKeeper会话过期,创建新的会话,失败,为保证服务正常进行,清除缓存");
     }
 
     /**

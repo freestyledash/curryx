@@ -128,6 +128,4 @@ public class HelloworldImpl implements Helloworld {
 ## 设计思路
 - 客户端：
 
-
-
 - 服务端：

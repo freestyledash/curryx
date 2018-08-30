@@ -234,42 +234,4 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
         LOGGER.error("handleSessionEstablishmentError:{}", error.getCause());
     }
 
-    /**
-     * 服务节点信息
-     */
-    private static class ServiceNode {
-
-        public String getServerName() {
-            return serverName;
-        }
-
-        public void setServerName(String serverName) {
-            this.serverName = serverName;
-        }
-
-        public String getServiceAddress() {
-            return serviceAddress;
-        }
-
-        public void setServiceAddress(String serviceAddress) {
-            this.serviceAddress = serviceAddress;
-        }
-
-        public ServiceNode(String serverName, String serviceAddress) {
-            this.serverName = serverName;
-            this.serviceAddress = serviceAddress;
-        }
-
-        /**
-         * 服务器名称
-         */
-        private String serverName;
-
-        /**
-         * 服务器地址
-         */
-        private String serviceAddress;
-    }
-
-
 }
