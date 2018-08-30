@@ -155,7 +155,8 @@ public final class RPCClient {
             request.setMethodName(methodName);
             request.setArgsTypes(method.getParameterTypes());
             request.setArgsValues(args);
-            request.setRequestId(UUID.randomUUID().toString());
+            String requestId = new StringBuilder(UUID.randomUUID().toString()).append("#").append(Thread.currentThread().getId()).toString();
+            request.setRequestId(requestId);
             //请求参数被封装在一个Object数组中，在反序列化的过程中，数组中不为null的元素会被提前
             if (args != null && args.length > 0) {
                 boolean[] nonNull = new boolean[args.length];
