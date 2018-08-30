@@ -1,6 +1,7 @@
 package com.freestyledash.curryx.rpcClient;
 
-import com.freestyledash.curryx.rpcClient.handler.RPCRequestLauncher;
+import com.freestyledash.curryx.client.Client;
+import com.freestyledash.curryx.client.netty.RPCRequestLauncher;
 import com.freestyledash.curryx.common.interceptor.Advice;
 import com.freestyledash.curryx.common.interceptor.impl.CalculateExecutTimeAdvice;
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
@@ -17,6 +18,8 @@ import java.util.*;
 
 /**
  * rpc通信客户端
+ * <p>
+ * 一般使用单例模式
  */
 public final class RPCClient {
 
@@ -50,7 +53,7 @@ public final class RPCClient {
     /**
      * 通讯服务器客户端
      */
-    private RPCRequestLauncher launcher;
+    private Client launcher;
 
     /**
      * aop通知对象
@@ -103,7 +106,6 @@ public final class RPCClient {
         }
         return (T) proxy;
     }
-
 
     private class RpcInvocationHandler implements InvocationHandler {
 
@@ -181,7 +183,7 @@ public final class RPCClient {
             String[] address = serverAddress.split(":");
             String host = address[0];
             int port = Integer.parseInt(address[1]);
-            RPCResponse response = launcher.launch(host, port, request);
+            RPCResponse response = launcher.sendRequest(host, port, request);
             long requestTimeCost = System.currentTimeMillis() - requestStartTime;
             if (response == null) {
                 throw new IllegalAccessException(String.format("空的服务器响应(请求号为%s)", request.getRequestId()));

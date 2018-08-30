@@ -13,7 +13,7 @@
     <!-- server添加如下依赖 -->
     <dependency>
         <groupId>com.freestyledash</groupId>
-        <artifactId>curry-server</artifactId>
+        <artifactId>curry-rpcServer</artifactId>
         <version>x.x.x</version>
     </dependency>
 ```
@@ -22,7 +22,7 @@
     <!-- client添加如下依赖 -->
     <dependency>
         <groupId>com.freestyledash</groupId>
-        <artifactId>curry-client</artifactId>
+        <artifactId>curry-rpcClient</artifactId>
         <version>x.x.x</version>
     </dependency>
 ```  
@@ -52,28 +52,33 @@ public class HelloworldImpl implements Helloworld {
 
 #### 启动服务（使用spring来组织各个组件，并启动
 ```
-        <!--配置spring扫描需要作为服务的类所在的包-->
-        <context:component-scan base-package="server"/>
-    
-        <!--RPC Server配置-->
-        <!--服务注册与发现-->
-        <bean id="serviceRegistry"
-              class="com.freestyledash.curryx.registry.impl.ZooKeeperServiceRegistry">
-            <!--zookeeper地址-->
-            <constructor-arg name="zkAddress" value="127.0.0.1:2181"/>
-            <constructor-arg name="serviceRoot" value="/x"/>
-        </bean>
-    
-        <!--通讯服务器-->
-        <bean id="nettyServer" class="com.freestyledash.curryx.server.server.impl.NettyServer"/>
-    
-        <!--server-->
-        <bean id="rpcServer" class="com.freestyledash.curryx.rpcServer.RPCServer">
-            <!--服务器注册在zookeeper中的地址，客户端使用改地址和服务器进行通讯-->
-            <constructor-arg name="serviceRegistry" ref="serviceRegistry"/>
-            <constructor-arg name="server" ref="nettyServer"/>
-            <constructor-arg name="serverName" value="rpcServerdemo"/>
-        </bean>
+     <!--配置spring扫描需要作为服务的类所在的包-->
+     <context:component-scan base-package="server"/>
+ 
+     <!--RPC Server配置-->
+     <!--服务注册与发现-->
+     <bean id="serviceRegistry"
+           class="com.freestyledash.curryx.registry.impl.ZooKeeperServiceRegistry">
+         <!--zookeeper地址-->
+         <constructor-arg name="zkAddress" value="127.0.0.1:2181"/>
+         <constructor-arg name="serviceRoot" value="/x"/>
+     </bean>
+ 
+     <!--通讯服务器-->
+     <bean id="nettyServer" class="com.freestyledash.curryx.server.server.impl.NettyServer"/>
+ 
+     <!--服务加载工具-->
+     <bean id="springServiceLoader"
+           class="com.freestyledash.curryx.serviceContainer.impl.spring.SpringServiceContainer"/>
+ 
+     <!--server-->
+     <bean id="rpcServer" class="com.freestyledash.curryx.rpcServer.RPCServer">
+         <!--服务器注册在zookeeper中的地址，客户端使用改地址和服务器进行通讯-->
+         <constructor-arg name="loader" ref="springServiceLoader"/>
+         <constructor-arg name="serviceRegistry" ref="serviceRegistry"/>
+         <constructor-arg name="server" ref="nettyServer"/>
+         <constructor-arg name="serverName" value="rpcServerdemo"/>
+     </bean>
 ```
 ```
     //在代码中启动服务器
@@ -81,31 +86,33 @@ public class HelloworldImpl implements Helloworld {
     RPCServer serverBootstrap = context.getBean(RPCServer.class);
     serverBootstrap.start();
 ```
+在日志中会显示服务对象的加载，通讯服务器的启动，服务注册的功能
+
 #### 服务调用者初始化
 
 使用spring来组织服服务调用者
 ```
-        <!--负载均衡-->
-        <bean class="com.freestyledash.curryx.discovery.util.balance.impl.RandomBalancer" id="randomBalancer"/>
-    
-        <!--服务发现-->
-        <bean class="com.freestyledash.curryx.discovery.impl.ZooKeeperServiceDiscovery" id="serviceDiscovery"
-              scope="singleton">
-            <constructor-arg name="balancer" ref="randomBalancer"/>
-            <constructor-arg name="serviceRoot" value="/x"/>
-            <constructor-arg name="zkAddress" value="127.0.0.1:2181"/>
-        </bean>
-    
-        <!--请求发送组件-->
-        <bean class="com.freestyledash.curryx.rpcClient.handler.RPCRequestLauncher" id="launcher">
-            <constructor-arg name="eventLoopThreadCount" value="2"/>
-        </bean>
-    
-        <!--rpc客户端-->
-        <bean class="com.freestyledash.curryx.rpcClient.RPCClient" id="rpcClient" scope="singleton">
-            <constructor-arg name="serviceDiscovery" ref="serviceDiscovery"/>
-            <constructor-arg name="launcher" ref="launcher"/>
-        </bean>
+    <!--负载均衡-->
+    <bean class="com.freestyledash.curryx.discovery.util.balance.impl.RandomBalancer" id="randomBalancer"/>
+
+    <!--服务发现-->
+    <bean class="com.freestyledash.curryx.discovery.impl.ZooKeeperServiceDiscovery" id="serviceDiscovery"
+          scope="singleton">
+        <constructor-arg name="balancer" ref="randomBalancer"/>
+        <constructor-arg name="serviceRoot" value="/x"/>
+        <constructor-arg name="zkAddress" value="127.0.0.1:2181"/>
+    </bean>
+
+    <!--请求发送组件-->
+    <bean class="com.freestyledash.curryx.client.netty.RPCRequestLauncher" id="launcher">
+        <constructor-arg name="eventLoopThreadCount" value="2"/>
+    </bean>
+
+    <!--rpc客户端-->
+    <bean class="com.freestyledash.curryx.rpcClient.RPCClient" id="rpcClient" scope="singleton">
+        <constructor-arg name="serviceDiscovery" ref="serviceDiscovery"/>
+        <constructor-arg name="launcher" ref="launcher"/>
+    </bean>
 
  ```
  使用代码调用一个服务
@@ -117,3 +124,10 @@ public class HelloworldImpl implements Helloworld {
  
  #### 注意
  序列化工具采用谷歌的protostuff框架无法正确序列化BigDecimal对象
+ 
+## 设计思路
+- 客户端：
+
+
+
+- 服务端：

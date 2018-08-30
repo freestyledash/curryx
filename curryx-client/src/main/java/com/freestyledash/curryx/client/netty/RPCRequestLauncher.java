@@ -1,5 +1,6 @@
-package com.freestyledash.curryx.rpcClient.handler;
+package com.freestyledash.curryx.client.netty;
 
+import com.freestyledash.curryx.client.Client;
 import com.freestyledash.curryx.common.protocol.codec.RPCDecoder;
 import com.freestyledash.curryx.common.protocol.codec.RPCEncoder;
 import com.freestyledash.curryx.common.protocol.entity.RPCRequest;
@@ -21,7 +22,7 @@ import org.slf4j.LoggerFactory;
  * @author zhangyanqi
  */
 @SuppressWarnings("ALL")
-public class RPCRequestLauncher {
+public class RPCRequestLauncher implements Client {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RPCRequestLauncher.class);
 
@@ -81,7 +82,8 @@ public class RPCRequestLauncher {
      * @return 响应
      * @throws Exception 异常
      */
-    public RPCResponse launch(String host, int port, RPCRequest request) throws Exception {
+    @Override
+    public RPCResponse sendRequest(String host, int port, RPCRequest request) throws Exception {
         //同步等待连接，连接得到之后再继续
         ChannelFuture future = bootstrap.connect(host, port).sync();
         LOGGER.debug("连接到服务器：{}", host + ":" + port);

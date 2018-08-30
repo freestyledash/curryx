@@ -45,13 +45,13 @@
         <module>curryx-registry</module>
         <module>curryx-rpcServer</module>
         <module>curryx-serviceContainer</module>
+        <module>curryx-client</module>
     </modules>
 
     <properties>
         <version.maven-compiler-plugin>3.6.1</version.maven-compiler-plugin>
         <version.maven-javadoc-plugin>2.10.4</version.maven-javadoc-plugin>
         <version.maven-source-plugin>3.0.1</version.maven-source-plugin>
-        <!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
         <version.slf4j>1.7.21</version.slf4j>
         <version.java>1.8</version.java>
         <version.spring>5.0.8.RELEASE</version.spring>
@@ -61,7 +61,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>

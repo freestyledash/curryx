@@ -1,4 +1,4 @@
-package com.freestyledash.curryx.rpcClient.handler;
+package com.freestyledash.curryx.client.netty;
 
 import com.freestyledash.curryx.common.protocol.entity.RPCResponse;
 import io.netty.channel.ChannelHandler;
@@ -32,7 +32,7 @@ public class RPCResponseHandler extends SimpleChannelInboundHandler<RPCResponse>
         String requestId = response.getRequestId();
         if (requestId == null || requestId.isEmpty()) {
             channelHandlerContext.close();
-            LOGGER.error("无效的请求id");
+            LOGGER.error("无效的id");
             return;
         }
         this.responseMap.put(requestId, response);

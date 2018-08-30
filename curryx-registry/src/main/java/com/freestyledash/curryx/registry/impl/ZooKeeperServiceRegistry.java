@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static com.freestyledash.curryx.common.constant.PunctuationConst.COMMA;
 
@@ -35,7 +34,7 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
     private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperServiceRegistry.class);
 
     /**
-     *连接注册中心
+     * 连接注册中心
      */
     @Override
     public void connect() {
@@ -49,7 +48,6 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
         if (serviceRoot == null || "".equals(serviceRoot)) {
             throw new IllegalArgumentException("无效的服务根节点");
         }
-        this.registeredServiceMapCache = new ConcurrentHashMap<>(30);
         zkClient = new ZkClient(zkAddress, zkSessionTimeout, zkConnectionTimeout);
         if (zkAddress.contains(COMMA)) {
             LOGGER.info("连接到ZooKeeper服务器集群:{}", zkAddress);
@@ -96,10 +94,6 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
 
     private int zkConnectionTimeout;
 
-    /**
-     * 储存已经或者曾经被发布到zookeeper中的服务名称和服务地址
-     */
-    private Map<String, ServiceNode> registeredServiceMapCache;
 
     /**
      * 服务实例容器
@@ -158,7 +152,7 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
         if (!zkClient.exists(servicePath)) {
             zkClient.createPersistent(servicePath);
         }
-        LOGGER.info("注册服务路径(持久节点):{}", servicePath);
+        LOGGER.info("注册服务路径(持久节点):{},节点地址为{}", servicePath,serviceAddress);
         sb.append("/").append(serverName);
         String serviceNode = sb.toString();
         try {
@@ -170,10 +164,6 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
             // 只需要保证一定有该临时节点存在即可
         }
         LOGGER.info("注册服务节点(临时节点):{}", serviceNode);
-        //将已经注册的节点放入cache中缓存
-        if (!registeredServiceMapCache.containsKey(serviceFullName)) {
-            registeredServiceMapCache.put(serviceFullName, new ServiceNode(serverName, serviceAddress));
-        }
     }
 
     /**
@@ -228,9 +218,8 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
     public void handleNewSession() {
         LOGGER.warn("ZooKeeper创建新的会话,重新注册节点");
         if (server.checkHealth()) {
-            for (Map.Entry<String, ServiceNode> entry : registeredServiceMapCache.entrySet()) {
-                ServiceNode serviceNode = entry.getValue();
-                registerService(entry.getKey(), serviceNode.getServerName(), serviceNode.getServiceAddress());
+            for (String key : container.getServiceMap().keySet()) {
+                registerService(key, serverName, server.getAddress());
             }
         }
     }
