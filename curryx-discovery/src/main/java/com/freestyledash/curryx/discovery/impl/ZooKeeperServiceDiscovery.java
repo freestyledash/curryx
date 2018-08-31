@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.freestyledash.curryx.discovery.util.constant.Constants.*;
-import static org.apache.zookeeper.Watcher.Event.KeeperState.Disconnected;
 
 
 /**
@@ -151,8 +150,9 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
         if (state == Watcher.Event.KeeperState.SyncConnected) {
             LOGGER.info("观察到ZooKeeper事件SyncConnected");
         }
-        if (state == Disconnected) {
-            LOGGER.warn("检测到zookeeper事件:Disconnected");
+        if (state == Watcher.Event.KeeperState.Disconnected) {
+            LOGGER.warn("检测到zookeeper事件:Disconnected,清除缓存");
+            cachedServiceAddress.clear(); //监听丢失
         }
         if (state == Watcher.Event.KeeperState.Expired) {
             LOGGER.warn("检测到zookeeper事件:Expired,清除缓存");
@@ -184,12 +184,10 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
         if (parentPath.equals(serviceRoot)) {
             LOGGER.info("根节点{}的子节点发生变化,清除所有缓存", parentPath);
             cachedServiceAddress.clear();
-            zkClient.subscribeChildChanges(parentPath,this);
         } else {
             LOGGER.info("服务{}的子节点发生变化,清除该服务对应的缓存", parentPath);
             String serviceFullName = parentPath.substring(serviceRoot.length()+1);
             cachedServiceAddress.remove(serviceFullName);
-            zkClient.subscribeChildChanges(parentPath, this);
         }
     }
 }
