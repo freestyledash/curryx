@@ -178,9 +178,12 @@ public class NettyServer implements Server {
     @Override
     public boolean checkHealth() {
         LOGGER.info("开始服务健康检查");
-        LOGGER.error("服务不正常");
-        //todo 服务器健康检查方案
-        return false;
+        if (bossGroup == null || workerGroup == null || bossGroup.isShutdown() || workerGroup.isShutdown()) {
+            LOGGER.error("服务不正常");
+            return false;
+        } else {
+            LOGGER.info("服务器工作正常");
+            return true;
+        }
     }
-
 }
