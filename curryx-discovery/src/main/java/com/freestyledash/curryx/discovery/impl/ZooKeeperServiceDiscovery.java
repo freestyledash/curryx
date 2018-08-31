@@ -110,12 +110,12 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
         List<String> serviceNodes = cachedServiceAddress.get(serviceFullName);
         //cache hit
         if (serviceNodes != null && !serviceNodes.isEmpty()) {
-            LOGGER.info("使用缓存,获取到{}服务的{}个可用节点", serviceFullName, serviceNodes.size());
             String winner = balancer.elect(serviceFullName, serviceNodes);
             String[] split = winner.split("#");
             if (split.length < 1) {
                 throw new IllegalStateException("错误的服务节点信息");
             }
+            LOGGER.info("命中缓存,获取到{}服务的{}个可用节点{}中的的{}节点", serviceFullName, serviceNodes.size(), serviceNodes.toString(), winner);
             return winner + "/" + split[1];
         }
         //cache miss
@@ -134,7 +134,7 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
         }
         //将内容存入缓存
         cachedServiceAddress.put(serviceFullName, serviceNodes);
-        LOGGER.info("获取到{}服务的{}个可用节点,并加入缓存", serviceFullName, serviceNodes.size());
+        LOGGER.info("获取到{}服务的{}个可用节点{},并加入缓存", serviceFullName, serviceNodes.size(), serviceNodes.toString());
         //注册监听
         zkClient.subscribeChildChanges(servicePath, this);
         //读取节点
@@ -180,13 +180,13 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
      */
     @Override
     public void handleChildChange(String parentPath, List<String> currentChilds) throws Exception {
-        //如果是根节点改变,则删除所有缓存
+        //todo 优化缓存
         if (parentPath.equals(serviceRoot)) {
-            LOGGER.info("根节点{}的子节点发生变化,清除所有缓存", parentPath);
+            LOGGER.info("根节点{}的子节点发生变化,清除失效的缓存", parentPath);
             cachedServiceAddress.clear();
         } else {
             LOGGER.info("服务{}的子节点发生变化,清除该服务对应的缓存", parentPath);
-            String serviceFullName = parentPath.substring(serviceRoot.length()+1);
+            String serviceFullName = parentPath.substring(serviceRoot.length() + 1);
             cachedServiceAddress.remove(serviceFullName);
         }
     }
