@@ -3,6 +3,18 @@
 ## 项目简介
 框架中的组件分为客户端、服务端、服务注册与服务发现，四个主要的模块。在使用时，服务端启动服务，并使用服务注册功能向名字服务器注册服务，客户端通过服务发现找到服务，并进行rpc调用
 
+├── LICENSE  
+├── README.md  
+├── curryx-client  
+├── curryx-common  
+├── curryx-discovery  
+├── curryx-distributedlock  
+├── curryx-registry  
+├── curryx-rpcClient  
+├── curryx-rpcServer  
+├── curryx-server  
+├── curryx-serviceContainer  
+└── pom.xml  
 ## 使用说明
 
 #### 打包该项目

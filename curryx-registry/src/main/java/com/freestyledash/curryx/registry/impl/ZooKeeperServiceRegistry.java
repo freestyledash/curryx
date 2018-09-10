@@ -201,10 +201,12 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry, IZkStateListen
         if (state == Watcher.Event.KeeperState.SyncConnected) {
             LOGGER.info("检测到zookeeper事件:SyncConnected");
         }
-        if (state == Watcher.Event.KeeperState.Disconnected) { //zk宕机重启不会创建新的session
+        if (state == Watcher.Event.KeeperState.Disconnected) {
+            //zk宕机重启不会创建新的session
             LOGGER.warn("检测到zookeeper事件:Disconnected");
         }
-        if (state == Watcher.Event.KeeperState.Expired) {  //debug可以导致session过期
+        if (state == Watcher.Event.KeeperState.Expired) {
+            //debug可以导致session过期
             LOGGER.warn("检测到zookeeper事件:Expired");
         }
     }
