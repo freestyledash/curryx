@@ -180,8 +180,6 @@ class ZooKeeperServiceDiscovery implements ServiceDiscovery, IZkStateListener, I
      */
     @Override
     public void handleChildChange(String parentPath, List<String> currentChilds) throws Exception {
-        //todo 优化缓存
-
         if (parentPath.equals(serviceRoot)) {
             LOGGER.info("根节点{}的子节点发生变化,清除失效的缓存", parentPath);
             cachedServiceAddress.clear();
