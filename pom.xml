@@ -46,6 +46,7 @@
         <module>curryx-rpcServer</module>
         <module>curryx-serviceContainer</module>
         <module>curryx-client</module>
+        <module>curryx-demo</module>
     </modules>
 
     <properties>
