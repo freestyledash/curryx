@@ -40,7 +40,6 @@
         <module>curryx-common</module>
         <module>curryx-server</module>
         <module>curryx-rpcClient</module>
-        <module>curryx-distributedlock</module>
         <module>curryx-discovery</module>
         <module>curryx-registry</module>
         <module>curryx-rpcServer</module>

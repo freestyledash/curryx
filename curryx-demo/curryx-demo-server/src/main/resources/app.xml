@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+        xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:tx="http://www.springframework.org/schema/tx"
+        xmlns:aop="http://www.springframework.org/schema/aop"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:p="http://www.springframework.org/schema/p"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context-3.2.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd">
+
+
+    <!--配置spring扫描需要作为服务的类所在的包-->
+    <context:component-scan base-package="com.freestyledash.curryx.demo.server"/>
+
+    <!--RPC Server配置-->
+    <!--服务注册与发现-->
+    <bean id="serviceRegistry"
+          class="com.freestyledash.curryx.registry.impl.ZooKeeperServiceRegistry">
+        <!--zookeeper地址-->
+        <constructor-arg name="zkAddress" value="127.0.0.1:2181"/>
+        <constructor-arg name="serviceRoot" value="/x"/>
+    </bean>
+
+    <!--通讯服务器-->
+    <bean id="nettyServer" class="com.freestyledash.curryx.server.server.impl.NettyServer"/>
+
+    <!--服务加载工具-->
+    <bean id="springServiceLoader"
+          class="com.freestyledash.curryx.serviceContainer.impl.spring.SpringServiceContainer"/>
+
+    <!--server-->
+    <bean id="rpcServer" class="com.freestyledash.curryx.rpcServer.RPCServer">
+        <!--服务器注册在zookeeper中的地址，客户端使用改地址和服务器进行通讯-->
+        <constructor-arg name="loader" ref="springServiceLoader"/>
+        <constructor-arg name="serviceRegistry" ref="serviceRegistry"/>
+        <constructor-arg name="server" ref="nettyServer"/>
+        <constructor-arg name="serverName" value="rpcServerdemo"/>
+    </bean>
+
+</beans>

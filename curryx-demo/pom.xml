@@ -20,6 +20,28 @@
         <module>curryx-demo-server</module>
         <module>curryx-demo-api</module>
     </modules>
-    
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.freestyledash</groupId>
+                <artifactId>curryx-rpcClient</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.freestyledash</groupId>
+                <artifactId>curryx-rpcServer</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+    </dependencies>
+
 
 </project>
