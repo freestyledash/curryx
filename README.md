@@ -9,7 +9,7 @@
 ├── curryx-client  
 ├── curryx-common  
 ├── curryx-discovery  
-├── curryx-distributedlock  
+├── curryx-demo
 ├── curryx-registry  
 ├── curryx-rpcClient  
 ├── curryx-rpcServer  
@@ -138,4 +138,12 @@ public class HelloworldImpl implements Helloworld {
  
  #### 注意
  序列化工具采用谷歌的protostuff框架无法正确序列化BigDecimal对象
+ 
+ 
+ #### 细节参数设置
+ * 本机ip获取
+ * client netty线程池
+ * server netty线程池
+ * zookeeper 相关参数  
+ 
  

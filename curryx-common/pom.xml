@@ -6,17 +6,10 @@
     <parent>
         <artifactId>curryx</artifactId>
         <groupId>com.freestyledash</groupId>
-        <version>1.1.3-SNAPSHOT</version>
+        <version>1.1.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>curryx-common</artifactId>
-
-    <properties>
-        <version.protostuff-core>1.6.0</version.protostuff-core>
-        <version.protostuff-runtime>1.6.0</version.protostuff-runtime>
-        <version.objenesis>2.6</version.objenesis>
-        <version.hessian>4.0.51</version.hessian>
-    </properties>
 
     <dependencies>
         <!--https://mvnrepository.com/artifact/io.protostuff/protostuff-core-->
