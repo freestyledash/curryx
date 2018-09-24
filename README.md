@@ -147,3 +147,7 @@ public class HelloworldImpl implements Helloworld {
  * zookeeper 相关参数  
  
  
+ ##### 更新计划
+1.完善文档参数设置
+2.使用Curator实现zookeeper客户端
+ 
