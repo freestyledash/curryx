@@ -13,7 +13,6 @@ import com.freestyledash.curryx.serviceContainer.impl.spring.Service;
 @Service(name = Ping.class)
 public class PingImpl implements Ping {
 
-    @Override
     public PongEntry Ping(PingEntry pingEntryx) {
         return new PongEntry("pong");
     }
